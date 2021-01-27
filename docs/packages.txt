@@ -1,0 +1,55 @@
+===============================
+NAME				PREFIX
+===============================
+----------- LIBRARY PACKAGES
+// OS
+PGEOS 				os_
+PGEOSWin32			win32_
+PGEOSSwitch			switch_
+PGEOSPS5			ps5_
+
+// CORE
+PGELog				log_
+PGEMath 			math_
+PGEMemory 			mem_
+
+// GRAPHICS
+PGEGraphics 		gfx_
+PGEGraphicsD3D11 	d3d11_
+PGEGraphicsOpenGL3	gl3_
+
+PGEResource			res_
+
+PGERenderer 		rend_
+
+PGEUI 				ui_
+
+PGEEditor			editor_
+
+PGEAnimation		anim_
+
+PGEPhysics			phys_
+----------- EXECUTABLE PACKAGES
+// GAME
+MaximusGame			maxi_
+MaximusGameWin32	-
+MaximusGameSwitch	-
+MaximusGamePS5		-
+
+
+- {package}/
+	CMakeLists.txt
+	- src/
+	- test/
+	- include/	<--- public includes only!
+	- lib/
+	
+- project/
+	docs/
+	resources/
+	build/
+	source/
+		CMakeLists.txt
+		package1/
+		package2/
+	

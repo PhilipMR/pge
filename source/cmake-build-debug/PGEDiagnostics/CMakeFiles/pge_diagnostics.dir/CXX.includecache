@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/projects/pge/source/PGEDiagnostics/include/diag_log.h
+
+C:/projects/pge/source/PGEDiagnostics/src/diag_log.cpp
+../include/diag_log.h
+C:/projects/pge/source/PGEDiagnostics/include/diag_log.h
+chrono
+-
+sstream
+-
+iomanip
+-
+iostream
+-
+Windows.h
+-
+

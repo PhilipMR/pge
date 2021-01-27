@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../PGEDiagnostics/include/diag_assert.h
+diag_log.h
+../PGEDiagnostics/include/diag_log.h
+
+../PGEDiagnostics/include/diag_log.h
+
+C:/projects/pge/source/PGEGraphics/include/gfx_graphics_adapter.h
+memory
+-
+
+C:/projects/pge/source/PGEGraphics/include/gfx_graphics_adapter_d3d11.h
+gfx_graphics_adapter.h
+C:/projects/pge/source/PGEGraphics/include/gfx_graphics_adapter.h
+d3d11.h
+-
+
+C:/projects/pge/source/PGEGraphics/src/gfx_graphics_adapter_d3d11.cpp
+../include/gfx_graphics_adapter_d3d11.h
+C:/projects/pge/source/PGEGraphics/include/gfx_graphics_adapter_d3d11.h
+diag_assert.h
+-
+comdef.h
+-
+

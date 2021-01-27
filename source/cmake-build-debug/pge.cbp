@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="pge"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="msvc8"/>
+		<Option virtualFolders="CMake Files\;CMake Files\External\;CMake Files\External\imgui\;CMake Files\Tools\;CMake Files\Tools\ModelConvert\;CMake Files\PGEDiagnostics\;CMake Files\PGEOS\;CMake Files\PGEGraphics\;CMake Files\PGEResource\;CMake Files\Sandbox\;CMake Files\Sandbox\PGESandbox\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 all"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 edit_cache"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="imgui">
+				<Option output="C:/projects/pge/source/cmake-build-debug/External/imgui/imgui.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/External/imgui"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/External/imgui/."/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 imgui"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="imgui/fast">
+				<Option output="C:/projects/pge/source/cmake-build-debug/External/imgui/imgui.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/External/imgui"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/External/imgui/."/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 imgui/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\External\imgui\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_diagnostics">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEDiagnostics/pge_diagnostics.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEDiagnostics"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 pge_diagnostics"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_diagnostics/fast">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEDiagnostics/pge_diagnostics.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEDiagnostics"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 pge_diagnostics/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEDiagnostics\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_os">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEOS/pge_os.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEOS"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/PGEOS/../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 pge_os"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_os/fast">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEOS/pge_os.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEOS"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/PGEOS/../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 pge_os/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEOS\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_graphics">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEGraphics/pge_graphics.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEGraphics"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/PGEGraphics/../PGEOS/include"/>
+					<Add directory="C:/projects/pge/source/PGEGraphics/../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 pge_graphics"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_graphics/fast">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEGraphics/pge_graphics.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEGraphics"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/PGEGraphics/../PGEOS/include"/>
+					<Add directory="C:/projects/pge/source/PGEGraphics/../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 pge_graphics/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEGraphics\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_resource">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEResource/pge_resource.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEResource"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/PGEResource/../External/stb"/>
+					<Add directory="C:/projects/pge/source/PGEResource/../PGEGraphics/include"/>
+					<Add directory="C:/projects/pge/source/PGEResource/../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 pge_resource"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_resource/fast">
+				<Option output="C:/projects/pge/source/cmake-build-debug/PGEResource/pge_resource.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/PGEResource"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/PGEResource/../External/stb"/>
+					<Add directory="C:/projects/pge/source/PGEResource/../PGEGraphics/include"/>
+					<Add directory="C:/projects/pge/source/PGEResource/../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 pge_resource/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\PGEResource\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_sandbox">
+				<Option output="C:/projects/pge/source/cmake-build-debug/Sandbox/PGESandbox/pge_sandbox.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/Sandbox/PGESandbox"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../External/imgui"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEOS/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEGraphics/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEMath/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEResource/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 pge_sandbox"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pge_sandbox/fast">
+				<Option output="C:/projects/pge/source/cmake-build-debug/Sandbox/PGESandbox/pge_sandbox.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/Sandbox/PGESandbox"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../External/imgui"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEOS/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEGraphics/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEMath/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEResource/include"/>
+					<Add directory="C:/projects/pge/source/Sandbox/PGESandbox/../../PGEDiagnostics/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 pge_sandbox/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Sandbox\PGESandbox\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="model_convert">
+				<Option output="C:/projects/pge/source/cmake-build-debug/Tools/ModelConvert/model_convert.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/Tools/ModelConvert"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../External/assimp"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEDiagnostics/include"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEResource/include"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEGraphics/include"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEMath/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 model_convert"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="model_convert/fast">
+				<Option output="C:/projects/pge/source/cmake-build-debug/Tools/ModelConvert/model_convert.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/projects/pge/source/cmake-build-debug/Tools/ModelConvert"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../External/assimp"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEDiagnostics/include"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEResource/include"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEGraphics/include"/>
+					<Add directory="C:/projects/pge/source/Tools/ModelConvert/../../PGEMath/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.27.29110\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 model_convert/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/backends/imgui_impl_dx11.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/backends/imgui_impl_dx11.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/backends/imgui_impl_win32.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/backends/imgui_impl_win32.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/imgui.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/imgui.h">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/imgui_demo.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/imgui_draw.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/imgui/imgui_widgets.cpp">
+			<Option target="imgui"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEDiagnostics/src/diag_log.cpp">
+			<Option target="pge_diagnostics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/src/gfx_buffer_d3d11.cpp">
+			<Option target="pge_graphics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/src/gfx_graphics_adapter_d3d11.cpp">
+			<Option target="pge_graphics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/src/gfx_graphics_device_d3d11.cpp">
+			<Option target="pge_graphics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/src/gfx_sampler_d3d11.cpp">
+			<Option target="pge_graphics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/src/gfx_shader_d3d11.cpp">
+			<Option target="pge_graphics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/src/gfx_texture_d3d11.cpp">
+			<Option target="pge_graphics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/src/gfx_vertex_layout_d3d11.cpp">
+			<Option target="pge_graphics"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEOS/src/os_display_win32.cpp">
+			<Option target="pge_os"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEResource/src/res_effect.cpp">
+			<Option target="pge_resource"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEResource/src/res_material.cpp">
+			<Option target="pge_resource"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEResource/src/res_mesh.cpp">
+			<Option target="pge_resource"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEResource/src/res_resource_manager.cpp">
+			<Option target="pge_resource"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEResource/src/res_texture2d.cpp">
+			<Option target="pge_resource"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/Sandbox/PGESandbox/src/main.cpp">
+			<Option target="pge_sandbox"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/Tools/ModelConvert/src/main.cpp">
+			<Option target="model_convert"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/External/imgui/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\External\imgui\"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/Tools/ModelConvert/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Tools\ModelConvert\"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEDiagnostics/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\PGEDiagnostics\"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEOS/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\PGEOS\"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEGraphics/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\PGEGraphics\"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/PGEResource/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\PGEResource\"/>
+		</Unit>
+		<Unit filename="C:/projects/pge/source/Sandbox/PGESandbox/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Sandbox\PGESandbox\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.15)
+
+project(pge)
+add_subdirectory(External/imgui)
+add_subdirectory(PGEDiagnostics)
+add_subdirectory(PGEOS)
+add_subdirectory(PGEGraphics)
+add_subdirectory(PGEResource)
+add_subdirectory(Sandbox/PGESandbox)
+add_subdirectory(Tools/ModelConvert)

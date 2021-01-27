@@ -1,0 +1,2 @@
+C:\MinGW\bin\ar.exe qc libpge_graphics.a  CMakeFiles/pge_graphics.dir/src/gfx_graphics_adapter_d3d11.cpp.obj CMakeFiles/pge_graphics.dir/src/gfx_graphics_device_d3d11.cpp.obj CMakeFiles/pge_graphics.dir/src/gfx_shader_d3d11.cpp.obj CMakeFiles/pge_graphics.dir/src/gfx_vertex_buffer_d3d11.cpp.obj CMakeFiles/pge_graphics.dir/src/gfx_vertex_layout_d3d11.cpp.obj
+C:\MinGW\bin\ranlib.exe libpge_graphics.a
