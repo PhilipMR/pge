@@ -43,19 +43,19 @@ NULL=nul
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E rm -f
+RM = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\projects\pge\source
+CMAKE_SOURCE_DIR = D:\Projects\pge\source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Projects\pge\source\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -63,7 +63,7 @@ CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	echo >nul && "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
+	echo >nul && "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -74,7 +74,7 @@ edit_cache\fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	echo >nul && "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	echo >nul && "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -84,18 +84,18 @@ rebuild_cache\fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd C:\projects\pge\source\cmake-build-debug
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\projects\pge\source\cmake-build-debug\CMakeFiles C:\projects\pge\source\cmake-build-debug\PGEResource\CMakeFiles\progress.marks
+	cd D:\Projects\pge\source\cmake-build-debug
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\pge\source\cmake-build-debug\CMakeFiles D:\Projects\pge\source\cmake-build-debug\PGEResource\CMakeFiles\progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEResource\all
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\projects\pge\source\cmake-build-debug\CMakeFiles 0
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\pge\source\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEResource\clean
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : clean
 
 # The main clean target
@@ -105,30 +105,30 @@ clean\fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEResource\preinstall
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall\fast:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEResource\preinstall
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : preinstall\fast
 
 # clear depends
 depend:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 1
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : depend
 
 # Convenience name for target.
 PGEResource\CMakeFiles\pge_resource.dir\rule:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\rule
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : PGEResource\CMakeFiles\pge_resource.dir\rule
 
 # Convenience name for target.
@@ -138,9 +138,9 @@ pge_resource: PGEResource\CMakeFiles\pge_resource.dir\rule
 
 # fast build rule for target.
 pge_resource\fast:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\build
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : pge_resource\fast
 
 src\res_effect.obj: src\res_effect.cpp.obj
@@ -149,9 +149,9 @@ src\res_effect.obj: src\res_effect.cpp.obj
 
 # target to build an object file
 src\res_effect.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_effect.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_effect.cpp.obj
 
 src\res_effect.i: src\res_effect.cpp.i
@@ -160,9 +160,9 @@ src\res_effect.i: src\res_effect.cpp.i
 
 # target to preprocess a source file
 src\res_effect.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_effect.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_effect.cpp.i
 
 src\res_effect.s: src\res_effect.cpp.s
@@ -171,9 +171,9 @@ src\res_effect.s: src\res_effect.cpp.s
 
 # target to generate assembly for a file
 src\res_effect.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_effect.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_effect.cpp.s
 
 src\res_material.obj: src\res_material.cpp.obj
@@ -182,9 +182,9 @@ src\res_material.obj: src\res_material.cpp.obj
 
 # target to build an object file
 src\res_material.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_material.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_material.cpp.obj
 
 src\res_material.i: src\res_material.cpp.i
@@ -193,9 +193,9 @@ src\res_material.i: src\res_material.cpp.i
 
 # target to preprocess a source file
 src\res_material.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_material.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_material.cpp.i
 
 src\res_material.s: src\res_material.cpp.s
@@ -204,9 +204,9 @@ src\res_material.s: src\res_material.cpp.s
 
 # target to generate assembly for a file
 src\res_material.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_material.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_material.cpp.s
 
 src\res_mesh.obj: src\res_mesh.cpp.obj
@@ -215,9 +215,9 @@ src\res_mesh.obj: src\res_mesh.cpp.obj
 
 # target to build an object file
 src\res_mesh.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_mesh.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_mesh.cpp.obj
 
 src\res_mesh.i: src\res_mesh.cpp.i
@@ -226,9 +226,9 @@ src\res_mesh.i: src\res_mesh.cpp.i
 
 # target to preprocess a source file
 src\res_mesh.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_mesh.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_mesh.cpp.i
 
 src\res_mesh.s: src\res_mesh.cpp.s
@@ -237,9 +237,9 @@ src\res_mesh.s: src\res_mesh.cpp.s
 
 # target to generate assembly for a file
 src\res_mesh.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_mesh.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_mesh.cpp.s
 
 src\res_resource_manager.obj: src\res_resource_manager.cpp.obj
@@ -248,9 +248,9 @@ src\res_resource_manager.obj: src\res_resource_manager.cpp.obj
 
 # target to build an object file
 src\res_resource_manager.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_resource_manager.cpp.obj
 
 src\res_resource_manager.i: src\res_resource_manager.cpp.i
@@ -259,9 +259,9 @@ src\res_resource_manager.i: src\res_resource_manager.cpp.i
 
 # target to preprocess a source file
 src\res_resource_manager.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_resource_manager.cpp.i
 
 src\res_resource_manager.s: src\res_resource_manager.cpp.s
@@ -270,9 +270,9 @@ src\res_resource_manager.s: src\res_resource_manager.cpp.s
 
 # target to generate assembly for a file
 src\res_resource_manager.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_resource_manager.cpp.s
 
 src\res_texture2d.obj: src\res_texture2d.cpp.obj
@@ -281,9 +281,9 @@ src\res_texture2d.obj: src\res_texture2d.cpp.obj
 
 # target to build an object file
 src\res_texture2d.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_texture2d.cpp.obj
 
 src\res_texture2d.i: src\res_texture2d.cpp.i
@@ -292,9 +292,9 @@ src\res_texture2d.i: src\res_texture2d.cpp.i
 
 # target to preprocess a source file
 src\res_texture2d.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_texture2d.cpp.i
 
 src\res_texture2d.s: src\res_texture2d.cpp.s
@@ -303,9 +303,9 @@ src\res_texture2d.s: src\res_texture2d.cpp.s
 
 # target to generate assembly for a file
 src\res_texture2d.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEResource\CMakeFiles\pge_resource.dir\build.make /nologo -$(MAKEFLAGS) PGEResource\CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : src\res_texture2d.cpp.s
 
 # Help Target
@@ -343,8 +343,8 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 0
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 .PHONY : cmake_check_build_system
 

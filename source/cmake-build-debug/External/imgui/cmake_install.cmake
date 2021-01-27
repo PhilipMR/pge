@@ -1,4 +1,4 @@
-# Install script for directory: C:/projects/pge/source/External/imgui
+# Install script for directory: D:/Projects/pge/source/External/imgui
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

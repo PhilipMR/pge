@@ -38,19 +38,19 @@ NULL=nul
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E rm -f
+RM = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\projects\pge\source
+CMAKE_SOURCE_DIR = D:\Projects\pge\source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Projects\pge\source\cmake-build-debug
 
 # Include any dependencies generated for this target.
 include PGEOS\CMakeFiles\pge_os.dir\depend.make
@@ -63,28 +63,28 @@ include PGEOS\CMakeFiles\pge_os.dir\flags.make
 
 PGEOS\CMakeFiles\pge_os.dir\src\os_display_win32.cpp.obj: PGEOS\CMakeFiles\pge_os.dir\flags.make
 PGEOS\CMakeFiles\pge_os.dir\src\os_display_win32.cpp.obj: ..\PGEOS\src\os_display_win32.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object PGEOS/CMakeFiles/pge_os.dir/src/os_display_win32.cpp.obj"
-	cd C:\projects\pge\source\cmake-build-debug\PGEOS
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_os.dir\src\os_display_win32.cpp.obj /FdCMakeFiles\pge_os.dir\pge_os.pdb /FS -c C:\projects\pge\source\PGEOS\src\os_display_win32.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object PGEOS/CMakeFiles/pge_os.dir/src/os_display_win32.cpp.obj"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEOS
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_os.dir\src\os_display_win32.cpp.obj /FdCMakeFiles\pge_os.dir\pge_os.pdb /FS -c D:\Projects\pge\source\PGEOS\src\os_display_win32.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEOS\CMakeFiles\pge_os.dir\src\os_display_win32.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pge_os.dir/src/os_display_win32.cpp.i"
-	cd C:\projects\pge\source\cmake-build-debug\PGEOS
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe > CMakeFiles\pge_os.dir\src\os_display_win32.cpp.i @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\projects\pge\source\PGEOS\src\os_display_win32.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEOS
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe > CMakeFiles\pge_os.dir\src\os_display_win32.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\pge\source\PGEOS\src\os_display_win32.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEOS\CMakeFiles\pge_os.dir\src\os_display_win32.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pge_os.dir/src/os_display_win32.cpp.s"
-	cd C:\projects\pge\source\cmake-build-debug\PGEOS
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_os.dir\src\os_display_win32.cpp.s /c C:\projects\pge\source\PGEOS\src\os_display_win32.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEOS
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_os.dir\src\os_display_win32.cpp.s /c D:\Projects\pge\source\PGEOS\src\os_display_win32.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 # Object files for target pge_os
 pge_os_OBJECTS = \
@@ -96,13 +96,13 @@ pge_os_EXTERNAL_OBJECTS =
 PGEOS\pge_os.lib: PGEOS\CMakeFiles\pge_os.dir\src\os_display_win32.cpp.obj
 PGEOS\pge_os.lib: PGEOS\CMakeFiles\pge_os.dir\build.make
 PGEOS\pge_os.lib: PGEOS\CMakeFiles\pge_os.dir\objects1.rsp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library pge_os.lib"
-	cd C:\projects\pge\source\cmake-build-debug\PGEOS
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library pge_os.lib"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEOS
 	$(CMAKE_COMMAND) -P CMakeFiles\pge_os.dir\cmake_clean_target.cmake
-	cd C:\projects\pge\source\cmake-build-debug
-	cd C:\projects\pge\source\cmake-build-debug\PGEOS
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\link.exe /lib /nologo /machine:x64 /out:pge_os.lib @CMakeFiles\pge_os.dir\objects1.rsp 
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug\PGEOS
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\link.exe /lib /nologo /machine:X86 /out:pge_os.lib @CMakeFiles\pge_os.dir\objects1.rsp 
+	cd D:\Projects\pge\source\cmake-build-debug
 
 # Rule to build all files generated by this target.
 PGEOS\CMakeFiles\pge_os.dir\build: PGEOS\pge_os.lib
@@ -110,12 +110,12 @@ PGEOS\CMakeFiles\pge_os.dir\build: PGEOS\pge_os.lib
 .PHONY : PGEOS\CMakeFiles\pge_os.dir\build
 
 PGEOS\CMakeFiles\pge_os.dir\clean:
-	cd C:\projects\pge\source\cmake-build-debug\PGEOS
+	cd D:\Projects\pge\source\cmake-build-debug\PGEOS
 	$(CMAKE_COMMAND) -P CMakeFiles\pge_os.dir\cmake_clean.cmake
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 .PHONY : PGEOS\CMakeFiles\pge_os.dir\clean
 
 PGEOS\CMakeFiles\pge_os.dir\depend:
-	$(CMAKE_COMMAND) -E cmake_depends "NMake Makefiles" C:\projects\pge\source C:\projects\pge\source\PGEOS C:\projects\pge\source\cmake-build-debug C:\projects\pge\source\cmake-build-debug\PGEOS C:\projects\pge\source\cmake-build-debug\PGEOS\CMakeFiles\pge_os.dir\DependInfo.cmake --color=$(COLOR)
+	$(CMAKE_COMMAND) -E cmake_depends "NMake Makefiles" D:\Projects\pge\source D:\Projects\pge\source\PGEOS D:\Projects\pge\source\cmake-build-debug D:\Projects\pge\source\cmake-build-debug\PGEOS D:\Projects\pge\source\cmake-build-debug\PGEOS\CMakeFiles\pge_os.dir\DependInfo.cmake --color=$(COLOR)
 .PHONY : PGEOS\CMakeFiles\pge_os.dir\depend
 

@@ -1,4 +1,4 @@
-# Install script for directory: C:/projects/pge/source/PGEGraphics
+# Install script for directory: D:/Projects/pge/source/PGEGraphics
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

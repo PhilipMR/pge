@@ -38,19 +38,19 @@ NULL=nul
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E rm -f
+RM = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\projects\pge\source
+CMAKE_SOURCE_DIR = D:\Projects\pge\source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Projects\pge\source\cmake-build-debug
 
 # Include any dependencies generated for this target.
 include Tools\ModelConvert\CMakeFiles\model_convert.dir\depend.make
@@ -63,28 +63,28 @@ include Tools\ModelConvert\CMakeFiles\model_convert.dir\flags.make
 
 Tools\ModelConvert\CMakeFiles\model_convert.dir\src\main.cpp.obj: Tools\ModelConvert\CMakeFiles\model_convert.dir\flags.make
 Tools\ModelConvert\CMakeFiles\model_convert.dir\src\main.cpp.obj: ..\Tools\ModelConvert\src\main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object Tools/ModelConvert/CMakeFiles/model_convert.dir/src/main.cpp.obj"
-	cd C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\model_convert.dir\src\main.cpp.obj /FdCMakeFiles\model_convert.dir\ /FS -c C:\projects\pge\source\Tools\ModelConvert\src\main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object Tools/ModelConvert/CMakeFiles/model_convert.dir/src/main.cpp.obj"
+	cd D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\model_convert.dir\src\main.cpp.obj /FdCMakeFiles\model_convert.dir\ /FS -c D:\Projects\pge\source\Tools\ModelConvert\src\main.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 Tools\ModelConvert\CMakeFiles\model_convert.dir\src\main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/model_convert.dir/src/main.cpp.i"
-	cd C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe > CMakeFiles\model_convert.dir\src\main.cpp.i @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\projects\pge\source\Tools\ModelConvert\src\main.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe > CMakeFiles\model_convert.dir\src\main.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\pge\source\Tools\ModelConvert\src\main.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 Tools\ModelConvert\CMakeFiles\model_convert.dir\src\main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/model_convert.dir/src/main.cpp.s"
-	cd C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\model_convert.dir\src\main.cpp.s /c C:\projects\pge\source\Tools\ModelConvert\src\main.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\model_convert.dir\src\main.cpp.s /c D:\Projects\pge\source\Tools\ModelConvert\src\main.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 # Object files for target model_convert
 model_convert_OBJECTS = \
@@ -98,12 +98,12 @@ Tools\ModelConvert\model_convert.exe: Tools\ModelConvert\CMakeFiles\model_conver
 Tools\ModelConvert\model_convert.exe: PGEGraphics\pge_graphics.lib
 Tools\ModelConvert\model_convert.exe: ..\Tools\ModelConvert\..\..\External\assimp\lib\x64\assimp-vc142-mtd.lib
 Tools\ModelConvert\model_convert.exe: Tools\ModelConvert\CMakeFiles\model_convert.dir\objects1.rsp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable model_convert.exe"
-	cd C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert
-	"C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\model_convert.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100177~1.0\x64\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100177~1.0\x64\mt.exe --manifests  -- C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\model_convert.dir\objects1.rsp @<<
- /out:model_convert.exe /implib:model_convert.lib /pdb:C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\model_convert.pdb /version:0.0  /machine:x64 /debug /INCREMENTAL /subsystem:console  ..\..\PGEGraphics\pge_graphics.lib d3d11.lib d3dcompiler.lib ..\..\..\Tools\ModelConvert\..\..\External\assimp\lib\x64\assimp-vc142-mtd.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib 
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable model_convert.exe"
+	cd D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert
+	"D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\model_convert.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100190~1.0\x86\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100190~1.0\x86\mt.exe --manifests  -- C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\link.exe /nologo @CMakeFiles\model_convert.dir\objects1.rsp @<<
+ /out:model_convert.exe /implib:model_convert.lib /pdb:D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert\model_convert.pdb /version:0.0  /machine:X86 /debug /INCREMENTAL /subsystem:console  ..\..\PGEGraphics\pge_graphics.lib d3d11.lib d3dcompiler.lib ..\..\..\Tools\ModelConvert\..\..\External\assimp\lib\x64\assimp-vc142-mtd.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib 
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 # Rule to build all files generated by this target.
 Tools\ModelConvert\CMakeFiles\model_convert.dir\build: Tools\ModelConvert\model_convert.exe
@@ -111,12 +111,12 @@ Tools\ModelConvert\CMakeFiles\model_convert.dir\build: Tools\ModelConvert\model_
 .PHONY : Tools\ModelConvert\CMakeFiles\model_convert.dir\build
 
 Tools\ModelConvert\CMakeFiles\model_convert.dir\clean:
-	cd C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert
+	cd D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert
 	$(CMAKE_COMMAND) -P CMakeFiles\model_convert.dir\cmake_clean.cmake
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 .PHONY : Tools\ModelConvert\CMakeFiles\model_convert.dir\clean
 
 Tools\ModelConvert\CMakeFiles\model_convert.dir\depend:
-	$(CMAKE_COMMAND) -E cmake_depends "NMake Makefiles" C:\projects\pge\source C:\projects\pge\source\Tools\ModelConvert C:\projects\pge\source\cmake-build-debug C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert C:\projects\pge\source\cmake-build-debug\Tools\ModelConvert\CMakeFiles\model_convert.dir\DependInfo.cmake --color=$(COLOR)
+	$(CMAKE_COMMAND) -E cmake_depends "NMake Makefiles" D:\Projects\pge\source D:\Projects\pge\source\Tools\ModelConvert D:\Projects\pge\source\cmake-build-debug D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert D:\Projects\pge\source\cmake-build-debug\Tools\ModelConvert\CMakeFiles\model_convert.dir\DependInfo.cmake --color=$(COLOR)
 .PHONY : Tools\ModelConvert\CMakeFiles\model_convert.dir\depend
 

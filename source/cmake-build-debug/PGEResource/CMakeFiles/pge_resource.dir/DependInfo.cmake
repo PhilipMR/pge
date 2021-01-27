@@ -4,11 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/projects/pge/source/PGEResource/src/res_effect.cpp" "C:/projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_effect.cpp.obj"
-  "C:/projects/pge/source/PGEResource/src/res_material.cpp" "C:/projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_material.cpp.obj"
-  "C:/projects/pge/source/PGEResource/src/res_mesh.cpp" "C:/projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_mesh.cpp.obj"
-  "C:/projects/pge/source/PGEResource/src/res_resource_manager.cpp" "C:/projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_resource_manager.cpp.obj"
-  "C:/projects/pge/source/PGEResource/src/res_texture2d.cpp" "C:/projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_texture2d.cpp.obj"
+  "D:/Projects/pge/source/PGEResource/src/res_effect.cpp" "D:/Projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_effect.cpp.obj"
+  "D:/Projects/pge/source/PGEResource/src/res_material.cpp" "D:/Projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_material.cpp.obj"
+  "D:/Projects/pge/source/PGEResource/src/res_mesh.cpp" "D:/Projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_mesh.cpp.obj"
+  "D:/Projects/pge/source/PGEResource/src/res_resource_manager.cpp" "D:/Projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_resource_manager.cpp.obj"
+  "D:/Projects/pge/source/PGEResource/src/res_texture2d.cpp" "D:/Projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/src/res_texture2d.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "MSVC")
 

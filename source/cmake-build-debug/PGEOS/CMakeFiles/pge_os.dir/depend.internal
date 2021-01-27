@@ -4,6 +4,6 @@
 PGEOS/CMakeFiles/pge_os.dir/src/os_display_win32.cpp.obj
  ../PGEDiagnostics/include/diag_assert.h
  ../PGEDiagnostics/include/diag_log.h
- C:/projects/pge/source/PGEOS/include/os_display.h
- C:/projects/pge/source/PGEOS/include/os_display_win32.h
- C:/projects/pge/source/PGEOS/src/os_display_win32.cpp
+ D:/Projects/pge/source/PGEOS/include/os_display.h
+ D:/Projects/pge/source/PGEOS/include/os_display_win32.h
+ D:/Projects/pge/source/PGEOS/src/os_display_win32.cpp

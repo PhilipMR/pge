@@ -4,12 +4,12 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/projects/pge/source/External/imgui/imgui/backends/imgui_impl_dx11.cpp" "C:/projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/backends/imgui_impl_dx11.cpp.obj"
-  "C:/projects/pge/source/External/imgui/imgui/backends/imgui_impl_win32.cpp" "C:/projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/backends/imgui_impl_win32.cpp.obj"
-  "C:/projects/pge/source/External/imgui/imgui/imgui.cpp" "C:/projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui.cpp.obj"
-  "C:/projects/pge/source/External/imgui/imgui/imgui_demo.cpp" "C:/projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui_demo.cpp.obj"
-  "C:/projects/pge/source/External/imgui/imgui/imgui_draw.cpp" "C:/projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui_draw.cpp.obj"
-  "C:/projects/pge/source/External/imgui/imgui/imgui_widgets.cpp" "C:/projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui_widgets.cpp.obj"
+  "D:/Projects/pge/source/External/imgui/imgui/backends/imgui_impl_dx11.cpp" "D:/Projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/backends/imgui_impl_dx11.cpp.obj"
+  "D:/Projects/pge/source/External/imgui/imgui/backends/imgui_impl_win32.cpp" "D:/Projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/backends/imgui_impl_win32.cpp.obj"
+  "D:/Projects/pge/source/External/imgui/imgui/imgui.cpp" "D:/Projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui.cpp.obj"
+  "D:/Projects/pge/source/External/imgui/imgui/imgui_demo.cpp" "D:/Projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui_demo.cpp.obj"
+  "D:/Projects/pge/source/External/imgui/imgui/imgui_draw.cpp" "D:/Projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui_draw.cpp.obj"
+  "D:/Projects/pge/source/External/imgui/imgui/imgui_widgets.cpp" "D:/Projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/imgui/imgui_widgets.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "MSVC")
 

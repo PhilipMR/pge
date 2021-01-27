@@ -1,4 +1,4 @@
-# Install script for directory: C:/projects/pge/source/PGEResource
+# Install script for directory: D:/Projects/pge/source/PGEResource
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

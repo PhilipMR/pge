@@ -6,6 +6,38 @@
 
 #IncludeRegexTransform: 
 
+../External/stb/stb_image.h
+stb_image.h
+../External/stb/stb_image.h
+stdio.h
+-
+stdlib.h
+-
+stdarg.h
+-
+stddef.h
+-
+stdlib.h
+-
+string.h
+-
+limits.h
+-
+math.h
+-
+stdio.h
+-
+assert.h
+-
+stdint.h
+-
+emmintrin.h
+-
+intrin.h
+-
+arm_neon.h
+-
+
 ../PGEDiagnostics/include/diag_assert.h
 diag_log.h
 ../PGEDiagnostics/include/diag_log.h
@@ -34,7 +66,7 @@ memory
 diag_assert.h
 -
 
-C:/projects/pge/source/PGEResource/include/res_effect.h
+D:/Projects/pge/source/PGEResource/include/res_effect.h
 gfx_shader.h
 -
 diag_assert.h
@@ -44,11 +76,11 @@ memory
 unordered_map
 -
 
-C:/projects/pge/source/PGEResource/include/res_material.h
+D:/Projects/pge/source/PGEResource/include/res_material.h
 res_effect.h
-C:/projects/pge/source/PGEResource/include/res_effect.h
+D:/Projects/pge/source/PGEResource/include/res_effect.h
 res_texture2d.h
-C:/projects/pge/source/PGEResource/include/res_texture2d.h
+D:/Projects/pge/source/PGEResource/include/res_texture2d.h
 gfx_buffer.h
 -
 gfx_texture.h
@@ -58,7 +90,7 @@ gfx_sampler.h
 unordered_map
 -
 
-C:/projects/pge/source/PGEResource/include/res_mesh.h
+D:/Projects/pge/source/PGEResource/include/res_mesh.h
 diag_assert.h
 -
 gfx_buffer.h
@@ -72,17 +104,17 @@ unordered_map
 string
 -
 
-C:/projects/pge/source/PGEResource/include/res_resource_manager.h
+D:/Projects/pge/source/PGEResource/include/res_resource_manager.h
 res_effect.h
-C:/projects/pge/source/PGEResource/include/res_effect.h
+D:/Projects/pge/source/PGEResource/include/res_effect.h
 res_texture2d.h
-C:/projects/pge/source/PGEResource/include/res_texture2d.h
+D:/Projects/pge/source/PGEResource/include/res_texture2d.h
 res_material.h
-C:/projects/pge/source/PGEResource/include/res_material.h
+D:/Projects/pge/source/PGEResource/include/res_material.h
 res_mesh.h
-C:/projects/pge/source/PGEResource/include/res_mesh.h
+D:/Projects/pge/source/PGEResource/include/res_mesh.h
 
-C:/projects/pge/source/PGEResource/include/res_texture2d.h
+D:/Projects/pge/source/PGEResource/include/res_texture2d.h
 gfx_texture.h
 -
 memory.h
@@ -92,17 +124,17 @@ unordered_map
 string
 -
 
-C:/projects/pge/source/PGEResource/src/res_effect.cpp
+D:/Projects/pge/source/PGEResource/src/res_effect.cpp
 ../include/res_effect.h
-C:/projects/pge/source/PGEResource/include/res_effect.h
+D:/Projects/pge/source/PGEResource/include/res_effect.h
 fstream
 -
 string
 -
 
-C:/projects/pge/source/PGEResource/src/res_material.cpp
+D:/Projects/pge/source/PGEResource/src/res_material.cpp
 ../include/res_material.h
-C:/projects/pge/source/PGEResource/include/res_material.h
+D:/Projects/pge/source/PGEResource/include/res_material.h
 diag_assert.h
 -
 fstream
@@ -110,7 +142,19 @@ fstream
 string
 -
 
-C:/projects/pge/source/PGEResource/src/res_resource_manager.cpp
+D:/Projects/pge/source/PGEResource/src/res_mesh.cpp
+../include/res_mesh.h
+D:/Projects/pge/source/PGEResource/include/res_mesh.h
+
+D:/Projects/pge/source/PGEResource/src/res_resource_manager.cpp
 ../include/res_resource_manager.h
-C:/projects/pge/source/PGEResource/include/res_resource_manager.h
+D:/Projects/pge/source/PGEResource/include/res_resource_manager.h
+
+D:/Projects/pge/source/PGEResource/src/res_texture2d.cpp
+../include/res_texture2d.h
+D:/Projects/pge/source/PGEResource/include/res_texture2d.h
+stb_image.h
+-
+diag_assert.h
+-
 

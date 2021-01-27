@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/projects/pge/source/PGEOS/src/os_display_win32.cpp" "C:/projects/pge/source/cmake-build-debug/PGEOS/CMakeFiles/pge_os.dir/src/os_display_win32.cpp.obj"
+  "D:/Projects/pge/source/PGEOS/src/os_display_win32.cpp" "D:/Projects/pge/source/cmake-build-debug/PGEOS/CMakeFiles/pge_os.dir/src/os_display_win32.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "MSVC")
 
@@ -15,7 +15,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "C:/projects/pge/source/cmake-build-debug/PGEDiagnostics/CMakeFiles/pge_diagnostics.dir/DependInfo.cmake"
+  "D:/Projects/pge/source/cmake-build-debug/PGEDiagnostics/CMakeFiles/pge_diagnostics.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-C:/projects/pge/source/PGEDiagnostics/include/diag_log.h
+D:/Projects/pge/source/PGEDiagnostics/include/diag_log.h
 
-C:/projects/pge/source/PGEDiagnostics/src/diag_log.cpp
+D:/Projects/pge/source/PGEDiagnostics/src/diag_log.cpp
 ../include/diag_log.h
-C:/projects/pge/source/PGEDiagnostics/include/diag_log.h
+D:/Projects/pge/source/PGEDiagnostics/include/diag_log.h
 chrono
 -
 sstream

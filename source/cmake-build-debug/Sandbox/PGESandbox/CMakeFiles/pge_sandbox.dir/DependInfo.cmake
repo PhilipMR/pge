@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/projects/pge/source/Sandbox/PGESandbox/src/main.cpp" "C:/projects/pge/source/cmake-build-debug/Sandbox/PGESandbox/CMakeFiles/pge_sandbox.dir/src/main.cpp.obj"
+  "D:/Projects/pge/source/Sandbox/PGESandbox/src/main.cpp" "D:/Projects/pge/source/cmake-build-debug/Sandbox/PGESandbox/CMakeFiles/pge_sandbox.dir/src/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "MSVC")
 
@@ -20,11 +20,11 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "C:/projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/DependInfo.cmake"
-  "C:/projects/pge/source/cmake-build-debug/PGEOS/CMakeFiles/pge_os.dir/DependInfo.cmake"
-  "C:/projects/pge/source/cmake-build-debug/PGEGraphics/CMakeFiles/pge_graphics.dir/DependInfo.cmake"
-  "C:/projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/DependInfo.cmake"
-  "C:/projects/pge/source/cmake-build-debug/PGEDiagnostics/CMakeFiles/pge_diagnostics.dir/DependInfo.cmake"
+  "D:/Projects/pge/source/cmake-build-debug/External/imgui/CMakeFiles/imgui.dir/DependInfo.cmake"
+  "D:/Projects/pge/source/cmake-build-debug/PGEOS/CMakeFiles/pge_os.dir/DependInfo.cmake"
+  "D:/Projects/pge/source/cmake-build-debug/PGEGraphics/CMakeFiles/pge_graphics.dir/DependInfo.cmake"
+  "D:/Projects/pge/source/cmake-build-debug/PGEResource/CMakeFiles/pge_resource.dir/DependInfo.cmake"
+  "D:/Projects/pge/source/cmake-build-debug/PGEDiagnostics/CMakeFiles/pge_diagnostics.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

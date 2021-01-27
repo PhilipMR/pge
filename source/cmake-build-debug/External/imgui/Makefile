@@ -43,19 +43,19 @@ NULL=nul
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E rm -f
+RM = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\projects\pge\source
+CMAKE_SOURCE_DIR = D:\Projects\pge\source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Projects\pge\source\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -63,7 +63,7 @@ CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	echo >nul && "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
+	echo >nul && "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -74,7 +74,7 @@ edit_cache\fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	echo >nul && "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	echo >nul && "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -84,18 +84,18 @@ rebuild_cache\fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd C:\projects\pge\source\cmake-build-debug
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\projects\pge\source\cmake-build-debug\CMakeFiles C:\projects\pge\source\cmake-build-debug\External\imgui\CMakeFiles\progress.marks
+	cd D:\Projects\pge\source\cmake-build-debug
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\pge\source\cmake-build-debug\CMakeFiles D:\Projects\pge\source\cmake-build-debug\External\imgui\CMakeFiles\progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) External\imgui\all
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\projects\pge\source\cmake-build-debug\CMakeFiles 0
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\pge\source\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) External\imgui\clean
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : clean
 
 # The main clean target
@@ -105,30 +105,30 @@ clean\fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) External\imgui\preinstall
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall\fast:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) External\imgui\preinstall
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : preinstall\fast
 
 # clear depends
 depend:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 1
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : depend
 
 # Convenience name for target.
 External\imgui\CMakeFiles\imgui.dir\rule:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\rule
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : External\imgui\CMakeFiles\imgui.dir\rule
 
 # Convenience name for target.
@@ -138,9 +138,9 @@ imgui: External\imgui\CMakeFiles\imgui.dir\rule
 
 # fast build rule for target.
 imgui\fast:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\build
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\fast
 
 imgui\backends\imgui_impl_dx11.obj: imgui\backends\imgui_impl_dx11.cpp.obj
@@ -149,9 +149,9 @@ imgui\backends\imgui_impl_dx11.obj: imgui\backends\imgui_impl_dx11.cpp.obj
 
 # target to build an object file
 imgui\backends\imgui_impl_dx11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\backends\imgui_impl_dx11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\backends\imgui_impl_dx11.cpp.obj
 
 imgui\backends\imgui_impl_dx11.i: imgui\backends\imgui_impl_dx11.cpp.i
@@ -160,9 +160,9 @@ imgui\backends\imgui_impl_dx11.i: imgui\backends\imgui_impl_dx11.cpp.i
 
 # target to preprocess a source file
 imgui\backends\imgui_impl_dx11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\backends\imgui_impl_dx11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\backends\imgui_impl_dx11.cpp.i
 
 imgui\backends\imgui_impl_dx11.s: imgui\backends\imgui_impl_dx11.cpp.s
@@ -171,9 +171,9 @@ imgui\backends\imgui_impl_dx11.s: imgui\backends\imgui_impl_dx11.cpp.s
 
 # target to generate assembly for a file
 imgui\backends\imgui_impl_dx11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\backends\imgui_impl_dx11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\backends\imgui_impl_dx11.cpp.s
 
 imgui\backends\imgui_impl_win32.obj: imgui\backends\imgui_impl_win32.cpp.obj
@@ -182,9 +182,9 @@ imgui\backends\imgui_impl_win32.obj: imgui\backends\imgui_impl_win32.cpp.obj
 
 # target to build an object file
 imgui\backends\imgui_impl_win32.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\backends\imgui_impl_win32.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\backends\imgui_impl_win32.cpp.obj
 
 imgui\backends\imgui_impl_win32.i: imgui\backends\imgui_impl_win32.cpp.i
@@ -193,9 +193,9 @@ imgui\backends\imgui_impl_win32.i: imgui\backends\imgui_impl_win32.cpp.i
 
 # target to preprocess a source file
 imgui\backends\imgui_impl_win32.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\backends\imgui_impl_win32.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\backends\imgui_impl_win32.cpp.i
 
 imgui\backends\imgui_impl_win32.s: imgui\backends\imgui_impl_win32.cpp.s
@@ -204,9 +204,9 @@ imgui\backends\imgui_impl_win32.s: imgui\backends\imgui_impl_win32.cpp.s
 
 # target to generate assembly for a file
 imgui\backends\imgui_impl_win32.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\backends\imgui_impl_win32.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\backends\imgui_impl_win32.cpp.s
 
 imgui\imgui.obj: imgui\imgui.cpp.obj
@@ -215,9 +215,9 @@ imgui\imgui.obj: imgui\imgui.cpp.obj
 
 # target to build an object file
 imgui\imgui.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui.cpp.obj
 
 imgui\imgui.i: imgui\imgui.cpp.i
@@ -226,9 +226,9 @@ imgui\imgui.i: imgui\imgui.cpp.i
 
 # target to preprocess a source file
 imgui\imgui.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui.cpp.i
 
 imgui\imgui.s: imgui\imgui.cpp.s
@@ -237,9 +237,9 @@ imgui\imgui.s: imgui\imgui.cpp.s
 
 # target to generate assembly for a file
 imgui\imgui.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui.cpp.s
 
 imgui\imgui_demo.obj: imgui\imgui_demo.cpp.obj
@@ -248,9 +248,9 @@ imgui\imgui_demo.obj: imgui\imgui_demo.cpp.obj
 
 # target to build an object file
 imgui\imgui_demo.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_demo.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_demo.cpp.obj
 
 imgui\imgui_demo.i: imgui\imgui_demo.cpp.i
@@ -259,9 +259,9 @@ imgui\imgui_demo.i: imgui\imgui_demo.cpp.i
 
 # target to preprocess a source file
 imgui\imgui_demo.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_demo.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_demo.cpp.i
 
 imgui\imgui_demo.s: imgui\imgui_demo.cpp.s
@@ -270,9 +270,9 @@ imgui\imgui_demo.s: imgui\imgui_demo.cpp.s
 
 # target to generate assembly for a file
 imgui\imgui_demo.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_demo.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_demo.cpp.s
 
 imgui\imgui_draw.obj: imgui\imgui_draw.cpp.obj
@@ -281,9 +281,9 @@ imgui\imgui_draw.obj: imgui\imgui_draw.cpp.obj
 
 # target to build an object file
 imgui\imgui_draw.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_draw.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_draw.cpp.obj
 
 imgui\imgui_draw.i: imgui\imgui_draw.cpp.i
@@ -292,9 +292,9 @@ imgui\imgui_draw.i: imgui\imgui_draw.cpp.i
 
 # target to preprocess a source file
 imgui\imgui_draw.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_draw.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_draw.cpp.i
 
 imgui\imgui_draw.s: imgui\imgui_draw.cpp.s
@@ -303,9 +303,9 @@ imgui\imgui_draw.s: imgui\imgui_draw.cpp.s
 
 # target to generate assembly for a file
 imgui\imgui_draw.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_draw.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_draw.cpp.s
 
 imgui\imgui_widgets.obj: imgui\imgui_widgets.cpp.obj
@@ -314,9 +314,9 @@ imgui\imgui_widgets.obj: imgui\imgui_widgets.cpp.obj
 
 # target to build an object file
 imgui\imgui_widgets.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_widgets.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_widgets.cpp.obj
 
 imgui\imgui_widgets.i: imgui\imgui_widgets.cpp.i
@@ -325,9 +325,9 @@ imgui\imgui_widgets.i: imgui\imgui_widgets.cpp.i
 
 # target to preprocess a source file
 imgui\imgui_widgets.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_widgets.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_widgets.cpp.i
 
 imgui\imgui_widgets.s: imgui\imgui_widgets.cpp.s
@@ -336,9 +336,9 @@ imgui\imgui_widgets.s: imgui\imgui_widgets.cpp.s
 
 # target to generate assembly for a file
 imgui\imgui_widgets.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f External\imgui\CMakeFiles\imgui.dir\build.make /nologo -$(MAKEFLAGS) External\imgui\CMakeFiles\imgui.dir\imgui\imgui_widgets.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : imgui\imgui_widgets.cpp.s
 
 # Help Target
@@ -379,8 +379,8 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 0
-	cd C:\projects\pge\source\cmake-build-debug\External\imgui
+	cd D:\Projects\pge\source\cmake-build-debug\External\imgui
 .PHONY : cmake_check_build_system
 

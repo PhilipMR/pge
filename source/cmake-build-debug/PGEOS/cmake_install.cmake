@@ -1,4 +1,4 @@
-# Install script for directory: C:/projects/pge/source/PGEOS
+# Install script for directory: D:/Projects/pge/source/PGEOS
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

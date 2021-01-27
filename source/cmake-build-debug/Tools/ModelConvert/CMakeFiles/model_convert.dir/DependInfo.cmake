@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/projects/pge/source/Tools/ModelConvert/src/main.cpp" "C:/projects/pge/source/cmake-build-debug/Tools/ModelConvert/CMakeFiles/model_convert.dir/src/main.cpp.obj"
+  "D:/Projects/pge/source/Tools/ModelConvert/src/main.cpp" "D:/Projects/pge/source/cmake-build-debug/Tools/ModelConvert/CMakeFiles/model_convert.dir/src/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "MSVC")
 
@@ -19,7 +19,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "C:/projects/pge/source/cmake-build-debug/PGEGraphics/CMakeFiles/pge_graphics.dir/DependInfo.cmake"
+  "D:/Projects/pge/source/cmake-build-debug/PGEGraphics/CMakeFiles/pge_graphics.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

@@ -38,19 +38,19 @@ NULL=nul
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E rm -f
+RM = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\projects\pge\source
+CMAKE_SOURCE_DIR = D:\Projects\pge\source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Projects\pge\source\cmake-build-debug
 
 # Include any dependencies generated for this target.
 include PGEResource\CMakeFiles\pge_resource.dir\depend.make
@@ -63,128 +63,128 @@ include PGEResource\CMakeFiles\pge_resource.dir\flags.make
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_effect.cpp.obj: PGEResource\CMakeFiles\pge_resource.dir\flags.make
 PGEResource\CMakeFiles\pge_resource.dir\src\res_effect.cpp.obj: ..\PGEResource\src\res_effect.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_effect.cpp.obj"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_effect.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c C:\projects\pge\source\PGEResource\src\res_effect.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_effect.cpp.obj"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_effect.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c D:\Projects\pge\source\PGEResource\src\res_effect.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_effect.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pge_resource.dir/src/res_effect.cpp.i"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe > CMakeFiles\pge_resource.dir\src\res_effect.cpp.i @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\projects\pge\source\PGEResource\src\res_effect.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe > CMakeFiles\pge_resource.dir\src\res_effect.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\pge\source\PGEResource\src\res_effect.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_effect.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pge_resource.dir/src/res_effect.cpp.s"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_effect.cpp.s /c C:\projects\pge\source\PGEResource\src\res_effect.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_effect.cpp.s /c D:\Projects\pge\source\PGEResource\src\res_effect.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_material.cpp.obj: PGEResource\CMakeFiles\pge_resource.dir\flags.make
 PGEResource\CMakeFiles\pge_resource.dir\src\res_material.cpp.obj: ..\PGEResource\src\res_material.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_material.cpp.obj"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_material.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c C:\projects\pge\source\PGEResource\src\res_material.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_material.cpp.obj"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_material.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c D:\Projects\pge\source\PGEResource\src\res_material.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_material.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pge_resource.dir/src/res_material.cpp.i"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe > CMakeFiles\pge_resource.dir\src\res_material.cpp.i @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\projects\pge\source\PGEResource\src\res_material.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe > CMakeFiles\pge_resource.dir\src\res_material.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\pge\source\PGEResource\src\res_material.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_material.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pge_resource.dir/src/res_material.cpp.s"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_material.cpp.s /c C:\projects\pge\source\PGEResource\src\res_material.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_material.cpp.s /c D:\Projects\pge\source\PGEResource\src\res_material.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.obj: PGEResource\CMakeFiles\pge_resource.dir\flags.make
 PGEResource\CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.obj: ..\PGEResource\src\res_texture2d.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_texture2d.cpp.obj"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_texture2d.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c C:\projects\pge\source\PGEResource\src\res_texture2d.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_texture2d.cpp.obj"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_texture2d.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c D:\Projects\pge\source\PGEResource\src\res_texture2d.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pge_resource.dir/src/res_texture2d.cpp.i"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe > CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.i @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\projects\pge\source\PGEResource\src\res_texture2d.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe > CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\pge\source\PGEResource\src\res_texture2d.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_texture2d.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pge_resource.dir/src/res_texture2d.cpp.s"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_texture2d.cpp.s /c C:\projects\pge\source\PGEResource\src\res_texture2d.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_texture2d.cpp.s /c D:\Projects\pge\source\PGEResource\src\res_texture2d.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_mesh.cpp.obj: PGEResource\CMakeFiles\pge_resource.dir\flags.make
 PGEResource\CMakeFiles\pge_resource.dir\src\res_mesh.cpp.obj: ..\PGEResource\src\res_mesh.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_mesh.cpp.obj"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_mesh.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c C:\projects\pge\source\PGEResource\src\res_mesh.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_mesh.cpp.obj"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_mesh.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c D:\Projects\pge\source\PGEResource\src\res_mesh.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_mesh.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pge_resource.dir/src/res_mesh.cpp.i"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe > CMakeFiles\pge_resource.dir\src\res_mesh.cpp.i @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\projects\pge\source\PGEResource\src\res_mesh.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe > CMakeFiles\pge_resource.dir\src\res_mesh.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\pge\source\PGEResource\src\res_mesh.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_mesh.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pge_resource.dir/src/res_mesh.cpp.s"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_mesh.cpp.s /c C:\projects\pge\source\PGEResource\src\res_mesh.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_mesh.cpp.s /c D:\Projects\pge\source\PGEResource\src\res_mesh.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.obj: PGEResource\CMakeFiles\pge_resource.dir\flags.make
 PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.obj: ..\PGEResource\src\res_resource_manager.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_resource_manager.cpp.obj"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c C:\projects\pge\source\PGEResource\src\res_resource_manager.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object PGEResource/CMakeFiles/pge_resource.dir/src/res_resource_manager.cpp.obj"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoCMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.obj /FdCMakeFiles\pge_resource.dir\pge_resource.pdb /FS -c D:\Projects\pge\source\PGEResource\src\res_resource_manager.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pge_resource.dir/src/res_resource_manager.cpp.i"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe > CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.i @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\projects\pge\source\PGEResource\src\res_resource_manager.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe > CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\Projects\pge\source\PGEResource\src\res_resource_manager.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pge_resource.dir/src/res_resource_manager.cpp.s"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\cl.exe @<<
- /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.s /c C:\projects\pge\source\PGEResource\src\res_resource_manager.cpp
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.s /c D:\Projects\pge\source\PGEResource\src\res_resource_manager.cpp
 <<
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 
 # Object files for target pge_resource
 pge_resource_OBJECTS = \
@@ -204,13 +204,13 @@ PGEResource\pge_resource.lib: PGEResource\CMakeFiles\pge_resource.dir\src\res_me
 PGEResource\pge_resource.lib: PGEResource\CMakeFiles\pge_resource.dir\src\res_resource_manager.cpp.obj
 PGEResource\pge_resource.lib: PGEResource\CMakeFiles\pge_resource.dir\build.make
 PGEResource\pge_resource.lib: PGEResource\CMakeFiles\pge_resource.dir\objects1.rsp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library pge_resource.lib"
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\Projects\pge\source\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library pge_resource.lib"
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 	$(CMAKE_COMMAND) -P CMakeFiles\pge_resource.dir\cmake_clean_target.cmake
-	cd C:\projects\pge\source\cmake-build-debug
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
-	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx64\x64\link.exe /lib /nologo /machine:x64 /out:pge_resource.lib @CMakeFiles\pge_resource.dir\objects1.rsp 
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
+	C:\PROGRA~2\MICROS~2\2019\COMMUN~1\VC\Tools\MSVC\1427~1.291\bin\Hostx86\x86\link.exe /lib /nologo /machine:X86 /out:pge_resource.lib @CMakeFiles\pge_resource.dir\objects1.rsp 
+	cd D:\Projects\pge\source\cmake-build-debug
 
 # Rule to build all files generated by this target.
 PGEResource\CMakeFiles\pge_resource.dir\build: PGEResource\pge_resource.lib
@@ -218,12 +218,12 @@ PGEResource\CMakeFiles\pge_resource.dir\build: PGEResource\pge_resource.lib
 .PHONY : PGEResource\CMakeFiles\pge_resource.dir\build
 
 PGEResource\CMakeFiles\pge_resource.dir\clean:
-	cd C:\projects\pge\source\cmake-build-debug\PGEResource
+	cd D:\Projects\pge\source\cmake-build-debug\PGEResource
 	$(CMAKE_COMMAND) -P CMakeFiles\pge_resource.dir\cmake_clean.cmake
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 .PHONY : PGEResource\CMakeFiles\pge_resource.dir\clean
 
 PGEResource\CMakeFiles\pge_resource.dir\depend:
-	$(CMAKE_COMMAND) -E cmake_depends "NMake Makefiles" C:\projects\pge\source C:\projects\pge\source\PGEResource C:\projects\pge\source\cmake-build-debug C:\projects\pge\source\cmake-build-debug\PGEResource C:\projects\pge\source\cmake-build-debug\PGEResource\CMakeFiles\pge_resource.dir\DependInfo.cmake --color=$(COLOR)
+	$(CMAKE_COMMAND) -E cmake_depends "NMake Makefiles" D:\Projects\pge\source D:\Projects\pge\source\PGEResource D:\Projects\pge\source\cmake-build-debug D:\Projects\pge\source\cmake-build-debug\PGEResource D:\Projects\pge\source\cmake-build-debug\PGEResource\CMakeFiles\pge_resource.dir\DependInfo.cmake --color=$(COLOR)
 .PHONY : PGEResource\CMakeFiles\pge_resource.dir\depend
 

@@ -1,4 +1,4 @@
-# Install script for directory: C:/projects/pge/source/Tools/ModelConvert
+# Install script for directory: D:/Projects/pge/source/Tools/ModelConvert
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

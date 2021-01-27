@@ -1,4 +1,4 @@
-# Install script for directory: C:/projects/pge/source
+# Install script for directory: D:/Projects/pge/source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,37 +34,37 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/projects/pge/source/cmake-build-debug/External/imgui/cmake_install.cmake")
+  include("D:/Projects/pge/source/cmake-build-debug/External/imgui/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/projects/pge/source/cmake-build-debug/PGEDiagnostics/cmake_install.cmake")
+  include("D:/Projects/pge/source/cmake-build-debug/PGEDiagnostics/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/projects/pge/source/cmake-build-debug/PGEOS/cmake_install.cmake")
+  include("D:/Projects/pge/source/cmake-build-debug/PGEOS/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/projects/pge/source/cmake-build-debug/PGEGraphics/cmake_install.cmake")
+  include("D:/Projects/pge/source/cmake-build-debug/PGEGraphics/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/projects/pge/source/cmake-build-debug/PGEResource/cmake_install.cmake")
+  include("D:/Projects/pge/source/cmake-build-debug/PGEResource/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/projects/pge/source/cmake-build-debug/Sandbox/PGESandbox/cmake_install.cmake")
+  include("D:/Projects/pge/source/cmake-build-debug/Sandbox/PGESandbox/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/projects/pge/source/cmake-build-debug/Tools/ModelConvert/cmake_install.cmake")
+  include("D:/Projects/pge/source/cmake-build-debug/Tools/ModelConvert/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -75,5 +75,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/projects/pge/source/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/Projects/pge/source/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

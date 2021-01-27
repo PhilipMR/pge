@@ -43,19 +43,19 @@ NULL=nul
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E rm -f
+RM = "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\projects\pge\source
+CMAKE_SOURCE_DIR = D:\Projects\pge\source
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Projects\pge\source\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -63,7 +63,7 @@ CMAKE_BINARY_DIR = C:\projects\pge\source\cmake-build-debug
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	echo >nul && "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	echo >nul && "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -74,7 +74,7 @@ rebuild_cache\fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	echo >nul && "C:\Program Files\JetBrains\CLion 2020.3\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
+	echo >nul && "D:\Program Files\JetBrains\CLion 2020.3.1\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available."
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -84,18 +84,18 @@ edit_cache\fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd C:\projects\pge\source\cmake-build-debug
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\projects\pge\source\cmake-build-debug\CMakeFiles C:\projects\pge\source\cmake-build-debug\PGEGraphics\CMakeFiles\progress.marks
+	cd D:\Projects\pge\source\cmake-build-debug
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\pge\source\cmake-build-debug\CMakeFiles D:\Projects\pge\source\cmake-build-debug\PGEGraphics\CMakeFiles\progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEGraphics\all
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\projects\pge\source\cmake-build-debug\CMakeFiles 0
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Projects\pge\source\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEGraphics\clean
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : clean
 
 # The main clean target
@@ -105,30 +105,30 @@ clean\fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEGraphics\preinstall
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall\fast:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEGraphics\preinstall
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : preinstall\fast
 
 # clear depends
 depend:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 1
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : depend
 
 # Convenience name for target.
 PGEGraphics\CMakeFiles\pge_graphics.dir\rule:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\rule
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : PGEGraphics\CMakeFiles\pge_graphics.dir\rule
 
 # Convenience name for target.
@@ -138,9 +138,9 @@ pge_graphics: PGEGraphics\CMakeFiles\pge_graphics.dir\rule
 
 # fast build rule for target.
 pge_graphics\fast:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\build
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : pge_graphics\fast
 
 src\gfx_buffer_d3d11.obj: src\gfx_buffer_d3d11.cpp.obj
@@ -149,9 +149,9 @@ src\gfx_buffer_d3d11.obj: src\gfx_buffer_d3d11.cpp.obj
 
 # target to build an object file
 src\gfx_buffer_d3d11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_buffer_d3d11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_buffer_d3d11.cpp.obj
 
 src\gfx_buffer_d3d11.i: src\gfx_buffer_d3d11.cpp.i
@@ -160,9 +160,9 @@ src\gfx_buffer_d3d11.i: src\gfx_buffer_d3d11.cpp.i
 
 # target to preprocess a source file
 src\gfx_buffer_d3d11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_buffer_d3d11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_buffer_d3d11.cpp.i
 
 src\gfx_buffer_d3d11.s: src\gfx_buffer_d3d11.cpp.s
@@ -171,9 +171,9 @@ src\gfx_buffer_d3d11.s: src\gfx_buffer_d3d11.cpp.s
 
 # target to generate assembly for a file
 src\gfx_buffer_d3d11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_buffer_d3d11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_buffer_d3d11.cpp.s
 
 src\gfx_graphics_adapter_d3d11.obj: src\gfx_graphics_adapter_d3d11.cpp.obj
@@ -182,9 +182,9 @@ src\gfx_graphics_adapter_d3d11.obj: src\gfx_graphics_adapter_d3d11.cpp.obj
 
 # target to build an object file
 src\gfx_graphics_adapter_d3d11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_graphics_adapter_d3d11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_graphics_adapter_d3d11.cpp.obj
 
 src\gfx_graphics_adapter_d3d11.i: src\gfx_graphics_adapter_d3d11.cpp.i
@@ -193,9 +193,9 @@ src\gfx_graphics_adapter_d3d11.i: src\gfx_graphics_adapter_d3d11.cpp.i
 
 # target to preprocess a source file
 src\gfx_graphics_adapter_d3d11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_graphics_adapter_d3d11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_graphics_adapter_d3d11.cpp.i
 
 src\gfx_graphics_adapter_d3d11.s: src\gfx_graphics_adapter_d3d11.cpp.s
@@ -204,9 +204,9 @@ src\gfx_graphics_adapter_d3d11.s: src\gfx_graphics_adapter_d3d11.cpp.s
 
 # target to generate assembly for a file
 src\gfx_graphics_adapter_d3d11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_graphics_adapter_d3d11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_graphics_adapter_d3d11.cpp.s
 
 src\gfx_graphics_device_d3d11.obj: src\gfx_graphics_device_d3d11.cpp.obj
@@ -215,9 +215,9 @@ src\gfx_graphics_device_d3d11.obj: src\gfx_graphics_device_d3d11.cpp.obj
 
 # target to build an object file
 src\gfx_graphics_device_d3d11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_graphics_device_d3d11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_graphics_device_d3d11.cpp.obj
 
 src\gfx_graphics_device_d3d11.i: src\gfx_graphics_device_d3d11.cpp.i
@@ -226,9 +226,9 @@ src\gfx_graphics_device_d3d11.i: src\gfx_graphics_device_d3d11.cpp.i
 
 # target to preprocess a source file
 src\gfx_graphics_device_d3d11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_graphics_device_d3d11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_graphics_device_d3d11.cpp.i
 
 src\gfx_graphics_device_d3d11.s: src\gfx_graphics_device_d3d11.cpp.s
@@ -237,9 +237,9 @@ src\gfx_graphics_device_d3d11.s: src\gfx_graphics_device_d3d11.cpp.s
 
 # target to generate assembly for a file
 src\gfx_graphics_device_d3d11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_graphics_device_d3d11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_graphics_device_d3d11.cpp.s
 
 src\gfx_sampler_d3d11.obj: src\gfx_sampler_d3d11.cpp.obj
@@ -248,9 +248,9 @@ src\gfx_sampler_d3d11.obj: src\gfx_sampler_d3d11.cpp.obj
 
 # target to build an object file
 src\gfx_sampler_d3d11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_sampler_d3d11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_sampler_d3d11.cpp.obj
 
 src\gfx_sampler_d3d11.i: src\gfx_sampler_d3d11.cpp.i
@@ -259,9 +259,9 @@ src\gfx_sampler_d3d11.i: src\gfx_sampler_d3d11.cpp.i
 
 # target to preprocess a source file
 src\gfx_sampler_d3d11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_sampler_d3d11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_sampler_d3d11.cpp.i
 
 src\gfx_sampler_d3d11.s: src\gfx_sampler_d3d11.cpp.s
@@ -270,9 +270,9 @@ src\gfx_sampler_d3d11.s: src\gfx_sampler_d3d11.cpp.s
 
 # target to generate assembly for a file
 src\gfx_sampler_d3d11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_sampler_d3d11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_sampler_d3d11.cpp.s
 
 src\gfx_shader_d3d11.obj: src\gfx_shader_d3d11.cpp.obj
@@ -281,9 +281,9 @@ src\gfx_shader_d3d11.obj: src\gfx_shader_d3d11.cpp.obj
 
 # target to build an object file
 src\gfx_shader_d3d11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_shader_d3d11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_shader_d3d11.cpp.obj
 
 src\gfx_shader_d3d11.i: src\gfx_shader_d3d11.cpp.i
@@ -292,9 +292,9 @@ src\gfx_shader_d3d11.i: src\gfx_shader_d3d11.cpp.i
 
 # target to preprocess a source file
 src\gfx_shader_d3d11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_shader_d3d11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_shader_d3d11.cpp.i
 
 src\gfx_shader_d3d11.s: src\gfx_shader_d3d11.cpp.s
@@ -303,9 +303,9 @@ src\gfx_shader_d3d11.s: src\gfx_shader_d3d11.cpp.s
 
 # target to generate assembly for a file
 src\gfx_shader_d3d11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_shader_d3d11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_shader_d3d11.cpp.s
 
 src\gfx_texture_d3d11.obj: src\gfx_texture_d3d11.cpp.obj
@@ -314,9 +314,9 @@ src\gfx_texture_d3d11.obj: src\gfx_texture_d3d11.cpp.obj
 
 # target to build an object file
 src\gfx_texture_d3d11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_texture_d3d11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_texture_d3d11.cpp.obj
 
 src\gfx_texture_d3d11.i: src\gfx_texture_d3d11.cpp.i
@@ -325,9 +325,9 @@ src\gfx_texture_d3d11.i: src\gfx_texture_d3d11.cpp.i
 
 # target to preprocess a source file
 src\gfx_texture_d3d11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_texture_d3d11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_texture_d3d11.cpp.i
 
 src\gfx_texture_d3d11.s: src\gfx_texture_d3d11.cpp.s
@@ -336,9 +336,9 @@ src\gfx_texture_d3d11.s: src\gfx_texture_d3d11.cpp.s
 
 # target to generate assembly for a file
 src\gfx_texture_d3d11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_texture_d3d11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_texture_d3d11.cpp.s
 
 src\gfx_vertex_layout_d3d11.obj: src\gfx_vertex_layout_d3d11.cpp.obj
@@ -347,9 +347,9 @@ src\gfx_vertex_layout_d3d11.obj: src\gfx_vertex_layout_d3d11.cpp.obj
 
 # target to build an object file
 src\gfx_vertex_layout_d3d11.cpp.obj:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_vertex_layout_d3d11.cpp.obj
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_vertex_layout_d3d11.cpp.obj
 
 src\gfx_vertex_layout_d3d11.i: src\gfx_vertex_layout_d3d11.cpp.i
@@ -358,9 +358,9 @@ src\gfx_vertex_layout_d3d11.i: src\gfx_vertex_layout_d3d11.cpp.i
 
 # target to preprocess a source file
 src\gfx_vertex_layout_d3d11.cpp.i:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_vertex_layout_d3d11.cpp.i
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_vertex_layout_d3d11.cpp.i
 
 src\gfx_vertex_layout_d3d11.s: src\gfx_vertex_layout_d3d11.cpp.s
@@ -369,9 +369,9 @@ src\gfx_vertex_layout_d3d11.s: src\gfx_vertex_layout_d3d11.cpp.s
 
 # target to generate assembly for a file
 src\gfx_vertex_layout_d3d11.cpp.s:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(MAKE) $(MAKESILENT) -f PGEGraphics\CMakeFiles\pge_graphics.dir\build.make /nologo -$(MAKEFLAGS) PGEGraphics\CMakeFiles\pge_graphics.dir\src\gfx_vertex_layout_d3d11.cpp.s
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : src\gfx_vertex_layout_d3d11.cpp.s
 
 # Help Target
@@ -415,8 +415,8 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd C:\projects\pge\source\cmake-build-debug
+	cd D:\Projects\pge\source\cmake-build-debug
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles\Makefile.cmake 0
-	cd C:\projects\pge\source\cmake-build-debug\PGEGraphics
+	cd D:\Projects\pge\source\cmake-build-debug\PGEGraphics
 .PHONY : cmake_check_build_system
 
