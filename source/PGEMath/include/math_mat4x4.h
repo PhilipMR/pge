@@ -22,7 +22,7 @@ namespace pge
             float     values[4 * 4];
         };
 
-        inline static math_Mat4x4
+        constexpr static math_Mat4x4
         Identity()
         {
             // clang-format off
@@ -35,15 +35,26 @@ namespace pge
             // clang-format on
         }
 
-        inline math_Mat4x4()
-            : m11(1), m12(0), m13(0), m14(0)
-            , m21(0), m22(1), m23(0), m24(0)
-            , m31(0), m32(0), m33(1), m34(0)
-            , m41(0), m42(0), m43(0), m44(1)
-        {
-        }
+        constexpr math_Mat4x4()
+            : m11(1)
+            , m12(0)
+            , m13(0)
+            , m14(0)
+            , m21(0)
+            , m22(1)
+            , m23(0)
+            , m24(0)
+            , m31(0)
+            , m32(0)
+            , m33(1)
+            , m34(0)
+            , m41(0)
+            , m42(0)
+            , m43(0)
+            , m44(1)
+        {}
 
-        inline math_Mat4x4(
+        constexpr math_Mat4x4(
             // clang-format off
             float m11, float m12, float m13, float m14,
             float m21, float m22, float m23, float m24,
@@ -57,20 +68,136 @@ namespace pge
         // clang-format on
         {}
 
-        inline math_Vec4&
+        constexpr math_Vec4&
         operator[](size_t index)
         {
             return rows[index];
         }
 
-        inline const math_Vec4&
+        constexpr const math_Vec4&
         operator[](size_t index) const
         {
             return rows[index];
         }
     };
 
-    inline math_Mat4x4
+    constexpr bool
+    operator==(const math_Mat4x4& lhs, const math_Mat4x4& rhs)
+    {
+        for (size_t row = 0; row < 4; ++row) {
+            for (size_t col = 0; col < 4; ++col) {
+                if (!math_FloatEqual(lhs[row][col], rhs[row][col]))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    constexpr bool
+    operator!=(const math_Mat4x4& lhs, const math_Mat4x4& rhs)
+    {
+        for (size_t row = 0; row < 4; ++row) {
+            for (size_t col = 0; col < 4; ++col) {
+                if (!math_FloatEqual(lhs[row][col], rhs[row][col]))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    constexpr math_Mat4x4
+    operator+(const math_Mat4x4& lhs, const math_Mat4x4& rhs)
+    {
+        math_Mat4x4 result;
+        for (size_t row = 0; row < 4; ++row) {
+            for (size_t col = 0; col < 4; ++col) {
+                result[row][col] = lhs[row][col] + rhs[row][col];
+            }
+        }
+        return result;
+    }
+
+    constexpr math_Mat4x4
+    operator-(const math_Mat4x4& lhs, const math_Mat4x4& rhs)
+    {
+        math_Mat4x4 result;
+        for (size_t row = 0; row < 4; ++row) {
+            for (size_t col = 0; col < 4; ++col) {
+                result[row][col] = lhs[row][col] - rhs[row][col];
+            }
+        }
+        return result;
+    }
+
+    constexpr math_Mat4x4
+    operator*(const math_Mat4x4& mat, float scalar)
+    {
+        math_Mat4x4 result;
+        for (size_t row = 0; row < 4; ++row) {
+            for (size_t col = 0; col < 4; ++col) {
+                result[row][col] = mat[row][col] * scalar;
+            }
+        }
+        return result;
+    }
+
+    constexpr math_Vec4
+    operator*(const math_Mat4x4& mat, const math_Vec4& vec)
+    {
+        return math_Vec4(
+            math_Dot(mat.rows[0], vec),
+            math_Dot(mat.rows[1], vec),
+            math_Dot(mat.rows[2], vec),
+            math_Dot(mat.rows[3], vec));
+    }
+
+    constexpr math_Mat4x4
+    operator*(float scalar, const math_Mat4x4& mat)
+    {
+        return mat * scalar;
+    }
+
+    constexpr math_Mat4x4
+    operator/(const math_Mat4x4& mat, float scalar)
+    {
+        math_Mat4x4 result;
+        for (size_t row = 0; row < 4; ++row) {
+            for (size_t col = 0; col < 4; ++col) {
+                result[row][col] = mat[row][col] / scalar;
+            }
+        }
+        return result;
+    }
+
+    constexpr math_Mat4x4&
+    operator+=(math_Mat4x4& lhs, const math_Mat4x4& rhs)
+    {
+        lhs = lhs + rhs;
+        return lhs;
+    }
+
+    constexpr math_Mat4x4&
+    operator-=(math_Mat4x4& lhs, const math_Mat4x4& rhs)
+    {
+        lhs = lhs - rhs;
+        return lhs;
+    }
+
+    constexpr math_Mat4x4&
+    operator*=(math_Mat4x4& mat, float scalar)
+    {
+        mat = mat * scalar;
+        return mat;
+    }
+
+    constexpr math_Mat4x4&
+    operator/=(math_Mat4x4& mat, float scalar)
+    {
+        mat = mat / scalar;
+        return mat;
+    }
+
+    constexpr math_Mat4x4
     math_Transpose(const math_Mat4x4& mat)
     {
         // clang-format off
@@ -83,7 +210,7 @@ namespace pge
         // clang-format on
     }
 
-    inline math_Mat4x4
+    constexpr math_Mat4x4
     operator*(const math_Mat4x4& left, const math_Mat4x4& right)
     {
         math_Mat4x4       result;
@@ -126,7 +253,7 @@ namespace pge
         // clang-format on
     }
 
-    inline math_Mat4x4
+    constexpr math_Mat4x4
     math_CreateScaleMatrix(const math_Vec3& scale)
     {
         math_Mat4x4 result;
@@ -138,7 +265,7 @@ namespace pge
         return result;
     }
 
-    inline math_Mat4x4
+    constexpr math_Mat4x4
     math_CreateTranslationMatrix(const math_Vec3& translation)
     {
         math_Mat4x4 result;
@@ -174,24 +301,6 @@ namespace pge
         mat[3][3] = 1;
         return mat;
     }
-
-    inline math_Mat4x4
-    math_CreateLookAtMatrix(const math_Vec3& eyePosition,
-                       const math_Vec3& targetPosition,
-                       const math_Vec3& up)
-    {
-        math_Vec3 fwd     = math_Normalize(eyePosition - targetPosition);
-        math_Vec3 right   = math_Normalize(math_Cross(up, fwd));
-        // clang-format off
-        return math_Mat4x4(
-            right.x,    right.y,   right.z,   -math_Dot(eyePosition, right),
-            up.x,       up.y,      up.z,      -math_Dot(eyePosition, up),
-            fwd.x,  fwd.y, fwd.z, -math_Dot(eyePosition, fwd),
-            0,          0,         0,          1
-        );
-        // clang-format on
-    }
-
 } // namespace pge
 
 #endif

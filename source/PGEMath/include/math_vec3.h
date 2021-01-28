@@ -1,6 +1,9 @@
 #ifndef PGE_MATH_MATH_VEC3_H
 #define PGE_MATH_MATH_VEC3_H
 
+#include "math_constants.h"
+#include <diag_assert.h>
+
 namespace pge
 {
     struct math_Vec3 {
@@ -11,42 +14,42 @@ namespace pge
             float xyz[3];
         };
 
-        inline static math_Vec3
+        constexpr static math_Vec3
         Zero()
         {
             return math_Vec3(0, 0, 0);
         }
-        inline static math_Vec3
+        constexpr static math_Vec3
         One()
         {
             return math_Vec3(1, 1, 1);
         }
 
-        inline math_Vec3()
+        constexpr math_Vec3()
             : x(0)
             , y(0)
             , z(0)
         {}
 
-        inline math_Vec3(float x, float y, float z)
+        constexpr math_Vec3(float x, float y, float z)
             : x(x)
             , y(y)
             , z(z)
         {}
 
-        inline const float
+        constexpr const float
         operator[](size_t index)
         {
             return xyz[index];
         }
 
-        inline const float&
+        constexpr const float&
         operator[](size_t index) const
         {
             return xyz[index];
         }
 
-        inline math_Vec3&
+        constexpr math_Vec3&
         operator+=(const math_Vec3& rhs)
         {
             this->x += rhs.x;
@@ -55,7 +58,7 @@ namespace pge
             return *this;
         }
 
-        inline math_Vec3&
+        constexpr math_Vec3&
         operator-=(const math_Vec3& rhs)
         {
             this->x -= rhs.x;
@@ -64,7 +67,7 @@ namespace pge
             return *this;
         }
 
-        inline math_Vec3&
+        constexpr math_Vec3&
         operator*=(float scalar)
         {
             this->x *= scalar;
@@ -73,7 +76,7 @@ namespace pge
             return *this;
         }
 
-        inline math_Vec3&
+        constexpr math_Vec3&
         operator/=(float scalar)
         {
             this->x /= scalar;
@@ -83,55 +86,73 @@ namespace pge
         }
     };
 
-    inline math_Vec3
+    constexpr bool
+    operator==(const math_Vec3& lhs, const math_Vec3& rhs)
+    {
+        for (size_t i = 0; i < 3; ++i)
+            if (!math_FloatEqual(lhs[i], rhs[i]))
+                return false;
+        return true;
+    }
+
+    constexpr bool
+    operator!=(const math_Vec3& lhs, const math_Vec3& rhs)
+    {
+        for (size_t i = 0; i < 3; ++i)
+            if (!math_FloatEqual(lhs[i], rhs[i]))
+                return true;
+        return false;
+    }
+
+    constexpr math_Vec3
     operator+(const math_Vec3& lhs, const math_Vec3& rhs)
     {
         return math_Vec3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
     }
 
-    inline math_Vec3
+    constexpr math_Vec3
     operator-(const math_Vec3& lhs, const math_Vec3& rhs)
     {
         return math_Vec3(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
     }
 
-    inline math_Vec3
+    constexpr math_Vec3
     operator-(const math_Vec3& lhs)
     {
         return math_Vec3(-lhs.x, -lhs.y, -lhs.z);
     }
 
-    inline math_Vec3
+    constexpr math_Vec3
     operator*(const math_Vec3& vec, float scalar)
     {
         return math_Vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
     }
 
-    inline math_Vec3
+    constexpr math_Vec3
     operator*(float scalar, const math_Vec3& vec)
     {
         return vec * scalar;
     }
 
-    inline math_Vec3
+    constexpr math_Vec3
     operator/(const math_Vec3& vec, float scalar)
     {
         return vec * (1.0f / scalar);
     }
 
-    inline float
+    constexpr float
     math_Dot(const math_Vec3& left, const math_Vec3& right)
     {
         return left.x * right.x + left.y * right.y + left.z * right.z;
     }
 
-    inline math_Vec3
+    constexpr math_Vec3
     math_Cross(const math_Vec3& left, const math_Vec3& right)
     {
         return math_Vec3(left.y * right.z - left.z * right.y, left.z * right.x - left.x * right.z, left.x * right.y - left.y * right.x);
     }
 
-    inline float
+    constexpr float
     math_LengthSquared(const math_Vec3& vec)
     {
         return math_Dot(vec, vec);
@@ -146,7 +167,9 @@ namespace pge
     inline math_Vec3
     math_Normalize(const math_Vec3& vec)
     {
-        float invLen = 1.0f / math_Length(vec);
+        float len = math_Length(vec);
+        diag_Assert(len > 0);
+        float invLen = 1.0f / len;
         return vec * invLen;
     }
 } // namespace pge

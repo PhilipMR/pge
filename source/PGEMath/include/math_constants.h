@@ -16,6 +16,16 @@ namespace pge
     {
         return rad / math_PI * 180.0f;
     }
+
+    constexpr bool
+    math_FloatEqual(float a, float b)
+    {
+        constexpr float epsilon = 0.0001f;
+        float diff = a - b;
+        if (diff < 0)
+            diff = -diff;
+        return diff < epsilon;
+    }
 } // namespace pge
 
 #endif
