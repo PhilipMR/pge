@@ -115,7 +115,24 @@ TEST(math_Mat4x4, MultiplyScalar)
     EXPECT_EQ(mat1, expected);
 }
 
-TEST(math_Mat4x4, MultiplyMatrix) {}
+TEST(math_Mat4x4, MultiplyMatrix) {
+    // clang-format off
+    math_Mat4x4 mat1(1, 1, 1, 1,
+                     2, 2, 2, 2,
+                     3, 3, 3, 3,
+                     4, 4, 4, 4);
+    math_Mat4x4 mat2(1, 2, 3, 4,
+                     1, 2, 3, 4,
+                     1, 2, 3, 4,
+                     1, 2, 3, 4);
+    math_Mat4x4 expected(4*1, 4*2, 4*3, 4*4,
+                         8*1, 8*2, 8*3, 8*4,
+                         12*1, 12*2, 12*3, 12*4,
+                         16*1, 16*2, 16*3, 16*4);
+    // clang-format on
+    math_Mat4x4 result = mat1 * mat2;
+    EXPECT_EQ(result, expected);
+}
 
 TEST(math_Mat4x4, MultiplyVector) {
     // clang-format off
@@ -168,6 +185,20 @@ TEST(math_Mat4x4, Translation) {
     EXPECT_EQ(result, expected);
 }
 
-TEST(math_Mat4x4, Rotation) {}
+TEST(math_Mat4x4, Rotation) {
+    math_Vec3 initialVec(1, 0, 0);
+    math_Quat rot90Y = math_QuaternionFromAxisAngle(math_Vec3(0, 1, 0), 90);
+    math_Mat4x4 rotMat = math_CreateRotationMatrix(rot90Y);
+    math_Vec3 expected(0, 0, -1);
+    math_Vec3 result = (rotMat * math_Vec4(initialVec, 1)).xyz;
+    EXPECT_EQ(result, expected);
+}
 
-TEST(math_Mat4x4, Scaling) {}
+TEST(math_Mat4x4, Scaling) {
+    math_Vec3 initialVec(3, 2, 1);
+    math_Vec3 scale(1, 2, -3);
+    math_Mat4x4 scaleMat = math_CreateScaleMatrix(scale);
+    math_Vec3 expected(3, 4, -3);
+    math_Vec3 result = (scaleMat * math_Vec4(initialVec, 1)).xyz;
+    EXPECT_EQ(result, expected);
+}

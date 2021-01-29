@@ -144,11 +144,7 @@ namespace pge
     constexpr math_Vec4
     operator*(const math_Mat4x4& mat, const math_Vec4& vec)
     {
-        return math_Vec4(
-            math_Dot(mat.rows[0], vec),
-            math_Dot(mat.rows[1], vec),
-            math_Dot(mat.rows[2], vec),
-            math_Dot(mat.rows[3], vec));
+        return math_Vec4(math_Dot(mat.rows[0], vec), math_Dot(mat.rows[1], vec), math_Dot(mat.rows[2], vec), math_Dot(mat.rows[3], vec));
     }
 
     constexpr math_Mat4x4
