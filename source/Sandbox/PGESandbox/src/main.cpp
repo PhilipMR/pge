@@ -15,6 +15,9 @@
 #include <math_mat4x4.h>
 #include <math_quat.h>
 #include <res_resource_manager.h>
+#include <game_scene.h>
+#include <game_camera.h>
+#include <game_transform.h>
 
 static LRESULT CALLBACK
 WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -23,123 +26,6 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
-
-namespace pge
-{
-    class Transform {
-        math_Vec3 m_position;
-        math_Vec3 m_scale;
-        math_Quat m_rotation;
-
-    public:
-        Transform()
-            : m_position()
-            , m_scale(math_Vec3::One())
-            , m_rotation()
-        {}
-
-        Transform(const math_Vec3& position, const math_Vec3& scale, const math_Quat& rotation)
-            : m_position(position)
-            , m_scale(scale)
-            , m_rotation(rotation)
-        {}
-
-        void
-        Translate(const math_Vec3& translation)
-        {
-            m_position += translation;
-        }
-
-        void
-        Scale(const math_Vec3& scale)
-        {
-            m_scale = math_Vec3(m_scale.x * scale.x, m_scale.y * scale.y, m_scale.z * scale.z);
-        }
-
-        void
-        Rotate(const math_Vec3& axis, float degrees)
-        {
-            m_rotation = math_Rotate(m_rotation, axis, degrees);
-        }
-
-        math_Vec3
-        GetPosition() const
-        {
-            return m_position;
-        }
-
-        math_Vec3
-        GetScale() const
-        {
-            return m_scale;
-        }
-
-        math_Quat
-        GetRotation() const
-        {
-            return m_rotation;
-        }
-
-        void
-        SetPosition(const math_Vec3& position)
-        {
-            m_position = position;
-        }
-
-        void
-        SetScale(const math_Vec3& scale)
-        {
-            m_scale = scale;
-        }
-
-        void
-        SetRotation(const math_Quat& rotation)
-        {
-            m_rotation = rotation;
-        }
-
-        math_Mat4x4
-        GetModelMatrix() const
-        {
-            return math_CreateTranslationMatrix(m_position) * math_CreateRotationMatrix(m_rotation) * math_CreateScaleMatrix(m_scale);
-        }
-
-        void
-        LookAt(const math_Vec3& target)
-        {}
-    };
-
-
-    class Camera {
-        Transform   m_transform;
-        math_Mat4x4 m_projectionMatrix;
-
-    public:
-        Camera(float fov, float aspect, float nearClip, float farClip)
-        {
-            m_projectionMatrix = math_Perspective(fov, aspect, nearClip, farClip);
-        }
-
-        Transform*
-        GetTransform()
-        {
-            return &m_transform;
-        }
-
-        math_Mat4x4
-        GetViewMatrix() const
-        {
-            return math_LookAt(m_transform.GetPosition(), math_Vec3(), math_Vec3(0, 1, 0));
-        }
-
-        math_Mat4x4
-        GetProjectionMatrix() const
-        {
-            return m_projectionMatrix;
-        }
-    };
-} // namespace pge
-
 
 int
 main()
@@ -165,11 +51,13 @@ main()
         const res_Mesh*     mesh     = resources.GetMesh(R"(C:\Users\phili\Desktop\suzanne\meshes\Suzanne.001.mesh)");
         const res_Material* material = resources.GetMaterial(R"(C:\Users\phili\Desktop\suzanne.mat)");
 
-        Camera camera(60.0f, 1280.0f / 720.0f, 0.01f, 100.0f);
-        camera.GetTransform()->SetPosition(math_Vec3(0, 0, 5));
-        camera.GetTransform()->LookAt(math_Vec3(0, 0, 0));
+        game_Scene scene;
 
-        Transform transform;
+
+        game_Camera camera(60.0f, 1280.0f / 720.0f, 0.01f, 100.0f);
+        camera.GetTransform()->SetPosition(math_Vec3(0, 0, 5));
+
+        game_Transform transform;
 
         // Create transforms constant buffer
         struct CBTransforms {

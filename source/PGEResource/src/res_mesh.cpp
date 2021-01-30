@@ -28,6 +28,18 @@ namespace pge
         input.close();
     }
 
+    res_SerializedMesh::res_SerializedMesh(math_Vec3* positions,
+                                           math_Vec3* normals,
+                                           math_Vec2* texturecoords,
+                                           math_Vec3* colors,
+                                           size_t     numVertices,
+                                           size_t     stride,
+                                           unsigned*  indices,
+                                           size_t     numTriangles)
+    {
+        diag_CrashAndBurn("Not implemented yet!");
+    }
+
     void
     res_SerializedMesh::Write(std::ostream& output)
     {
@@ -165,7 +177,6 @@ namespace pge
     {
         return m_numTriangles;
     }
-
 
 
     // ---------------------------------

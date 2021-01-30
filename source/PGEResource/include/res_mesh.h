@@ -7,6 +7,8 @@
 #include <fstream>
 #include <unordered_map>
 #include <string>
+#include <math_vec2.h>
+#include <math_vec3.h>
 
 namespace pge
 {
@@ -65,6 +67,14 @@ namespace pge
 
     public:
         explicit res_SerializedMesh(const char* path);
+        res_SerializedMesh(math_Vec3* positions,
+                           math_Vec3* normals,
+                           math_Vec2* texturecoords,
+                           math_Vec3* colors,
+                           size_t     numVertices,
+                           size_t     stride,
+                           unsigned*  indices,
+                           size_t     numTriangles);
 
         void Write(std::ostream& output);
 

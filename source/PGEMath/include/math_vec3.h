@@ -3,6 +3,7 @@
 
 #include "math_constants.h"
 #include <diag_assert.h>
+#include <cmath>
 
 namespace pge
 {

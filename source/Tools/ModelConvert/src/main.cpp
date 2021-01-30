@@ -68,6 +68,8 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
 
     std::ofstream output(ss.str().c_str(), std::ios::binary);
     res_SerializedMesh model(1, attributeFlags, mesh->mNumVertices, vertexDataSize, mesh->mNumFaces, vertexDataBegin, triangleDataBegin);
+
+
     model.Write(output);
     output.close();
     free(vertexDataBegin);

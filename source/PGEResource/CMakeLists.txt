@@ -12,6 +12,7 @@ add_library(pge_resource
 
 target_include_directories(pge_resource PRIVATE
     ../External/stb
+    ../PGEMath/include
     ../PGEGraphics/include
     ../PGEDiagnostics/include
 )
