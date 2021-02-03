@@ -49,10 +49,10 @@ main()
         const res_Mesh*     mesh     = resources.GetMesh(R"(data\meshes\suzanne\Suzanne.001.mesh)");
         const res_Material* material = resources.GetMaterial(R"(data\meshes\suzanne\Suzanne.001.mat)");
 
-        std::vector<game_StaticMesh> staticMeshes{game_StaticMesh(mesh, material)};
-        game_Scene                   scene(&graphicsAdapter, &graphicsDevice);
+        game_Scene scene(&graphicsAdapter, &graphicsDevice);
         scene.GetCamera()->GetTransform()->SetPosition(math_Vec3(0, 0, 5));
-        game_StaticMesh* entity = scene.CreateStaticMesh(mesh, material, game_Transform());
+        game_StaticMesh* entity1  = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(-3, 0, 0), math_Vec3::One(), math_Quat()));
+        game_StaticMesh* entity2 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(3, 0, 0), math_Vec3::One(), math_Quat()));
 
         // Create and use a graphics device for in the draw loop
         while (!display.IsCloseRequested()) {
@@ -60,7 +60,8 @@ main()
             graphicsDevice.Clear();
 
             const float rotSpeed = 360.0f / 60.0f * 0.1f;
-            entity->GetTransform()->Rotate(math_Vec3(0, 1, 0), -rotSpeed);
+            entity1->GetTransform()->Rotate(math_Vec3(0, 1, 0), -rotSpeed);
+            entity2->GetTransform()->Rotate(math_Vec3(0, 1, 0), rotSpeed);
             scene.Draw();
             graphicsDevice.Present();
         }

@@ -252,7 +252,7 @@ namespace pge
     math_Rotate(const math_Quat& quat, const math_Vec3& axis, float degrees)
     {
         math_Quat rotation = math_QuaternionFromAxisAngle(axis, degrees);
-        return rotation * quat * math_Invert(rotation);
+        return rotation * quat;
     }
 } // namespace pge
 

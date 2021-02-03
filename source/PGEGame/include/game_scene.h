@@ -16,6 +16,11 @@ namespace pge
         game_Transform      m_transform;
 
     public:
+        game_StaticMesh()
+            : m_mesh(nullptr)
+            , m_material(nullptr)
+        {}
+
         game_StaticMesh(const res_Mesh* mesh, const res_Material* material)
             : m_mesh(mesh)
             , m_material(material)
@@ -68,7 +73,9 @@ namespace pge
         game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
             : m_graphicsDevice(graphicsDevice)
             , m_cbTransforms(graphicsAdapter, nullptr, sizeof(CBTransforms), gfx_BufferUsage::DYNAMIC)
-        {}
+        {
+            m_staticMeshes.reserve(128);
+        }
 
         game_Camera*
         GetCamera()
@@ -76,9 +83,10 @@ namespace pge
             return &m_camera;
         }
 
-        game_StaticMesh* CreateStaticMesh(const res_Mesh* mesh, const res_Material* material, const game_Transform& transform)
+        game_StaticMesh*
+        CreateStaticMesh(const res_Mesh* mesh, const res_Material* material, const game_Transform& transform)
         {
-            m_staticMeshes.push_back(game_StaticMesh(mesh, material, transform));
+            m_staticMeshes.emplace_back(game_StaticMesh(mesh, material, transform));
             return &m_staticMeshes.back();
         }
 
@@ -90,8 +98,8 @@ namespace pge
                 mesh.GetMesh()->Bind();
                 mesh.GetMaterial()->Bind();
                 m_cbTransformsData.modelMatrix = mesh.GetTransform()->GetModelMatrix();
-                m_cbTransformsData.viewMatrix = m_camera.GetViewMatrix();
-                m_cbTransformsData.projMatrix = m_camera.GetProjectionMatrix();
+                m_cbTransformsData.viewMatrix  = m_camera.GetViewMatrix();
+                m_cbTransformsData.projMatrix  = m_camera.GetProjectionMatrix();
                 m_cbTransforms.Update(&m_cbTransformsData, sizeof(CBTransforms));
                 m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh.GetMesh()->GetNumTriangles() * 3);
             }
