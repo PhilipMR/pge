@@ -46,8 +46,8 @@ main()
 
         // Load resources
         res_ResourceManager resources(&graphicsAdapter);
-        const res_Mesh*     mesh     = resources.GetMesh(R"(C:\Users\phili\Desktop\untitled1\meshes\Cube.003.mesh)");
-        const res_Material* material = resources.GetMaterial(R"(C:\Users\phili\Desktop\untitled1\materials\checkers.mat)");
+        const res_Mesh*     mesh     = resources.GetMesh(R"(data\meshes\suzanne\Suzanne.001.mesh)");
+        const res_Material* material = resources.GetMaterial(R"(data\meshes\suzanne\Suzanne.001.mat)");
 
         std::vector<game_StaticMesh> staticMeshes{game_StaticMesh(mesh, material)};
         game_Scene                   scene(&graphicsAdapter, &graphicsDevice);

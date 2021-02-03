@@ -1,0 +1,5 @@
+Effect = data/effects/default.effect
+Properties {
+	float4 			MainColor(1.0, 1.0, 1.0, 1.0)
+	Texture2D 	DiffuseMap(data/materials/checkers_albedo.png)
+}

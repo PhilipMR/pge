@@ -1,0 +1,70 @@
+Properties {
+	float4 			MainColor 
+	Texture2D 	DiffuseMap 
+}
+
+VertexShader {
+	cbuffer CBTransforms : register(b0)
+	{
+	  row_major float4x4 ModelMatrix;
+	  row_major float4x4 ViewMatrix;
+	  row_major float4x4 ProjMatrix;
+	};
+	
+	struct VertexIn
+	{
+		float3 position 	: POSITION;
+		float3 normal 		: NORMAL;
+		float2 texcoord 	: TEXTURECOORD;
+	};
+
+	struct PixelIn
+	{
+		float4 positionNDC 	: SV_POSITION;
+		float3 normal 				: NORMAL;
+		float2 texcoord 			: TEXTURECOORD;
+	};
+
+	PixelIn VSMain(VertexIn vertex)
+	{
+		PixelIn outp;
+		outp.positionNDC = mul(ProjMatrix, mul(ViewMatrix, mul(ModelMatrix, float4(vertex.position, 1.0f))));
+		outp.normal = mul(ViewMatrix, mul(ModelMatrix, float4(vertex.normal, 0.0f)));
+		outp.texcoord = vertex.texcoord;
+		return outp;
+	};
+}
+
+PixelShader {
+	Texture2D 		DiffuseTexture  : register(t0);
+	SamplerState 	DiffuseSampler : register(s0);
+
+	cbuffer CBProperties : register(b0)
+	{
+	   float4 	MainColor;
+	};
+
+	struct PixelIn
+	{
+		float4 positionNDC 	: SV_POSITION;
+		float3 normal 				: NORMAL;
+		float2 texcoord 			: TEXTURECOORD;
+	};
+
+	float4 tex2Dmultisample(float2 uv)
+	{
+		float2 dx = ddx(uv) * 0.25;
+		float2 dy = ddy(uv) * 0.25;
+		float4 sample0 = DiffuseTexture.Sample(DiffuseSampler, uv + dx + dy);
+		float4 sample1 = DiffuseTexture.Sample(DiffuseSampler, uv + dx - dy);
+		float4 sample2 = DiffuseTexture.Sample(DiffuseSampler, uv - dx + dy);
+		float4 sample3 = DiffuseTexture.Sample(DiffuseSampler, uv - dx - dy);
+		return (sample0 + sample1 + sample2 + sample3) * 0.25;
+	}
+
+	float4 PSMain(PixelIn pixel) : SV_TARGET
+	{
+		float4 diffuseTex = tex2Dmultisample(pixel.texcoord);
+		return MainColor * diffuseTex * float4(pixel.normal, 1.0f);
+	};
+}
