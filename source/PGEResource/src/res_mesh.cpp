@@ -33,11 +33,44 @@ namespace pge
                                            math_Vec2* texturecoords,
                                            math_Vec3* colors,
                                            size_t     numVertices,
-                                           size_t     stride,
-                                           unsigned*  indices,
+                                           unsigned*  triangleData,
                                            size_t     numTriangles)
+        : m_version(res_SerializedMesh::Version)
+        , m_numVertices(numVertices)
+        , m_numTriangles(numTriangles)
     {
-        diag_CrashAndBurn("Not implemented yet!");
+        m_attributeFlags = 0;
+        m_attributeFlags |= !positions ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::POSITION);
+        m_attributeFlags |= !normals ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::NORMAL);
+        m_attributeFlags |= !texturecoords ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::TEXTURECOORD);
+        m_attributeFlags |= !colors ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::COLOR);
+
+        size_t stride    = res_SerializedVertexAttribute_GetVertexStride(m_attributeFlags);
+        m_vertexDataSize = stride * numVertices;
+
+        m_vertexData   = std::unique_ptr<char[]>(new char[m_vertexDataSize]);
+        m_triangleData = std::unique_ptr<unsigned[]>(new unsigned[m_numTriangles * 3]);
+
+        size_t offset = 0;
+        for (size_t i = 0; i < numVertices; ++i) {
+            if (positions) {
+                memcpy(m_vertexData.get() + offset, &positions[i], sizeof(math_Vec3));
+                offset += sizeof(math_Vec3);
+            }
+            if (normals) {
+                memcpy(m_vertexData.get() + offset, &normals[i], sizeof(math_Vec3));
+                offset += sizeof(math_Vec3);
+            }
+            if (texturecoords) {
+                memcpy(m_vertexData.get() + offset, &texturecoords[i], sizeof(math_Vec2));
+                offset += sizeof(math_Vec2);
+            }
+            if (colors) {
+                memcpy(m_vertexData.get() + offset, &colors[i], sizeof(math_Vec3));
+                offset += sizeof(math_Vec3);
+            }
+        }
+        memcpy(m_triangleData.get(), triangleData, GetTriangleDataSize(m_numTriangles));
     }
 
     void

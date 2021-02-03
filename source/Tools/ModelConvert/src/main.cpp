@@ -20,43 +20,17 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
     attributeFlags |= mesh->HasTextureCoords(0) ? res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::TEXTURECOORD) : 0;
     attributeFlags |= mesh->HasVertexColors(0) ? res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::COLOR) : 0;
 
-    const size_t vertexStride = res_SerializedVertexAttribute_GetVertexStride(attributeFlags);
-    const size_t vertexDataSize = mesh->mNumVertices * vertexStride;
+    const size_t vertexStride     = res_SerializedVertexAttribute_GetVertexStride(attributeFlags);
+    const size_t vertexDataSize   = mesh->mNumVertices * vertexStride;
     const size_t triangleDataSize = mesh->mNumVertices * 3 * sizeof(unsigned);
 
-    char* vertexData    = (char*)malloc(vertexDataSize);
-    char* vertexDataBegin = vertexData;
-
-    for (unsigned i = 0; i < mesh->mNumVertices; ++i) {
-        if (mesh->HasPositions()) {
-            const aiVector3D& position = mesh->mVertices[i];
-            memcpy(vertexData, &position, sizeof(position));
-            vertexData += sizeof(position);
-        }
-        if (mesh->HasNormals()) {
-            const aiVector3D& normal = mesh->mNormals[i];
-            memcpy(vertexData, &normal, sizeof(normal));
-            vertexData += sizeof(normal);
-        }
-        if (mesh->HasTextureCoords(0)) {
-            const aiVector2D& texcoord0 = aiVector2D(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-            memcpy(vertexData, &texcoord0, sizeof(texcoord0));
-            vertexData += sizeof(texcoord0);
-        }
-        if (mesh->HasVertexColors(0)) {
-            const aiVector3D& color = aiVector3D(mesh->mColors[0][i].r, mesh->mColors[0][i].g, mesh->mColors[0][i].b);
-            memcpy(vertexData, &color, sizeof(color));
-            vertexData += sizeof(color);
-        }
-    }
-
-    unsigned* triangleData = (unsigned*)malloc(triangleDataSize);
-    unsigned* triangleDataBegin = triangleData;
+    std::unique_ptr<unsigned[]> triangleData(new unsigned[triangleDataSize]);
+    unsigned*                   triangleDataIt = triangleData.get();
     diag_Assert(mesh->mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
     for (unsigned i = 0; i < mesh->mNumFaces; ++i) {
         for (int j = 0; j < 3; ++j) {
-            *triangleData = mesh->mFaces[i].mIndices[j];
-            triangleData++;
+            *triangleDataIt = mesh->mFaces[i].mIndices[j];
+            triangleDataIt++;
         }
     }
 
@@ -66,14 +40,17 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
     CreateDirectory(ss.str().c_str(), nullptr);
     ss << "\\" << mesh->mName.C_Str() << ".mesh";
 
-    std::ofstream output(ss.str().c_str(), std::ios::binary);
-    res_SerializedMesh model(1, attributeFlags, mesh->mNumVertices, vertexDataSize, mesh->mNumFaces, vertexDataBegin, triangleDataBegin);
-
+    std::ofstream      output(ss.str().c_str(), std::ios::binary);
+    res_SerializedMesh model(reinterpret_cast<math_Vec3*>(mesh->mVertices),
+                             reinterpret_cast<math_Vec3*>(mesh->mNormals),
+                             reinterpret_cast<math_Vec2*>(mesh->mTextureCoords[0]),
+                             reinterpret_cast<math_Vec3*>(mesh->mColors[0]),
+                             mesh->mNumVertices,
+                             triangleData.get(),
+                             mesh->mNumFaces);
 
     model.Write(output);
     output.close();
-    free(vertexDataBegin);
-    free(triangleDataBegin);
 }
 
 void
@@ -117,11 +94,11 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 
     for (unsigned i = 0; i < scene->mNumMeshes; ++i) {
         ExtractMesh(scene->mMeshes[i], targetPath);
-        printf("Done extracting mesh %d: %s\n", i, scene->mMeshes[i]->mName.C_Str());
+        printf("Done extracting mesh %d: %s\n", i+1, scene->mMeshes[i]->mName.C_Str());
     }
     for (unsigned i = 0; i < scene->mNumMaterials; ++i) {
         ExtractMaterial(scene->mMaterials[i], targetPath);
-        printf("Done extracting material %d: %s\n", i, scene->mMaterials[i]->GetName().C_Str());
+        printf("Done extracting material %d: %s\n", i+1, scene->mMaterials[i]->GetName().C_Str());
     }
     if (SceneHasSkeleton(scene)) {
         ExtractSkeleton(scene->mRootNode, targetPath);
@@ -129,7 +106,7 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     }
     for (unsigned i = 0; i < scene->mNumAnimations; ++i) {
         ExtractAnimation(scene->mAnimations[i], targetPath);
-        printf("Done extracting animation %d: %s\n", i, scene->mAnimations[i]->mName.C_Str());
+        printf("Done extracting animation %d: %s\n", i+1, scene->mAnimations[i]->mName.C_Str());
     }
 
     aiReleaseImport(scene);
@@ -138,6 +115,6 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 int
 main()
 {
-    ConvertModel("C:\\Users\\phili\\Desktop\\suzanne.fbx", "C:\\Users\\phili\\Desktop\\suzanne");
+    ConvertModel(R"(C:\Users\phili\Desktop\untitled1.fbx)", R"(C:\Users\phili\Desktop\untitled1)");
     return 0;
 }

@@ -65,6 +65,8 @@ namespace pge
         std::unique_ptr<char[]>     m_vertexData;
         std::unique_ptr<unsigned[]> m_triangleData;
 
+        static const uint16_t Version = 1;
+
     public:
         explicit res_SerializedMesh(const char* path);
         res_SerializedMesh(math_Vec3* positions,
@@ -72,9 +74,10 @@ namespace pge
                            math_Vec2* texturecoords,
                            math_Vec3* colors,
                            size_t     numVertices,
-                           size_t     stride,
-                           unsigned*  indices,
+                           unsigned*  triangleData,
                            size_t     numTriangles);
+
+
 
         void Write(std::ostream& output);
 

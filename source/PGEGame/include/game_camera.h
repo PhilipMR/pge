@@ -11,6 +11,7 @@ namespace pge
         math_Mat4x4    m_projectionMatrix;
 
     public:
+        game_Camera();
         game_Camera(float fov, float aspect, float nearClip, float farClip);
 
         game_Transform* GetTransform();
