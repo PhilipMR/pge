@@ -25,7 +25,7 @@ namespace pge
     math_Mat4x4
     game_Camera::GetViewMatrix() const
     {
-        return math_LookAt(m_transform.GetPosition(), math_Vec3(), math_Vec3(0, 1, 0));
+        return math_LookAt(m_transform.GetPosition(), math_Vec3());
     }
 
     math_Mat4x4

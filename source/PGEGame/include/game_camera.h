@@ -85,7 +85,7 @@ namespace pge
                 forward = math_Vec3(sinf(yaw) * cosf(pitch), sinf(pitch), -cosf(yaw) * cosf(pitch));
             }
 
-            m_viewMatrix = math_LookAt(position, position + forward, up);
+            m_viewMatrix = math_LookAt(position, position + forward);
         }
 
         math_Mat4x4 GetViewMatrix() const { return m_viewMatrix; }

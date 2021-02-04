@@ -221,10 +221,15 @@ namespace pge
     }
 
     inline math_Mat4x4
-    math_LookAt(const math_Vec3& eye, const math_Vec3& target, const math_Vec3& up)
+    math_LookAt(const math_Vec3& eye, const math_Vec3& target)
     {
+        const math_Vec3 tmp(0, 1, 0);
         math_Vec3 forward = math_Normalize(eye - target);
-        math_Vec3 right   = math_Normalize(math_Cross(up, forward));
+        math_Vec3 right = math_Normalize(math_Cross(tmp, forward));
+        math_Vec3 up = math_Cross(forward, right);
+//
+//        math_Vec3 forward = math_Normalize(eye - target);
+//        math_Vec3 right   = math_Normalize(math_Cross(up, forward));
         // clang-format off
         return math_Mat4x4(
             right.x,    right.y,   right.z,   -math_Dot(eye, right),
