@@ -35,24 +35,14 @@ namespace pge
             // clang-format on
         }
 
+        // clang-format off
         constexpr math_Mat4x4()
-            : m11(1)
-            , m12(0)
-            , m13(0)
-            , m14(0)
-            , m21(0)
-            , m22(1)
-            , m23(0)
-            , m24(0)
-            , m31(0)
-            , m32(0)
-            , m33(1)
-            , m34(0)
-            , m41(0)
-            , m42(0)
-            , m43(0)
-            , m44(1)
+            : m11(1), m12(0), m13(0), m14(0)
+            , m21(0), m22(1), m23(0), m24(0)
+            , m31(0), m32(0), m33(1), m34(0)
+            , m41(0), m42(0), m43(0), m44(1)
         {}
+        // clang-format on
 
         constexpr math_Mat4x4(
             // clang-format off
@@ -224,12 +214,9 @@ namespace pge
     math_LookAt(const math_Vec3& eye, const math_Vec3& target)
     {
         const math_Vec3 tmp(0, 1, 0);
-        math_Vec3 forward = math_Normalize(eye - target);
-        math_Vec3 right = math_Normalize(math_Cross(tmp, forward));
-        math_Vec3 up = math_Cross(forward, right);
-//
-//        math_Vec3 forward = math_Normalize(eye - target);
-//        math_Vec3 right   = math_Normalize(math_Cross(up, forward));
+        math_Vec3       forward = math_Normalize(eye - target);
+        math_Vec3       right   = math_Normalize(math_Cross(tmp, forward));
+        math_Vec3       up      = math_Cross(forward, right);
         // clang-format off
         return math_Mat4x4(
             right.x,    right.y,   right.z,   -math_Dot(eye, right),
@@ -270,7 +257,7 @@ namespace pge
     math_CreateTranslationMatrix(const math_Vec3& translation)
     {
         math_Mat4x4 result;
-        for (size_t i = 0; i < 4; ++i) {
+        for (size_t i = 0; i < 3; ++i) {
             result[i][3] = translation[i];
         }
         return result;

@@ -69,8 +69,8 @@ namespace pge
             }
 
             // Update camera rotation.
-            float yaw   = (forward.x >= 0 ? 1 : -1) * acosf(math_Dot(right, math_Vec3(1, 0, 0)));
-            float pitch = (forward.y >= 0 ? 1 : -1) * acosf(math_Dot(up, math_Vec3(0, 1, 0)));
+            float yaw   = (forward.x >= 0 ? 1 : -1) * acosf(math_Clamp(math_Dot(right, math_Vec3(1, 0, 0)), -1, 1));
+            float pitch = (forward.y >= 0 ? 1 : -1) * acosf(math_Clamp(math_Dot(up, math_Vec3(0, 1, 0)), -1, 1));
 
             math_Vec2 rotation = input_MouseDelta();
             if (math_LengthSquared(rotation) > 0) {
@@ -88,8 +88,16 @@ namespace pge
             m_viewMatrix = math_LookAt(position, position + forward);
         }
 
-        math_Mat4x4 GetViewMatrix() const { return m_viewMatrix; }
-        math_Mat4x4 GetProjectionMatrix() const { return m_projectionMatrix; }
+        math_Mat4x4
+        GetViewMatrix() const
+        {
+            return m_viewMatrix;
+        }
+        math_Mat4x4
+        GetProjectionMatrix() const
+        {
+            return m_projectionMatrix;
+        }
     };
 
 

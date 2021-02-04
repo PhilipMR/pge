@@ -30,7 +30,7 @@ namespace pge
 
     res_SerializedMesh::res_SerializedMesh(math_Vec3* positions,
                                            math_Vec3* normals,
-                                           math_Vec2* texturecoords,
+                                           math_Vec2* texcoords,
                                            math_Vec3* colors,
                                            size_t     numVertices,
                                            unsigned*  triangleData,
@@ -42,7 +42,7 @@ namespace pge
         m_attributeFlags = 0;
         m_attributeFlags |= !positions ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::POSITION);
         m_attributeFlags |= !normals ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::NORMAL);
-        m_attributeFlags |= !texturecoords ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::TEXTURECOORD);
+        m_attributeFlags |= !texcoords ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::TEXTURECOORD);
         m_attributeFlags |= !colors ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::COLOR);
 
         size_t stride    = res_SerializedVertexAttribute_GetVertexStride(m_attributeFlags);
@@ -61,8 +61,8 @@ namespace pge
                 memcpy(m_vertexData.get() + offset, &normals[i], sizeof(math_Vec3));
                 offset += sizeof(math_Vec3);
             }
-            if (texturecoords) {
-                memcpy(m_vertexData.get() + offset, &texturecoords[i], sizeof(math_Vec2));
+            if (texcoords) {
+                memcpy(m_vertexData.get() + offset, &texcoords[i], sizeof(math_Vec2));
                 offset += sizeof(math_Vec2);
             }
             if (colors) {
@@ -161,7 +161,7 @@ namespace pge
 
     res_Mesh::res_Mesh(gfx_GraphicsAdapter*       graphicsAdapter,
                        const gfx_VertexAttribute* attributes,
-                       unsigned                   numAttributes,
+                       size_t                     numAttributes,
                        const void*                vertexData,
                        size_t                     vertexDataSize,
                        const unsigned*            indexData,
@@ -172,7 +172,7 @@ namespace pge
         , m_numTriangles(numIndices / 3)
     {
         size_t stride = 0;
-        for (unsigned i = 0; i < numAttributes; ++i)
+        for (size_t i = 0; i < numAttributes; ++i)
             stride += gfx_VertexAttributeType_GetSize(attributes[i].Type());
         m_vertexStride = stride;
     }

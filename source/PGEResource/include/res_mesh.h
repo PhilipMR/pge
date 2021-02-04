@@ -71,7 +71,7 @@ namespace pge
         explicit res_SerializedMesh(const char* path);
         res_SerializedMesh(math_Vec3* positions,
                            math_Vec3* normals,
-                           math_Vec2* texturecoords,
+                           math_Vec2* texcoords,
                            math_Vec3* colors,
                            size_t     numVertices,
                            unsigned*  triangleData,
@@ -102,7 +102,7 @@ namespace pge
     public:
         res_Mesh(gfx_GraphicsAdapter*       graphicsAdapter,
                  const gfx_VertexAttribute* attributes,
-                 unsigned                   numAttributes,
+                 size_t                     numAttributes,
                  const void*                vertexData,
                  size_t                     vertexDataSize,
                  const unsigned*            indexData,

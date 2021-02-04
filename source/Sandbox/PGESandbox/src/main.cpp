@@ -49,12 +49,13 @@ main()
 
         // Load resources
         res_ResourceManager resources(&graphicsAdapter);
-        const res_Mesh*     mesh     = resources.GetMesh(R"(data\meshes\suzanne\Suzanne.001.mesh)");
-        const res_Material* material = resources.GetMaterial(R"(data\meshes\suzanne\Suzanne.001.mat)");
+        const res_Mesh*     mesh     = resources.GetMesh(R"(data\meshes\cube\Cube.001.mesh)");
+        const res_Material* material = resources.GetMaterial(R"(data\materials\checkers.mat)");
 
-        game_Scene scene(&graphicsAdapter, &graphicsDevice);
-        game_StaticMesh* entity1  = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(-3, 0, 0)));
-        game_StaticMesh* entity2 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(3, 0, 0)));
+        game_Scene       scene(&graphicsAdapter, &graphicsDevice);
+        game_StaticMesh* entity1 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(-3, 2, 0)));
+        game_StaticMesh* entity2 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(3, 2, 0)));
+        game_StaticMesh* floorEntity = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3::Zero(), math_Vec3(10.0f, 1.0f, 10.0f), math_Quat()));
 
         // Create and use a graphics device for in the draw loop
         while (!display.IsCloseRequested()) {

@@ -40,10 +40,18 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
     CreateDirectory(ss.str().c_str(), nullptr);
     ss << "\\" << mesh->mName.C_Str() << ".mesh";
 
+
+    std::vector<math_Vec2> texcoords;
+    texcoords.reserve(mesh->mNumVertices);
+    for (size_t i = 0; i < mesh->mNumVertices; ++i) {
+        const aiVector3D& texcoord = mesh->mTextureCoords[0][i];
+        texcoords.emplace_back(math_Vec2(texcoord.x, texcoord.y));
+    }
+
     std::ofstream      output(ss.str().c_str(), std::ios::binary);
     res_SerializedMesh model(reinterpret_cast<math_Vec3*>(mesh->mVertices),
                              reinterpret_cast<math_Vec3*>(mesh->mNormals),
-                             reinterpret_cast<math_Vec2*>(mesh->mTextureCoords[0]),
+                             &texcoords[0],
                              reinterpret_cast<math_Vec3*>(mesh->mColors[0]),
                              mesh->mNumVertices,
                              triangleData.get(),
@@ -115,6 +123,6 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 int
 main()
 {
-    ConvertModel(R"(C:\Users\phili\Desktop\untitled1.fbx)", R"(C:\Users\phili\Desktop\untitled1)");
+    ConvertModel(R"(C:\Users\phili\Desktop\cube.fbx)", R"(C:\Users\phili\Desktop\cube)");
     return 0;
 }
