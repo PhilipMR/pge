@@ -8,6 +8,12 @@ namespace pge
         , m_rotation()
     {}
 
+    game_Transform::game_Transform(const math_Vec3& position)
+        : m_position(position)
+        , m_scale(math_Vec3::One())
+        , m_rotation()
+    {}
+
     game_Transform::game_Transform(const math_Vec3& position, const math_Vec3& scale, const math_Quat& rotation)
         : m_position(position)
         , m_scale(scale)

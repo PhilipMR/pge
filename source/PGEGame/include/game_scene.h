@@ -58,7 +58,7 @@ namespace pge
     };
 
     class game_Scene {
-        game_Camera                  m_camera;
+        game_FPSCamera               m_camera;
         std::vector<game_StaticMesh> m_staticMeshes;
 
         struct CBTransforms {
@@ -77,7 +77,7 @@ namespace pge
             m_staticMeshes.reserve(128);
         }
 
-        game_Camera*
+        game_FPSCamera*
         GetCamera()
         {
             return &m_camera;
@@ -93,6 +93,8 @@ namespace pge
         void
         Draw()
         {
+            m_camera.UpdateFPS(.1f);
+
             m_cbTransforms.BindVS(0);
             for (const auto& mesh : m_staticMeshes) {
                 mesh.GetMesh()->Bind();

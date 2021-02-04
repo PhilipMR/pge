@@ -15,12 +15,15 @@
 #include <game_scene.h>
 #include <game_camera.h>
 #include <game_transform.h>
+#include <input_events_win32.h>
 
 static LRESULT CALLBACK
 WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_DESTROY)
         PostQuitMessage(0);
+    pge::input_Win32KeyboardEvents(hwnd, uMsg, wParam, lParam);
+    pge::input_Win32MouseEvents(hwnd, uMsg, wParam, lParam);
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
@@ -50,12 +53,14 @@ main()
         const res_Material* material = resources.GetMaterial(R"(data\meshes\suzanne\Suzanne.001.mat)");
 
         game_Scene scene(&graphicsAdapter, &graphicsDevice);
-        scene.GetCamera()->GetTransform()->SetPosition(math_Vec3(0, 0, 5));
-        game_StaticMesh* entity1  = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(-3, 0, 0), math_Vec3::One(), math_Quat()));
-        game_StaticMesh* entity2 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(3, 0, 0), math_Vec3::One(), math_Quat()));
+        game_StaticMesh* entity1  = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(-3, 0, 0)));
+        game_StaticMesh* entity2 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(3, 0, 0)));
 
         // Create and use a graphics device for in the draw loop
         while (!display.IsCloseRequested()) {
+            input_KeyboardClearDelta();
+            input_MouseClearDelta();
+
             display.HandleEvents();
             graphicsDevice.Clear();
 

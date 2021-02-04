@@ -14,6 +14,7 @@ namespace pge
 
     public:
         game_Transform();
+        game_Transform(const math_Vec3& position);
         game_Transform(const math_Vec3& position, const math_Vec3& scale, const math_Quat& rotation);
 
         void Translate(const math_Vec3& translation);

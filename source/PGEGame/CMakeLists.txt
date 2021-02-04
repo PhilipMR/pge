@@ -11,6 +11,7 @@ add_library(pge_game
 target_include_directories(pge_game PRIVATE
     ../PGEDiagnostics/include
     ../PGEMath/include
+    ../PGEInput/include
     ../PGEGraphics/include
     ../PGEResource/include
     ../PGERenderer/include

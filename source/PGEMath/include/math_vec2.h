@@ -2,6 +2,7 @@
 #define PGE_MATH_MATH_VEC2_H
 
 #include "math_constants.h"
+#include <cmath>
 
 namespace pge
 {

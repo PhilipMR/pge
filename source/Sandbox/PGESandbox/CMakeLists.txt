@@ -9,6 +9,7 @@ add_executable(pge_sandbox
 target_include_directories(pge_sandbox PRIVATE 
     ../../External/imgui
     ../../PGEOS/include
+    ../../PGEInput/include
     ../../PGEGraphics/include
     ../../PGEMath/include
     ../../PGEResource/include
@@ -21,6 +22,7 @@ target_link_libraries(pge_sandbox PRIVATE
     d3dcompiler.lib
     imgui
     pge_os
+    pge_input
     pge_graphics
     pge_resource
     pge_diagnostics
