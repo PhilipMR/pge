@@ -15,6 +15,7 @@ target_include_directories(pge_sandbox PRIVATE
     ../../PGEResource/include
     ../../PGEDiagnostics/include
     ../../PGEGame/include
+    ../../PGEEditor/include
 )
 
 target_link_libraries(pge_sandbox PRIVATE 
@@ -27,4 +28,5 @@ target_link_libraries(pge_sandbox PRIVATE
     pge_resource
     pge_diagnostics
     pge_game
+    pge_editor
 )

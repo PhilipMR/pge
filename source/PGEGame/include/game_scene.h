@@ -91,6 +91,12 @@ namespace pge
         }
 
         void
+        Update()
+        {
+            m_camera.UpdateFPS(.1f);
+        }
+
+        void
         Draw()
         {
             m_camera.UpdateFPS(.1f);

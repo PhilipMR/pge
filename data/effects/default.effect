@@ -65,6 +65,6 @@ PixelShader {
 	float4 PSMain(PixelIn pixel) : SV_TARGET
 	{
 		float4 diffuseTex = tex2Dmultisample(pixel.texcoord);
-		return MainColor * diffuseTex * float4(pixel.normal, 1.0f);
+		return MainColor * diffuseTex;
 	};
 }

@@ -41,8 +41,18 @@ namespace pge
         }
 
         void
+        SetLookAt(const math_Vec3& position, const math_Vec3& target)
+        {
+            math_Vec3 forward = target - position;
+            m_viewMatrix      = math_LookAt(position, position + forward);
+        }
+
+        void
         UpdateFPS(float speed)
         {
+            if (!input_MouseButtonDown(input_MouseButton::RIGHT))
+                return;
+
             math_Mat4x4 xform;
             diag_Verify(math_Invert(m_viewMatrix, &xform));
             math_Vec3 right    = math_Vec3(xform[0][0], xform[1][0], xform[2][0]);

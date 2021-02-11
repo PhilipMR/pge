@@ -34,6 +34,7 @@ namespace pge
         RSHIFT
     };
 
+    void input_KeyboardClearState();
     void input_KeyboardClearDelta();
     bool input_KeyboardDown(input_KeyboardKey key);
     bool input_KeyboardPressed(input_KeyboardKey key);
