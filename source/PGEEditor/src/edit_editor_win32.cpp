@@ -31,10 +31,14 @@ namespace pge
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGui::StyleColorsDark();
+        //        ImGui::StyleColorsDark();
+        ImGui::StyleColorsLight();
+
         ImGui_ImplWin32_Init(displayWin32->GetWindowHandle());
         ImGui_ImplDX11_Init(graphicsD3D11->GetDevice(), graphicsD3D11->GetDeviceContext());
         ImGui::GetIO().IniFilename = nullptr;
+
+        ImGui::GetIO().Fonts->AddFontFromFileTTF("data/fonts/Roboto-Regular.ttf", 16);
 
         s_isInitialized = true;
     }
@@ -73,4 +77,48 @@ namespace pge
         return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsAnyItemHovered();
     }
 
+    void
+    edit_DrawLeftPanel()
+    {
+        ImGuiWindowFlags flags = 0;
+        flags |= ImGuiWindowFlags_NoMove;
+        flags |= ImGuiWindowFlags_NoNav;
+        flags |= ImGuiWindowFlags_NoCollapse;
+
+        static const float panelSizeMinWidth = 150.0f;
+        static const float panelSizeMaxWidth = 350.0f;
+        static const float menuBarHeight     = 0.0f;
+
+        float displayHeight = ImGui::GetIO().DisplaySize.y;
+        ImGui::SetNextWindowPos(ImVec2(0, menuBarHeight));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(panelSizeMinWidth, displayHeight), ImVec2(panelSizeMaxWidth, displayHeight));
+        if (ImGui::Begin("Scene panel", nullptr, flags)) {
+            ImGui::End();
+        }
+    }
+
+    void
+    edit_DrawRightPanel()
+    {
+        ImGuiWindowFlags flags = 0;
+        flags |= ImGuiWindowFlags_NoMove;
+//        flags |= ImGuiWindowFlags_NoNav;
+//        flags |= ImGuiWindowFlags_NoCollapse;
+
+        static const float panelSizeMinWidth = 150.0f;
+        static const float panelSizeMaxWidth = 350.0f;
+        static const float menuBarHeight     = 0.0f;
+
+        float displayWidth  = ImGui::GetIO().DisplaySize.x;
+        float displayHeight = ImGui::GetIO().DisplaySize.y;
+        //ImGui::SetNextWindowSizeConstraints(ImVec2(panelSizeMinWidth, displayHeight), ImVec2(panelSizeMaxWidth, displayHeight));
+        if (ImGui::Begin("Inspection panel", nullptr, flags)) {
+            float panelWidth = ImGui::GetWindowSize().x;
+            //ImGui::SetNextWindowPos(ImVec2(displayWidth - panelWidth, menuBarHeight));
+            ImGui::End();
+        }
+    }
+
+    void edit_DrawTopPanel();
+    void edit_DrawBottomPanel();
 } // namespace pge

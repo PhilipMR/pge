@@ -11,6 +11,11 @@ namespace pge
     void edit_Gui_BeginFrame();
     void edit_Gui_EndFrame();
     bool edit_Gui_IsFocused();
+
+    void edit_DrawLeftPanel();
+    void edit_DrawRightPanel();
+    void edit_DrawTopPanel();
+    void edit_DrawBottomPanel();
 } // namespace pge
 
 #endif

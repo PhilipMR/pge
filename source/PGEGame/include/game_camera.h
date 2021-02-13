@@ -84,8 +84,9 @@ namespace pge
 
             math_Vec2 rotation = input_MouseDelta();
             if (math_LengthSquared(rotation) > 0) {
-                yaw += rotation.x * 0.01f;
-                pitch -= rotation.y * 0.01f;
+                const float rotSpeed = 0.005f;
+                yaw += rotation.x * rotSpeed;
+                pitch -= rotation.y * rotSpeed;
 
                 if (pitch > 0.25f * math_PI)
                     pitch = 0.25f * math_PI;

@@ -81,7 +81,8 @@ main()
             scene.Draw();
 
             edit_Gui_BeginFrame();
-            // DRAW EDITOR STUFF
+            //edit_DrawLeftPanel();
+            edit_DrawRightPanel();
             edit_Gui_EndFrame();
 
             graphicsDevice.Present();
