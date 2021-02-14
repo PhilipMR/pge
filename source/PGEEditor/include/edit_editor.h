@@ -5,6 +5,7 @@ namespace pge
 {
     class os_Display;
     class gfx_GraphicsAdapter;
+    class game_Scene;
 
     void edit_Gui_Initialize(os_Display* display, gfx_GraphicsAdapter* graphics);
     void edit_Gui_Shutdown();
