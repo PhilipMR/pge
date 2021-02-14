@@ -37,7 +37,8 @@ namespace pge
         ImGui_ImplWin32_Init(displayWin32->GetWindowHandle());
         ImGui_ImplDX11_Init(graphicsD3D11->GetDevice(), graphicsD3D11->GetDeviceContext());
         ImGui::GetIO().IniFilename = nullptr;
-
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        // ImGui::GetIO().ConfigDockingWithShift = true;
         ImGui::GetIO().Fonts->AddFontFromFileTTF("data/fonts/Roboto-Regular.ttf", 16);
 
         s_isInitialized = true;
@@ -100,23 +101,16 @@ namespace pge
     void
     edit_DrawRightPanel()
     {
-        ImGuiWindowFlags flags = 0;
-        flags |= ImGuiWindowFlags_NoMove;
-//        flags |= ImGuiWindowFlags_NoNav;
-//        flags |= ImGuiWindowFlags_NoCollapse;
+        // ImGui::DockSpace(0, ImVec2(100, 1080));
 
-        static const float panelSizeMinWidth = 150.0f;
-        static const float panelSizeMaxWidth = 350.0f;
-        static const float menuBarHeight     = 0.0f;
+        ImGui::Begin("Inspection panel", nullptr, 0);
+        ImGui::End();
 
-        float displayWidth  = ImGui::GetIO().DisplaySize.x;
-        float displayHeight = ImGui::GetIO().DisplaySize.y;
-        //ImGui::SetNextWindowSizeConstraints(ImVec2(panelSizeMinWidth, displayHeight), ImVec2(panelSizeMaxWidth, displayHeight));
-        if (ImGui::Begin("Inspection panel", nullptr, flags)) {
-            float panelWidth = ImGui::GetWindowSize().x;
-            //ImGui::SetNextWindowPos(ImVec2(displayWidth - panelWidth, menuBarHeight));
-            ImGui::End();
-        }
+        ImGui::Begin("dewded panel", nullptr, 0);
+        ImGui::End();
+
+        ImGui::Begin("dedede panel", nullptr, 0);
+        ImGui::End();
     }
 
     void edit_DrawTopPanel();

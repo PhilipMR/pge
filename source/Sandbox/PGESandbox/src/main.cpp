@@ -1,3 +1,5 @@
+#include <imgui/imgui.h>
+
 #ifdef _DEBUG
 #    define new new (_NORMAL_BLOCK, __FILE__, __LINE__)
 #    define malloc(size) _malloc_dbg(size, _NORMAL_BLOCK, __FILE__, __LINE__)
@@ -81,6 +83,31 @@ main()
             scene.Draw();
 
             edit_Gui_BeginFrame();
+
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("File"))
+                {
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("Edit"))
+                {
+                    if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+                    if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+                    ImGui::Separator();
+                    if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+                    if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+                    if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }
+
+            ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
+
+
+
+
             //edit_DrawLeftPanel();
             edit_DrawRightPanel();
             edit_Gui_EndFrame();
