@@ -99,8 +99,6 @@ namespace pge
         void
         Draw()
         {
-            m_camera.UpdateFPS(.1f);
-
             m_cbTransforms.BindVS(0);
             for (const auto& mesh : m_staticMeshes) {
                 mesh.GetMesh()->Bind();

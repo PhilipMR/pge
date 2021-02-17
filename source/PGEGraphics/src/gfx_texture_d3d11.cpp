@@ -15,7 +15,7 @@ namespace pge
     }
 
     static UINT
-    GetFormatBytes(gfx_PixelFormat format)
+    GetFormatSizeBytes(gfx_PixelFormat format)
     {
         switch (format) {
             case gfx_PixelFormat::R8G8B8A8_UNORM: return 4;
@@ -51,7 +51,7 @@ namespace pge
         textureDesc.CPUAccessFlags     = 0;
         textureDesc.MiscFlags          = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-        UINT bytesInRow   = GetFormatBytes(format) * width;
+        UINT bytesInRow   = GetFormatSizeBytes(format) * width;
         UINT bytesInTotal = height * bytesInRow;
 
         HRESULT result = device->CreateTexture2D(&textureDesc, nullptr, &m_impl->m_texture);
@@ -84,5 +84,12 @@ namespace pge
     gfx_Texture2D::Bind(unsigned slot) const
     {
         m_impl->m_deviceContext->PSSetShaderResources(slot, 1, &m_impl->m_srv);
+    }
+
+    void gfx_Texture2D_Unbind(gfx_GraphicsAdapter* graphicsAdapter, unsigned slot)
+    {
+        auto                    graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
+        ID3D11ShaderResourceView* srvs[] = { nullptr };
+        graphicsAdapterD3D11->GetDeviceContext()->PSSetShaderResources(slot, 1, srvs);
     }
 } // namespace pge

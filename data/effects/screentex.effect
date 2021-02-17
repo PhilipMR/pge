@@ -1,0 +1,44 @@
+Properties {
+	Texture2D 	TexMap 
+}
+
+VertexShader {
+	struct VertexIn
+	{
+		float2 position 	: POSITION;
+		float2 texcoord 	: TEXTURECOORD;
+	};
+
+	struct PixelIn
+	{
+		float4 positionNDC 	: SV_POSITION;
+		float2 texcoord 			: TEXTURECOORD;
+	};
+
+	PixelIn VSMain(VertexIn vertex)
+	{
+		PixelIn outp;
+		outp.positionNDC = float4(vertex.position, 0.0f, 1.0f);
+		outp.texcoord = vertex.texcoord;
+		return outp;
+	};
+}
+
+PixelShader {
+	Texture2D 	TexMap  : register(t0);
+	SamplerState TexSampler { 
+		AddressU = D3D11_TEXTURE_ADDRESS_CLAMP; 
+		AddressV = D3D11_TEXTURE_ADDRESS_CLAMP; 
+	};
+
+	struct PixelIn
+	{
+		float4 positionNDC 	: SV_POSITION;
+		float2 texcoord 			: TEXTURECOORD;
+	};
+
+	float4 PSMain(PixelIn pixel) : SV_TARGET
+	{
+		return TexMap.Sample(TexSampler, pixel.texcoord);
+	};
+}

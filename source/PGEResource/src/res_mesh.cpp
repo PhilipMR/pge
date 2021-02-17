@@ -167,7 +167,7 @@ namespace pge
                        const unsigned*            indexData,
                        size_t                     numIndices)
         : m_vertexBuffer(graphicsAdapter, vertexData, vertexDataSize, gfx_BufferUsage::STATIC)
-        , m_indexBuffer(graphicsAdapter, indexData, numIndices, gfx_BufferUsage::STATIC)
+        , m_indexBuffer(graphicsAdapter, indexData, numIndices * sizeof(unsigned), gfx_BufferUsage::STATIC)
         , m_vertexLayout(graphicsAdapter, attributes, numAttributes)
         , m_numTriangles(numIndices / 3)
     {

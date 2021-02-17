@@ -1,1 +1,5 @@
 source/cmake-build-debug/
+source/.vs/
+source/*/.vs/
+source/*/*/.vs/
+source/*/*/*/.vs/

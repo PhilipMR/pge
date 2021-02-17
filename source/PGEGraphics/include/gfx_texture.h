@@ -19,6 +19,9 @@ namespace pge
         ~gfx_Texture2D();
         void Bind(unsigned slot) const;
     };
+
+    void gfx_Texture2D_Unbind(gfx_GraphicsAdapter* graphicsAdapter, unsigned slot);
+
 } // namespace pge
 
 #endif

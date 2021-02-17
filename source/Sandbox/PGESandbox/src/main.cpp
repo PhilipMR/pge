@@ -12,6 +12,7 @@
 #include <os_display_win32.h>
 #include <gfx_graphics_adapter_d3d11.h>
 #include <gfx_graphics_device.h>
+#include <gfx_render_target.h>
 #include <res_resource_manager.h>
 #include <game_scene.h>
 #include <game_camera.h>
@@ -20,15 +21,18 @@
 #include <edit_events_win32.h>
 #include <edit_editor.h>
 
+static bool s_hoveringGameWindow = false;
+
 static LRESULT CALLBACK
 WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_DESTROY)
         PostQuitMessage(0);
     pge::edit_Win32Events(hwnd, uMsg, wParam, lParam);
-    pge::input_Win32KeyboardEvents(hwnd, uMsg, wParam, lParam);
-    pge::input_Win32MouseEvents(hwnd, uMsg, wParam, lParam);
-    if (pge::edit_Gui_IsFocused()) {
+    if (s_hoveringGameWindow) {
+        pge::input_Win32KeyboardEvents(hwnd, uMsg, wParam, lParam);
+        pge::input_Win32MouseEvents(hwnd, uMsg, wParam, lParam);
+    } else {
         pge::input_KeyboardClearState();
         pge::input_MouseClearDelta();
     }
@@ -50,8 +54,10 @@ main()
 
     // Scope main body so everything is deallocated by the end of main.
     {
+        const math_Vec2 resolution(1920, 1080);
+
         // Create graphics context
-        os_DisplayWin32          display("PGE Sandbox", 1280, 720, WindowProc);
+        os_DisplayWin32          display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
         gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
         gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
 
@@ -67,6 +73,8 @@ main()
             = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3::Zero(), math_Vec3(10.0f, 1.0f, 10.0f), math_Quat()));
         scene.GetCamera()->SetLookAt(math_Vec3(0, 10.0f, -10.0f), math_Vec3::Zero());
 
+        gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x, resolution.y, true);
+
         // Create and use a graphics device for in the draw loop
         edit_Gui_Initialize(&display, &graphicsAdapter);
         while (!display.IsCloseRequested()) {
@@ -74,26 +82,29 @@ main()
             input_MouseClearDelta();
 
             display.HandleEvents();
-            graphicsDevice.Clear();
 
             const float rotSpeed = 360.0f / 60.0f * 0.1f;
             entity1->GetTransform()->Rotate(math_Vec3(0, 1, 0), -rotSpeed);
             entity2->GetTransform()->Rotate(math_Vec3(0, 1, 0), rotSpeed);
             scene.Update();
+
+            gfx_Texture2D_Unbind(&graphicsAdapter, 0);
+            rtGame.Bind();
+            rtGame.Clear();
             scene.Draw();
+
+            gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
+            graphicsDevice.Clear();
 
             edit_Gui_BeginFrame();
 
-            if (ImGui::BeginMainMenuBar())
-            {
-                if (ImGui::BeginMenu("File"))
-                {
+            if (ImGui::BeginMainMenuBar()) {
+                if (ImGui::BeginMenu("File")) {
                     ImGui::EndMenu();
                 }
-                if (ImGui::BeginMenu("Edit"))
-                {
+                if (ImGui::BeginMenu("Edit")) {
                     if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-                    if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+                    if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {} // Disabled item
                     ImGui::Separator();
                     if (ImGui::MenuItem("Cut", "CTRL+X")) {}
                     if (ImGui::MenuItem("Copy", "CTRL+C")) {}
@@ -105,11 +116,20 @@ main()
 
             ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
 
+            ImGui::Begin("Game");
+            ImGui::Image(rtGame.GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
+            s_hoveringGameWindow = ImGui::IsWindowHovered();
+            ImGui::End();
 
+            ImGui::Begin("Inspector", nullptr, 0);
+            ImGui::End();
 
+            ImGui::Begin("Scene graph", nullptr, 0);
+            ImGui::End();
 
-            //edit_DrawLeftPanel();
-            edit_DrawRightPanel();
+            ImGui::Begin("Explorer", nullptr, 0);
+            ImGui::End();
+
             edit_Gui_EndFrame();
 
             graphicsDevice.Present();

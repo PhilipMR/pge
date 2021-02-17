@@ -36,7 +36,7 @@ VertexShader {
 }
 
 PixelShader {
-	Texture2D 		DiffuseTexture  : register(t0);
+	Texture2D 		DiffuseMap  : register(t0);
 	SamplerState 	DiffuseSampler : register(s0);
 
 	cbuffer CBProperties : register(b0)
@@ -55,10 +55,10 @@ PixelShader {
 	{
 		float2 dx = ddx(uv) * 0.25;
 		float2 dy = ddy(uv) * 0.25;
-		float4 sample0 = DiffuseTexture.Sample(DiffuseSampler, uv + dx + dy);
-		float4 sample1 = DiffuseTexture.Sample(DiffuseSampler, uv + dx - dy);
-		float4 sample2 = DiffuseTexture.Sample(DiffuseSampler, uv - dx + dy);
-		float4 sample3 = DiffuseTexture.Sample(DiffuseSampler, uv - dx - dy);
+		float4 sample0 = DiffuseMap.Sample(DiffuseSampler, uv + dx + dy);
+		float4 sample1 = DiffuseMap.Sample(DiffuseSampler, uv + dx - dy);
+		float4 sample2 = DiffuseMap.Sample(DiffuseSampler, uv - dx + dy);
+		float4 sample3 = DiffuseMap.Sample(DiffuseSampler, uv - dx - dy);
 		return (sample0 + sample1 + sample2 + sample3) * 0.25;
 	}
 

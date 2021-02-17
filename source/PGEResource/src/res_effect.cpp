@@ -1,6 +1,7 @@
 #include "../include/res_effect.h"
 #include <fstream>
 #include <string>
+#include <diag_assert.h>
 
 namespace pge
 {
@@ -54,6 +55,7 @@ namespace pge
         ReadMode      readMode = ReadMode::SCAN_STRUCTURE;
         std::string   line;
         std::ifstream file(path);
+        diag_Assert(file.is_open());
         while (std::getline(file, line)) {
             switch (readMode) {
                 case ReadMode::SCAN_STRUCTURE: {

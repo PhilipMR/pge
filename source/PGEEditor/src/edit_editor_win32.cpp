@@ -31,14 +31,12 @@ namespace pge
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        //        ImGui::StyleColorsDark();
-        ImGui::StyleColorsLight();
+        ImGui::StyleColorsDark();
 
         ImGui_ImplWin32_Init(displayWin32->GetWindowHandle());
         ImGui_ImplDX11_Init(graphicsD3D11->GetDevice(), graphicsD3D11->GetDeviceContext());
         ImGui::GetIO().IniFilename = nullptr;
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        // ImGui::GetIO().ConfigDockingWithShift = true;
         ImGui::GetIO().Fonts->AddFontFromFileTTF("data/fonts/Roboto-Regular.ttf", 16);
 
         s_isInitialized = true;
@@ -69,50 +67,4 @@ namespace pge
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     }
-
-    bool
-    edit_Gui_IsFocused()
-    {
-        if (!s_isInitialized)
-            return false;
-        return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsAnyItemHovered();
-    }
-
-    void
-    edit_DrawLeftPanel()
-    {
-        ImGuiWindowFlags flags = 0;
-        flags |= ImGuiWindowFlags_NoMove;
-        flags |= ImGuiWindowFlags_NoNav;
-        flags |= ImGuiWindowFlags_NoCollapse;
-
-        static const float panelSizeMinWidth = 150.0f;
-        static const float panelSizeMaxWidth = 350.0f;
-        static const float menuBarHeight     = 0.0f;
-
-        float displayHeight = ImGui::GetIO().DisplaySize.y;
-        ImGui::SetNextWindowPos(ImVec2(0, menuBarHeight));
-        ImGui::SetNextWindowSizeConstraints(ImVec2(panelSizeMinWidth, displayHeight), ImVec2(panelSizeMaxWidth, displayHeight));
-        if (ImGui::Begin("Scene panel", nullptr, flags)) {
-            ImGui::End();
-        }
-    }
-
-    void
-    edit_DrawRightPanel()
-    {
-        // ImGui::DockSpace(0, ImVec2(100, 1080));
-
-        ImGui::Begin("Inspection panel", nullptr, 0);
-        ImGui::End();
-
-        ImGui::Begin("dewded panel", nullptr, 0);
-        ImGui::End();
-
-        ImGui::Begin("dedede panel", nullptr, 0);
-        ImGui::End();
-    }
-
-    void edit_DrawTopPanel();
-    void edit_DrawBottomPanel();
 } // namespace pge
