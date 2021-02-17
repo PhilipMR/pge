@@ -77,11 +77,19 @@ main()
 
         // Create and use a graphics device for in the draw loop
         edit_Gui_Initialize(&display, &graphicsAdapter);
+        ImGui::LoadIniSettingsFromDisk("layout.ini");
         while (!display.IsCloseRequested()) {
             input_KeyboardClearDelta();
             input_MouseClearDelta();
 
             display.HandleEvents();
+
+            if (input_KeyboardPressed(input_KeyboardKey::NUM1)) {
+                ImGui::SaveIniSettingsToDisk("layout.ini");
+            }
+            if (input_KeyboardPressed(input_KeyboardKey::NUM2)) {
+                ImGui::LoadIniSettingsFromDisk("layout.ini");
+            }
 
             const float rotSpeed = 360.0f / 60.0f * 0.1f;
             entity1->GetTransform()->Rotate(math_Vec3(0, 1, 0), -rotSpeed);
