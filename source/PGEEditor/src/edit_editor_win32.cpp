@@ -19,7 +19,7 @@ namespace pge
     }
 
     void
-    edit_Gui_Initialize(os_Display* display, gfx_GraphicsAdapter* graphics)
+    edit_Initialize(os_Display* display, gfx_GraphicsAdapter* graphics)
     {
         diag_Assert(!s_isInitialized);
 
@@ -43,7 +43,7 @@ namespace pge
     }
 
     void
-    edit_Gui_Shutdown()
+    edit_Shutdown()
     {
         diag_Assert(s_isInitialized);
         ImGui_ImplDX11_Shutdown();
@@ -52,16 +52,17 @@ namespace pge
     }
 
     void
-    edit_Gui_BeginFrame()
+    edit_BeginFrame()
     {
         diag_Assert(s_isInitialized);
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
+        ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
     }
 
     void
-    edit_Gui_EndFrame()
+    edit_EndFrame()
     {
         diag_Assert(s_isInitialized);
         ImGui::Render();

@@ -32,11 +32,56 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (s_hoveringGameWindow) {
         pge::input_Win32KeyboardEvents(hwnd, uMsg, wParam, lParam);
         pge::input_Win32MouseEvents(hwnd, uMsg, wParam, lParam);
-    } else {
-        pge::input_KeyboardClearState();
-        pge::input_MouseClearDelta();
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+pge::game_Entity       entities[3];
+pge::game_TransformId  transforms[3];
+pge::game_StaticMeshId meshes[3];
+
+static void
+InitializeScene(pge::game_Scene* scene, pge::res_ResourceManager* resources)
+{
+    using namespace pge;
+
+    auto em = scene->GetEntityManager();
+    auto mm = scene->GetEntityMetaDataManager();
+    auto tm = scene->GetTransformManager();
+    auto sm = scene->GetStaticMeshManager();
+
+    const res_Mesh*     mesh     = resources->GetMesh(R"(data\meshes\cube\Cube.001.mesh)");
+    const res_Material* material = resources->GetMaterial(R"(data\materials\checkers.mat)");
+
+    em->CreateEntities(entities, 3);
+    tm->CreateTransforms(entities, 3, transforms);
+    sm->CreateStaticMeshes(entities, 3, meshes);
+
+    for (size_t i = 0; i < 3; ++i) {
+        const char* name = i == 0 ? "Alpha" : (i == 1 ? "Beta" : (i == 2 ? "Charlie" : "Unknown"));
+        mm->CreateMetaData(entities[i], game_EntityMetaData(entities[i], name));
+        sm->SetMesh(meshes[i], mesh);
+        sm->SetMaterial(meshes[i], material);
+    }
+
+    tm->SetLocal(transforms[0], math_CreateTranslationMatrix(math_Vec3(-3, 2, 0)));
+    tm->SetLocal(transforms[1], math_CreateTranslationMatrix(math_Vec3(3, 2, 0)));
+    tm->SetLocal(transforms[2], math_CreateScaleMatrix(math_Vec3(10, 1, 10)));
+
+    scene->GetCamera()->SetLookAt(math_Vec3(0, 10.0f, -10.0f), math_Vec3::Zero());
+}
+
+static void
+UpdateScene(pge::game_Scene* scene)
+{
+    using namespace pge;
+    auto        tm       = scene->GetTransformManager();
+    const float rotSpeed = 360.0f / 60.0f * 0.1f;
+    tm->Rotate(transforms[0], math_Vec3(0, 1, 0), -rotSpeed);
+    tm->Rotate(transforms[1], math_Vec3(0, 1, 0), rotSpeed);
+
+    scene->Update();
 }
 
 int
@@ -54,95 +99,50 @@ main()
 
     // Scope main body so everything is deallocated by the end of main.
     {
-        const math_Vec2 resolution(1920, 1080);
+        const math_Vec2 resolution(1600, 900);
 
         // Create graphics context
         os_DisplayWin32          display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
         gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
         gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
 
-        // Load resources
-        res_ResourceManager resources(&graphicsAdapter);
-        const res_Mesh*     mesh     = resources.GetMesh(R"(data\meshes\cube\Cube.001.mesh)");
-        const res_Material* material = resources.GetMaterial(R"(data\materials\checkers.mat)");
+        // Setup scene
+        res_ResourceManager      resources(&graphicsAdapter);
+        game_Scene               scene(&graphicsAdapter, &graphicsDevice);
+        InitializeScene(&scene, &resources);
 
-        game_Scene       scene(&graphicsAdapter, &graphicsDevice);
-        game_StaticMesh* entity1 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(-3, 2, 0)));
-        game_StaticMesh* entity2 = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3(3, 2, 0)));
-        game_StaticMesh* floorEntity
-            = scene.CreateStaticMesh(mesh, material, game_Transform(math_Vec3::Zero(), math_Vec3(10.0f, 1.0f, 10.0f), math_Quat()));
-        scene.GetCamera()->SetLookAt(math_Vec3(0, 10.0f, -10.0f), math_Vec3::Zero());
-
+        // Set up editor
         gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x, resolution.y, true);
+        edit_Initialize(&display, &graphicsAdapter);
+        edit_Editor editor;
 
-        // Create and use a graphics device for in the draw loop
-        edit_Gui_Initialize(&display, &graphicsAdapter);
-        ImGui::LoadIniSettingsFromDisk("layout.ini");
         while (!display.IsCloseRequested()) {
+            // Update input, window and scene
             input_KeyboardClearDelta();
             input_MouseClearDelta();
-
             display.HandleEvents();
+            UpdateScene(&scene);
 
-            if (input_KeyboardPressed(input_KeyboardKey::NUM1)) {
-                ImGui::SaveIniSettingsToDisk("layout.ini");
-            }
-            if (input_KeyboardPressed(input_KeyboardKey::NUM2)) {
-                ImGui::LoadIniSettingsFromDisk("layout.ini");
-            }
-
-            const float rotSpeed = 360.0f / 60.0f * 0.1f;
-            entity1->GetTransform()->Rotate(math_Vec3(0, 1, 0), -rotSpeed);
-            entity2->GetTransform()->Rotate(math_Vec3(0, 1, 0), rotSpeed);
-            scene.Update();
-
+            // Draw scene to texture
             gfx_Texture2D_Unbind(&graphicsAdapter, 0);
             rtGame.Bind();
             rtGame.Clear();
             scene.Draw();
-
             gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
-            graphicsDevice.Clear();
+            gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
 
-            edit_Gui_BeginFrame();
-
-            if (ImGui::BeginMainMenuBar()) {
-                if (ImGui::BeginMenu("File")) {
-                    ImGui::EndMenu();
-                }
-                if (ImGui::BeginMenu("Edit")) {
-                    if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-                    if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {} // Disabled item
-                    ImGui::Separator();
-                    if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-                    if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-                    if (ImGui::MenuItem("Paste", "CTRL+V")) {}
-                    ImGui::EndMenu();
-                }
-                ImGui::EndMainMenuBar();
-            }
-
-            ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
-
-            ImGui::Begin("Game");
-            ImGui::Image(rtGame.GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y));
-            s_hoveringGameWindow = ImGui::IsWindowHovered();
-            ImGui::End();
-
-            ImGui::Begin("Inspector", nullptr, 0);
-            ImGui::End();
-
-            ImGui::Begin("Scene graph", nullptr, 0);
-            ImGui::End();
-
-            ImGui::Begin("Explorer", nullptr, 0);
-            ImGui::End();
-
-            edit_Gui_EndFrame();
+            // Draw editor (with scene texture to window)
+            edit_BeginFrame();
+            editor.DrawMenuBar();
+            s_hoveringGameWindow = editor.DrawRenderTarget("Game", &rtGame);
+            editor.DrawEntityTree(&scene);
+            editor.DrawInspector(&scene);
+            editor.DrawExplorer();
+            edit_EndFrame();
 
             graphicsDevice.Present();
         }
-        edit_Gui_Shutdown();
+        edit_Shutdown();
     }
 
     return 0;

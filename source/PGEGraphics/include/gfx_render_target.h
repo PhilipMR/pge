@@ -17,10 +17,11 @@ namespace pge
         void Clear();
         void Bind() const;
         void BindTexture(unsigned slot) const;
-        void* GetNativeTexture();
+        void* GetNativeTexture() const;
     };
 
     void gfx_RenderTarget_BindMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
+    void gfx_RenderTarget_ClearMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
 }
 
 #endif

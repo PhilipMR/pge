@@ -8,19 +8,6 @@
 
 namespace pge
 {
-    class game_Camera {
-        game_Transform m_transform;
-        math_Mat4x4    m_projectionMatrix;
-
-    public:
-        game_Camera();
-        game_Camera(float fov, float aspect, float nearClip, float farClip);
-
-        game_Transform* GetTransform();
-        math_Mat4x4     GetViewMatrix() const;
-        math_Mat4x4     GetProjectionMatrix() const;
-    };
-
     class game_FPSCamera {
         math_Mat4x4 m_projectionMatrix;
         math_Mat4x4 m_viewMatrix;

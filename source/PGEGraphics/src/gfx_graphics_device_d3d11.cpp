@@ -9,7 +9,6 @@ namespace pge
         ID3D11DeviceContext*    m_deviceContext;
         ID3D11RenderTargetView* m_mainRTV;
         ID3D11DepthStencilView* m_depthStencil;
-        float                   m_clearColor[4];
     };
     gfx_GraphicsDevice::gfx_GraphicsDevice(gfx_GraphicsAdapter* adapter)
         : m_impl(new gfx_GraphicsDeviceImpl)
@@ -22,13 +21,6 @@ namespace pge
     }
 
     gfx_GraphicsDevice::~gfx_GraphicsDevice() = default;
-
-    void
-    gfx_GraphicsDevice::Clear()
-    {
-        m_impl->m_deviceContext->ClearRenderTargetView(m_impl->m_mainRTV, m_impl->m_clearColor);
-        m_impl->m_deviceContext->ClearDepthStencilView(m_impl->m_depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
-    }
 
     void
     gfx_GraphicsDevice::Present()
@@ -64,11 +56,15 @@ namespace pge
     }
 
     void
-    gfx_GraphicsDevice::SetClearColor(float r, float g, float b, float a)
+    gfx_GraphicsDevice::SetViewport(float x, float y, float width, float height)
     {
-        m_impl->m_clearColor[0] = r;
-        m_impl->m_clearColor[1] = g;
-        m_impl->m_clearColor[2] = b;
-        m_impl->m_clearColor[3] = a;
+        D3D11_VIEWPORT viewport = {0};
+        viewport.TopLeftX       = x;
+        viewport.TopLeftY       = y;
+        viewport.Width          = width;
+        viewport.Height         = height;
+        viewport.MinDepth       = 0.0f;
+        viewport.MaxDepth       = 1.0f;
+        m_impl->m_deviceContext->RSSetViewports(1, &viewport);
     }
 } // namespace pge

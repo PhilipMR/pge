@@ -83,7 +83,7 @@ namespace pge
     void
     gfx_RenderTarget::Clear()
     {
-        float clearColor[] = { 0, 0, 0, 1 };
+        float clearColor[] = {0, 0, 0, 1};
         m_impl->m_deviceContext->ClearRenderTargetView(m_impl->m_rtv, clearColor);
         if (m_impl->m_dsv) {
             m_impl->m_deviceContext->ClearDepthStencilView(m_impl->m_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
@@ -103,7 +103,7 @@ namespace pge
     }
 
     void*
-    gfx_RenderTarget::GetNativeTexture()
+    gfx_RenderTarget::GetNativeTexture() const
     {
         return m_impl->m_srv;
     }
@@ -115,5 +115,16 @@ namespace pge
         ID3D11RenderTargetView* rtv                  = graphicsAdapterD3D11->GetMainRTV();
         ID3D11DepthStencilView* dsv                  = graphicsAdapterD3D11->GetDepthStencil();
         graphicsAdapterD3D11->GetDeviceContext()->OMSetRenderTargets(1, &rtv, dsv);
+    }
+
+    void
+    gfx_RenderTarget_ClearMainRTV(gfx_GraphicsAdapter* graphicsAdapter)
+    {
+        float                   clearColor[]         = {0, 0, 0, 1};
+        auto                    graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
+        ID3D11RenderTargetView* rtv                  = graphicsAdapterD3D11->GetMainRTV();
+        ID3D11DepthStencilView* dsv                  = graphicsAdapterD3D11->GetDepthStencil();
+        graphicsAdapterD3D11->GetDeviceContext()->ClearRenderTargetView(rtv, clearColor);
+        graphicsAdapterD3D11->GetDeviceContext()->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
     }
 } // namespace pge

@@ -23,12 +23,10 @@ namespace pge
         explicit gfx_GraphicsDevice(gfx_GraphicsAdapter* adapter);
         ~gfx_GraphicsDevice();
 
-        void Clear();
         void Present();
         void Draw(gfx_PrimitiveType primitive, unsigned first, unsigned count);
         void DrawIndexed(gfx_PrimitiveType primitive, unsigned first, unsigned count);
-
-        void SetClearColor(float r, float g, float b, float a);
+        void SetViewport(float x, float y, float width, float height);
     };
 } // namespace pge
 
