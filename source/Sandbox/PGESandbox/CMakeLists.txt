@@ -6,6 +6,8 @@ add_executable(pge_sandbox
     src/main.cpp
 )
 
+add_definitions(-DNOMINMAX)
+
 target_include_directories(pge_sandbox PRIVATE 
     ../../External/imgui
     ../../PGEOS/include

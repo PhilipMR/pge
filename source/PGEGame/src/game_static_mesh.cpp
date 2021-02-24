@@ -1,6 +1,7 @@
 #include "../include/game_static_mesh.h"
 #include <diag_assert.h>
 #include <math_mat4x4.h>
+#include <gfx_debug_draw.h>
 
 namespace pge
 {
@@ -72,7 +73,13 @@ namespace pge
         for (const auto& mesh : m_meshes) {
             mesh.mesh->Bind();
             mesh.material->Bind();
+
             m_cbTransformsData.modelMatrix = tm.GetWorld(tm.GetTransformId(mesh.entity));
+
+            auto aabb = mesh.mesh->GetAABB();
+            aabb = math_TransformAABB(aabb, m_cbTransformsData.modelMatrix);
+            gfx_DebugDraw_Box(aabb.min, aabb.max);
+
             m_cbTransforms.Update(&m_cbTransformsData, sizeof(CBTransforms));
             m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh.mesh->GetNumTriangles() * 3);
         }

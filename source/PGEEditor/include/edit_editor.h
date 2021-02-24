@@ -21,6 +21,7 @@ namespace pge
 
     public:
         edit_Editor();
+        void HandleEvents();
         void DrawMenuBar();
         bool DrawRenderTarget(const char* title,const gfx_RenderTarget* target);
         void DrawEntityTree(const game_Scene* scene);

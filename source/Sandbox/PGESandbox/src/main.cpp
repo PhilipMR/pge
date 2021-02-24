@@ -15,11 +15,10 @@
 #include <gfx_render_target.h>
 #include <res_resource_manager.h>
 #include <game_scene.h>
-#include <game_camera.h>
-#include <game_transform.h>
 #include <input_events_win32.h>
 #include <edit_events_win32.h>
 #include <edit_editor.h>
+#include <gfx_debug_draw.h>
 
 static bool s_hoveringGameWindow = false;
 
@@ -65,8 +64,8 @@ InitializeScene(pge::game_Scene* scene, pge::res_ResourceManager* resources)
         sm->SetMaterial(meshes[i], material);
     }
 
-    tm->SetLocal(transforms[0], math_CreateTranslationMatrix(math_Vec3(-3, 2, 0)));
-    tm->SetLocal(transforms[1], math_CreateTranslationMatrix(math_Vec3(3, 2, 0)));
+    tm->SetLocal(transforms[0], math_CreateTranslationMatrix(math_Vec3(-6, 5, 0)));
+    tm->SetLocal(transforms[1], math_CreateTranslationMatrix(math_Vec3(6, 5, 0)));
     tm->SetLocal(transforms[2], math_CreateScaleMatrix(math_Vec3(10, 1, 10)));
 
     scene->GetCamera()->SetLookAt(math_Vec3(0, 10.0f, -10.0f), math_Vec3::Zero());
@@ -107,8 +106,8 @@ main()
         gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
 
         // Setup scene
-        res_ResourceManager      resources(&graphicsAdapter);
-        game_Scene               scene(&graphicsAdapter, &graphicsDevice);
+        res_ResourceManager resources(&graphicsAdapter);
+        game_Scene          scene(&graphicsAdapter, &graphicsDevice);
         InitializeScene(&scene, &resources);
 
         // Set up editor
@@ -116,6 +115,7 @@ main()
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor;
 
+        gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
         while (!display.IsCloseRequested()) {
             // Update input, window and scene
             input_KeyboardClearDelta();
@@ -128,11 +128,28 @@ main()
             rtGame.Bind();
             rtGame.Clear();
             scene.Draw();
+
+
+            gfx_DebugDraw_SetView(scene.GetCamera()->GetViewMatrix());
+            gfx_DebugDraw_SetProjection(scene.GetCamera()->GetProjectionMatrix());
+
+            const float thickness = 0.1f;
+            const float length    = 100.0f;
+            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), thickness);
+            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), thickness);
+            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);
+
+            gfx_DebugDraw_Box(math_Vec3(10, 10, 10), math_Vec3(50, 50, 50), math_Vec3(1, 1, 1), thickness);
+            gfx_DebugDraw_Point(math_Vec3(5, 5, 5), math_Vec3(1, 0, 1), thickness);
+            gfx_DebugDraw_Flush();
+
+
             gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
             gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
 
             // Draw editor (with scene texture to window)
             edit_BeginFrame();
+            editor.HandleEvents();
             editor.DrawMenuBar();
             s_hoveringGameWindow = editor.DrawRenderTarget("Game", &rtGame);
             editor.DrawEntityTree(&scene);
@@ -142,6 +159,7 @@ main()
 
             graphicsDevice.Present();
         }
+        gfx_DebugDraw_Shutdown();
         edit_Shutdown();
     }
 

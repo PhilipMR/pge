@@ -13,6 +13,12 @@ namespace pge
         ImGui::LoadIniSettingsFromDisk(s_PathToLayoutIni);
     }
 
+
+    void edit_Editor::HandleEvents()
+    {
+
+    }
+
     void
     edit_Editor::DrawMenuBar()
     {

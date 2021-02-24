@@ -1,4 +1,5 @@
 #include "../include/res_mesh.h"
+#include <diag_assert.h>
 
 namespace pge
 {
@@ -143,6 +144,13 @@ namespace pge
         return stride;
     }
 
+    math_AABB
+    res_SerializedMesh::GetAABB() const
+    {
+        size_t vertexStride = m_vertexDataSize / m_numVertices;
+        return math_CreateAABB(m_vertexData.get(), m_numVertices, vertexStride, 0);
+    }
+
 
     // ----------------------------------------------
     // res_Mesh
@@ -175,6 +183,11 @@ namespace pge
         for (size_t i = 0; i < numAttributes; ++i)
             stride += gfx_VertexAttributeType_GetSize(attributes[i].Type());
         m_vertexStride = stride;
+
+        // Determine the mesh's local AABB
+        diag_AssertWithReason(strcmp(attributes[0].Name(), "POSITION") == 0, "The position has to be the first attribute!");
+        size_t numVertices = vertexDataSize / m_vertexStride;
+        m_aabb             = math_CreateAABB(reinterpret_cast<const char*>(vertexData), numVertices, m_vertexStride, 0);
     }
 
     res_Mesh::res_Mesh(res_Mesh&& other) noexcept
@@ -183,6 +196,7 @@ namespace pge
         , m_vertexLayout(std::move(other.m_vertexLayout))
         , m_vertexStride(other.m_vertexStride)
         , m_numTriangles(other.m_numTriangles)
+        , m_aabb(other.m_aabb)
     {}
 
     res_Mesh::res_Mesh(pge::gfx_GraphicsAdapter* graphicsAdapter, const res_SerializedMesh& smesh)
@@ -191,6 +205,7 @@ namespace pge
         , m_vertexLayout(CreateVertexLayout(graphicsAdapter, smesh.GetAttributeFlags()))
         , m_vertexStride(smesh.GetVertexStride())
         , m_numTriangles(smesh.GetNumTriangles())
+        , m_aabb(smesh.GetAABB())
     {}
 
     res_Mesh::res_Mesh(pge::gfx_GraphicsAdapter* graphicsAdapter, const char* path)
@@ -211,6 +226,11 @@ namespace pge
         return m_numTriangles;
     }
 
+    math_AABB
+    res_Mesh::GetAABB() const
+    {
+        return m_aabb;
+    }
 
     // ---------------------------------
     // res_MeshCache

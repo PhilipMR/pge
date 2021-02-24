@@ -38,7 +38,7 @@ namespace pge
             , z(z)
         {}
 
-        constexpr const float
+        constexpr float&
         operator[](size_t index)
         {
             return xyz[index];

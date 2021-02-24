@@ -40,6 +40,9 @@ namespace pge
             if (!input_MouseButtonDown(input_MouseButton::RIGHT))
                 return;
 
+            if  (input_KeyboardDown(input_KeyboardKey::LSHIFT))
+                speed *= 2;
+
             math_Mat4x4 xform;
             diag_Verify(math_Invert(m_viewMatrix, &xform));
             math_Vec3 right    = math_Vec3(xform[0][0], xform[1][0], xform[2][0]);

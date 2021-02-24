@@ -4,6 +4,7 @@ project(pge_graphics)
 
 add_library(pge_graphics
     src/gfx_buffer_d3d11.cpp
+    src/gfx_debug_draw.cpp
     src/gfx_graphics_adapter_d3d11.cpp
     src/gfx_graphics_device_d3d11.cpp
     src/gfx_render_target_d3d11.cpp
@@ -15,5 +16,6 @@ add_library(pge_graphics
 
 target_include_directories(pge_graphics PRIVATE 
     ../PGEOS/include
+    ../PGEMath/include
     ../PGEDiagnostics/include
 )

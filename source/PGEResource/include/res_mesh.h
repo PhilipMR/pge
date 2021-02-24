@@ -9,6 +9,7 @@
 #include <string>
 #include <math_vec2.h>
 #include <math_vec3.h>
+#include <math_aabb.h>
 
 namespace pge
 {
@@ -78,7 +79,6 @@ namespace pge
                            size_t     numTriangles);
 
 
-
         void Write(std::ostream& output);
 
         uint16_t        GetVersion() const;
@@ -89,8 +89,8 @@ namespace pge
         const char*     GetVertexData() const;
         const unsigned* GetTriangleData() const;
         size_t          GetVertexStride() const;
+        math_AABB       GetAABB() const;
     };
-
 
     class res_Mesh {
         gfx_VertexBuffer m_vertexBuffer;
@@ -98,6 +98,7 @@ namespace pge
         gfx_VertexLayout m_vertexLayout;
         size_t           m_vertexStride;
         size_t           m_numTriangles;
+        math_AABB        m_aabb;
 
     public:
         res_Mesh(gfx_GraphicsAdapter*       graphicsAdapter,
@@ -112,8 +113,9 @@ namespace pge
         res_Mesh(gfx_GraphicsAdapter* graphicsAdapter, const res_SerializedMesh& smesh);
         res_Mesh(gfx_GraphicsAdapter* graphicsAdapter, const char* path);
 
-        void   Bind() const;
-        size_t GetNumTriangles() const;
+        void      Bind() const;
+        size_t    GetNumTriangles() const;
+        math_AABB GetAABB() const;
     };
 
     class res_MeshCache {
