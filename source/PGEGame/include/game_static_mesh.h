@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <gfx_graphics_device.h>
 #include <gfx_buffer.h>
+#include <math_raycasting.h>
 
 namespace pge
 {
@@ -44,6 +45,7 @@ namespace pge
         void SetMaterial(const game_StaticMeshId& id, const res_Material* material);
 
         void DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj);
+        game_StaticMeshId GetRaycastStaticMesh(const game_TransformManager& tm,  const math_Ray& ray, const math_Mat4x4& viewProj) const;
     };
 } // namespace pge
 

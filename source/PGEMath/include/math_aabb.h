@@ -6,8 +6,13 @@
 namespace pge
 {
     struct math_AABB {
-        math_Vec3 min;
-        math_Vec3 max;
+        union {
+            struct {
+                math_Vec3 min;
+                math_Vec3 max;
+            };
+            math_Vec3 bounds[2];
+        };
 
         math_AABB() {}
         math_AABB(const math_Vec3& min, const math_Vec3& max)
@@ -19,13 +24,13 @@ namespace pge
     inline math_AABB
     math_CreateAABB(const char* positionBuffer, size_t numPositions, size_t stride, size_t offset)
     {
-        const char* vtxPtr   = positionBuffer;
+        const char* vtxPtr = positionBuffer;
 
         const float floatMax = std::numeric_limits<float>::max();
         const float floatMin = -floatMax;
 
-        math_Vec3   min(floatMax, floatMax, floatMax);
-        math_Vec3   max(floatMin, floatMin, floatMin);
+        math_Vec3 min(floatMax, floatMax, floatMax);
+        math_Vec3 max(floatMin, floatMin, floatMin);
         for (size_t i = 0; i < numPositions; ++i) {
             const float* pos = reinterpret_cast<const float*>(vtxPtr + i * stride + offset);
             for (size_t j = 0; j < 3; ++j) {
@@ -41,7 +46,7 @@ namespace pge
     inline math_AABB
     math_TransformAABB(const math_AABB& aabb, const math_Mat4x4& xform)
     {
-        math_Vec3 diff = aabb.max - aabb.min;
+        math_Vec3 diff     = aabb.max - aabb.min;
         math_Vec4 points[] = {
             xform * math_Vec4(aabb.min + math_Vec3(0, 0, 0), 1),
             xform * math_Vec4(aabb.min + math_Vec3(diff.x, 0, 0), 1),

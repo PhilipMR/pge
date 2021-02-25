@@ -3,11 +3,13 @@
 #include <math_mat4x4.h>
 #include <gfx_debug_draw.h>
 
+#include <input_mouse.h>
+
 namespace pge
 {
     game_StaticMeshManager::game_StaticMeshManager(size_t capacity, gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
-    : m_graphicsDevice(graphicsDevice)
-    , m_cbTransforms(graphicsAdapter, nullptr, sizeof(CBTransforms), gfx_BufferUsage::DYNAMIC)
+        : m_graphicsDevice(graphicsDevice)
+        , m_cbTransforms(graphicsAdapter, nullptr, sizeof(CBTransforms), gfx_BufferUsage::DYNAMIC)
     {
         m_meshes.reserve(capacity);
     }
@@ -26,7 +28,7 @@ namespace pge
             m_meshes.push_back(meshEntity);
 
             game_StaticMeshId meshId = m_meshes.size() - 1;
-            destBuf[i] = meshId;
+            destBuf[i]               = meshId;
 
             m_entityMap.insert(std::make_pair(entities[i], meshId));
         }
@@ -66,8 +68,8 @@ namespace pge
     void
     game_StaticMeshManager::DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj)
     {
-        m_cbTransformsData.viewMatrix  = view;
-        m_cbTransformsData.projMatrix  = proj;
+        m_cbTransformsData.viewMatrix = view;
+        m_cbTransformsData.projMatrix = proj;
 
         m_cbTransforms.BindVS(0);
         for (const auto& mesh : m_meshes) {
@@ -75,13 +77,27 @@ namespace pge
             mesh.material->Bind();
 
             m_cbTransformsData.modelMatrix = tm.GetWorld(tm.GetTransformId(mesh.entity));
-
-            auto aabb = mesh.mesh->GetAABB();
-            aabb = math_TransformAABB(aabb, m_cbTransformsData.modelMatrix);
-            gfx_DebugDraw_Box(aabb.min, aabb.max);
-
             m_cbTransforms.Update(&m_cbTransformsData, sizeof(CBTransforms));
             m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh.mesh->GetNumTriangles() * 3);
         }
+    }
+
+    game_StaticMeshId
+    game_StaticMeshManager::GetRaycastStaticMesh(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const
+    {
+        float             closestDistance = std::numeric_limits<float>::max();
+        game_StaticMeshId closestMesh     = game_StaticMeshId_Invalid;
+        for (const auto& mesh : m_meshes) {
+            auto aabb      = mesh.mesh->GetAABB();
+            aabb           = math_TransformAABB(aabb, tm.GetWorld(tm.GetTransformId(mesh.entity)));
+            float distance = 0;
+            if (math_Raycast_IntersectsAABB(ray, aabb, &distance)) {
+                if (distance < closestDistance) {
+                    closestMesh     = m_entityMap.find(mesh.entity)->second;
+                    closestDistance = distance;
+                }
+            }
+        }
+        return closestMesh;
     }
 } // namespace pge
