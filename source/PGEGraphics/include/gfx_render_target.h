@@ -12,7 +12,7 @@ namespace pge
         std::unique_ptr<gfx_RenderTargetImpl> m_impl;
 
     public:
-        gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter, unsigned width, unsigned height, bool hasDepth);
+        gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter, unsigned width, unsigned height, bool hasDepth, bool multisample);
         ~gfx_RenderTarget();
         void Clear();
         void Bind() const;

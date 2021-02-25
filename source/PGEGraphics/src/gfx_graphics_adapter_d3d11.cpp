@@ -112,7 +112,7 @@ namespace pge
         rasterizerDesc.DepthClipEnable       = true;
         rasterizerDesc.ScissorEnable         = false;
         rasterizerDesc.MultisampleEnable     = true;
-        rasterizerDesc.AntialiasedLineEnable = true;
+        rasterizerDesc.AntialiasedLineEnable = false;
 
         result = m_impl->m_device->CreateRasterizerState(&rasterizerDesc, &m_impl->m_rasterizerState);
         diag_Assert(SUCCEEDED(result));

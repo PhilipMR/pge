@@ -111,11 +111,37 @@ main()
         InitializeScene(&scene, &resources);
 
         // Set up editor
-        gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x, resolution.y, true);
+        const float      resScale = 5.0f;
+        gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x * resScale, resolution.y * resScale, true, true);
+        gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor;
 
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
+
+
+        const res_Effect* screenTexEffect = resources.GetEffect("data/effects/screentex.effect");
+
+        const gfx_VertexAttribute screenTexAttribs[]  = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2),
+                                                        gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2)};
+        const math_Vec2           screenTexVertices[] = {math_Vec2(-1, 1),
+                                               math_Vec2(0, 0),
+                                               math_Vec2(-1, -1),
+                                               math_Vec2(0, 1),
+                                               math_Vec2(1, -1),
+                                               math_Vec2(1, 1),
+                                               math_Vec2(1, 1),
+                                               math_Vec2(1, 0)};
+        const unsigned            screenTexIndices[]  = {0, 1, 2, 2, 3, 0};
+        const res_Mesh            screenTexMesh(&graphicsAdapter,
+                                     screenTexAttribs,
+                                     sizeof(screenTexAttribs) / sizeof(gfx_VertexAttribute),
+                                     screenTexVertices,
+                                     sizeof(screenTexVertices),
+                                     screenTexIndices,
+                                     sizeof(screenTexIndices) / sizeof(unsigned));
+
+
         while (!display.IsCloseRequested()) {
             // Update input, window and scene
             input_KeyboardClearDelta();
@@ -128,7 +154,6 @@ main()
             rtGame.Bind();
             rtGame.Clear();
             scene.Draw();
-
 
             gfx_DebugDraw_SetView(scene.GetCamera()->GetViewMatrix());
             gfx_DebugDraw_SetProjection(scene.GetCamera()->GetProjectionMatrix());
@@ -143,15 +168,25 @@ main()
             gfx_DebugDraw_Point(math_Vec3(5, 5, 5), math_Vec3(1, 0, 1), thickness);
             gfx_DebugDraw_Flush();
 
+            // Redraw screen to intermediate texture (additional multisampling)
+            gfx_Texture2D_Unbind(&graphicsAdapter, 0);
+            rtGameMs.Bind();
+            rtGameMs.Clear();
+            screenTexMesh.Bind();
+            screenTexEffect->VertexShader()->Bind();
+            screenTexEffect->PixelShader()->Bind();
+            rtGame.BindTexture(0);
+            graphicsDevice.DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, 6);
 
+
+            // Draw editor (with scene texture to window) to main render target
             gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
             gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
 
-            // Draw editor (with scene texture to window)
             edit_BeginFrame();
             editor.HandleEvents();
             editor.DrawMenuBar();
-            s_hoveringGameWindow = editor.DrawRenderTarget("Game", &rtGame);
+            s_hoveringGameWindow = editor.DrawRenderTarget("Game", &rtGameMs);
             editor.DrawEntityTree(&scene);
             editor.DrawInspector(&scene);
             editor.DrawExplorer();

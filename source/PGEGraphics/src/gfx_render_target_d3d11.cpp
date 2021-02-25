@@ -7,6 +7,8 @@
 namespace pge
 {
     struct gfx_RenderTarget::gfx_RenderTargetImpl {
+        unsigned                  m_width;
+        unsigned                  m_height;
         ID3D11DeviceContext*      m_deviceContext;
         ID3D11Texture2D*          m_texture;
         ID3D11ShaderResourceView* m_srv;
@@ -14,20 +16,22 @@ namespace pge
         ID3D11DepthStencilView*   m_dsv;
     };
 
-    gfx_RenderTarget::gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter, unsigned width, unsigned height, bool hasDepth)
+    gfx_RenderTarget::gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter, unsigned width, unsigned height, bool hasDepth, bool multisample)
         : m_impl(new gfx_RenderTargetImpl)
     {
         auto          graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
         ID3D11Device* device               = graphicsAdapterD3D11->GetDevice();
+        m_impl->m_width                    = width;
+        m_impl->m_height                   = height;
         m_impl->m_deviceContext            = graphicsAdapterD3D11->GetDeviceContext();
 
         D3D11_TEXTURE2D_DESC textureDesc;
         textureDesc.Width              = width;
         textureDesc.Height             = height;
-        textureDesc.MipLevels          = 0;
+        textureDesc.MipLevels          = multisample ? 1 : 0;
         textureDesc.ArraySize          = 1;
         textureDesc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-        textureDesc.SampleDesc.Count   = 1;
+        textureDesc.SampleDesc.Count   = multisample ? 8 : 1;
         textureDesc.SampleDesc.Quality = 0;
         textureDesc.Usage              = D3D11_USAGE_DEFAULT;
         textureDesc.BindFlags          = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -39,7 +43,7 @@ namespace pge
 
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
         srvDesc.Format                          = textureDesc.Format;
-        srvDesc.ViewDimension                   = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.ViewDimension                   = multisample ? D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels             = -1;
         srvDesc.Texture2D.MostDetailedMip       = 0;
         result                                  = device->CreateShaderResourceView(m_impl->m_texture, &srvDesc, &m_impl->m_srv);
@@ -57,6 +61,7 @@ namespace pge
             depthTextureDesc.SampleDesc           = textureDesc.SampleDesc;
             depthTextureDesc.Format               = DXGI_FORMAT_D24_UNORM_S8_UINT;
             depthTextureDesc.BindFlags            = D3D11_BIND_DEPTH_STENCIL;
+            depthTextureDesc.MipLevels = textureDesc.MipLevels;
 
             ID3D11Texture2D* depthTexture;
             result = device->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture);
@@ -64,7 +69,7 @@ namespace pge
 
             D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
             dsvDesc.Format                        = depthTextureDesc.Format;
-            dsvDesc.ViewDimension                 = D3D11_DSV_DIMENSION_TEXTURE2D;
+            dsvDesc.ViewDimension                 = multisample ?  D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
             result                                = device->CreateDepthStencilView(depthTexture, &dsvDesc, &m_impl->m_dsv);
             depthTexture->Release();
             diag_Assert(SUCCEEDED(result));
@@ -93,6 +98,12 @@ namespace pge
     void
     gfx_RenderTarget::Bind() const
     {
+        D3D11_VIEWPORT viewport = {0};
+        viewport.Width          = m_impl->m_width;
+        viewport.Height         = m_impl->m_height;
+        viewport.MinDepth       = 0.0f;
+        viewport.MaxDepth       = 1.0f;
+        m_impl->m_deviceContext->RSSetViewports(1, &viewport);
         m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_rtv, m_impl->m_dsv);
     }
 

@@ -90,6 +90,7 @@ namespace pge
                         readMode = ReadMode::SCAN_STRUCTURE;
                     } else {
                         *vsSourceOut += line; // BAD
+                        *vsSourceOut += "\n";
                     }
 
                 } break;
@@ -99,6 +100,7 @@ namespace pge
                         readMode = ReadMode::SCAN_STRUCTURE;
                     } else {
                         *psSourceOut += line; // BAD
+                        *psSourceOut += "\n";
                     }
                 } break;
 

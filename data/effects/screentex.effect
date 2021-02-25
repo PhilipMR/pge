@@ -36,9 +36,27 @@ PixelShader {
 		float4 positionNDC 	: SV_POSITION;
 		float2 texcoord 			: TEXTURECOORD;
 	};
+	
+	float4 tex2Dmultisample(float2 uv)
+	{
+		float2 dx = ddx(uv) * 0.25;
+		float2 dy = ddy(uv) * 0.25;
+		float4 sample0 = TexMap.Sample(TexSampler, uv + dx + dy);
+		float4 sample1 = TexMap.Sample(TexSampler, uv + dx - dy);
+		float4 sample2 = TexMap.Sample(TexSampler, uv - dx + dy);
+		float4 sample3 = TexMap.Sample(TexSampler, uv - dx - dy);
+		
+		float4 sample4 = TexMap.Sample(TexSampler, uv - dx);
+		float4 sample5 = TexMap.Sample(TexSampler, uv + dx);
+		float4 sample6 = TexMap.Sample(TexSampler, uv - dy);
+		float4 sample7 = TexMap.Sample(TexSampler, uv + dy);	
+		
+		return (sample0 + sample1 + sample2 + sample3 + sample4 + sample5 + sample6 + sample7) / 8;
+	}
 
 	float4 PSMain(PixelIn pixel) : SV_TARGET
 	{
-		return TexMap.Sample(TexSampler, pixel.texcoord);
+		//return TexMap.Sample(TexSampler, pixel.texcoord);
+		return tex2Dmultisample(pixel.texcoord);
 	};
 }
