@@ -184,7 +184,7 @@ main()
             gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
 
             edit_BeginFrame();
-            editor.HandleEvents();
+            editor.HandleEvents(&scene);
             editor.DrawMenuBar();
             s_hoveringGameWindow = editor.DrawRenderTarget("Game", &rtGameMs);
             editor.DrawEntityTree(&scene);

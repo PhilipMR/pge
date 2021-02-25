@@ -2,6 +2,8 @@
 #include <game_scene.h>
 #include <gfx_render_target.h>
 #include <imgui/imgui.h>
+#include <input_mouse.h>
+#include <gfx_debug_draw.h>
 
 namespace pge
 {
@@ -14,9 +16,21 @@ namespace pge
     }
 
 
-    void edit_Editor::HandleEvents()
+    void
+    edit_Editor::HandleEvents(const game_Scene* scene)
     {
-
+        const math_Vec2         windowSize(1600, 900);
+        const math_Mat4x4       viewProj    = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
+        const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition(), windowSize, viewProj);
+        const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->GetRaycastStaticMesh(*scene->GetTransformManager(), ray, viewProj);
+        if (hoveredMesh != game_StaticMeshId_Invalid) {
+            m_selectedEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
+            auto aabb = scene->GetStaticMeshManager()->GetMesh(hoveredMesh)->GetAABB();
+            auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
+            auto world = scene->GetTransformManager()->GetWorld(transformId);
+            aabb = math_TransformAABB(aabb, world);
+            gfx_DebugDraw_Box(aabb.min, aabb.max);
+        }
     }
 
     void
@@ -57,7 +71,7 @@ namespace pge
     {
         ImGui::Begin(title);
         float r = 16.0f / 9.0f;
-        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - 20*r));
+        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - 20 * r));
         bool isHovered = ImGui::IsWindowHovered();
         ImGui::End();
         return isHovered;

@@ -37,6 +37,12 @@ namespace pge
         {
             return &m_camera;
         }
+
+        inline const game_FPSCamera*
+        GetCamera() const
+        {
+            return &m_camera;
+        }
     };
 } // namespace pge
 

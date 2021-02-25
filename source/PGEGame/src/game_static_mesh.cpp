@@ -1,9 +1,6 @@
 #include "../include/game_static_mesh.h"
 #include <diag_assert.h>
 #include <math_mat4x4.h>
-#include <gfx_debug_draw.h>
-
-#include <input_mouse.h>
 
 namespace pge
 {
@@ -63,6 +60,19 @@ namespace pge
     {
         diag_Assert(id < m_meshes.size());
         m_meshes[id].material = material;
+    }
+
+    game_Entity
+    game_StaticMeshManager::GetEntity(const game_StaticMeshId& id) const
+    {
+        diag_Assert(id < m_meshes.size());
+        return m_meshes[id].entity;
+    }
+
+    const res_Mesh* game_StaticMeshManager::GetMesh(const game_StaticMeshId& id) const
+    {
+        diag_Assert(id < m_meshes.size());
+        return m_meshes[id].mesh;
     }
 
     void

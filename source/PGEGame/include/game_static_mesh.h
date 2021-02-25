@@ -44,6 +44,10 @@ namespace pge
         void SetMesh(const game_StaticMeshId& id, const res_Mesh* mesh);
         void SetMaterial(const game_StaticMeshId& id, const res_Material* material);
 
+        game_Entity GetEntity(const game_StaticMeshId& id) const;
+        const res_Mesh* GetMesh(const game_StaticMeshId& id) const;
+
+
         void DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj);
         game_StaticMeshId GetRaycastStaticMesh(const game_TransformManager& tm,  const math_Ray& ray, const math_Mat4x4& viewProj) const;
     };
