@@ -25,7 +25,7 @@ VertexShader {
 }
 
 PixelShader {
-	Texture2D 	TexMap  : register(t0);
+	Texture2DMS<float4> TexMap  : register(t0);
 	SamplerState TexSampler { 
 		AddressU = D3D11_TEXTURE_ADDRESS_CLAMP; 
 		AddressV = D3D11_TEXTURE_ADDRESS_CLAMP; 
@@ -36,27 +36,18 @@ PixelShader {
 		float4 positionNDC 	: SV_POSITION;
 		float2 texcoord 			: TEXTURECOORD;
 	};
-	
-	float4 tex2Dmultisample(float2 uv)
-	{
-		float2 dx = ddx(uv) * 0.25;
-		float2 dy = ddy(uv) * 0.25;
-		float4 sample0 = TexMap.Sample(TexSampler, uv + dx + dy);
-		float4 sample1 = TexMap.Sample(TexSampler, uv + dx - dy);
-		float4 sample2 = TexMap.Sample(TexSampler, uv - dx + dy);
-		float4 sample3 = TexMap.Sample(TexSampler, uv - dx - dy);
-		
-		float4 sample4 = TexMap.Sample(TexSampler, uv - dx);
-		float4 sample5 = TexMap.Sample(TexSampler, uv + dx);
-		float4 sample6 = TexMap.Sample(TexSampler, uv - dy);
-		float4 sample7 = TexMap.Sample(TexSampler, uv + dy);	
-		
-		return (sample0 + sample1 + sample2 + sample3 + sample4 + sample5 + sample6 + sample7) / 8;
-	}
 
 	float4 PSMain(PixelIn pixel) : SV_TARGET
 	{
-		//return TexMap.Sample(TexSampler, pixel.texcoord);
-		return tex2Dmultisample(pixel.texcoord);
+		float4 color;
+		
+		uint width, height, numSamples;
+		TexMap.GetDimensions(width, height, numSamples);
+		float2 coord = pixel.texcoord * float2(width, height);
+		for (int i = 0; i < numSamples; ++i) {
+			color += TexMap.Load(coord, i);
+		}
+		color /= numSamples;
+		return color;
 	};
 }

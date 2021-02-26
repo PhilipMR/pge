@@ -81,6 +81,8 @@ namespace pge
     gfx_RenderTarget::~gfx_RenderTarget()
     {
         m_impl->m_rtv->Release();
+        if (m_impl->m_dsv)
+            m_impl->m_dsv->Release();
         m_impl->m_srv->Release();
         m_impl->m_texture->Release();
     }
