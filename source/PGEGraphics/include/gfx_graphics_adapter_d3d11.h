@@ -10,6 +10,7 @@ namespace pge
     public:
         gfx_GraphicsAdapterD3D11(HWND hwnd, unsigned width, unsigned height);
         ~gfx_GraphicsAdapterD3D11();
+        void                    ResizeBackBuffer(unsigned width, unsigned height);
         ID3D11Device*           GetDevice();
         ID3D11DeviceContext*    GetDeviceContext();
         ID3D11RenderTargetView* GetMainRTV();

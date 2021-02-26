@@ -11,6 +11,7 @@ namespace pge
 
     edit_Editor::edit_Editor()
         : m_selectedEntity(game_EntityId_Invalid)
+        , m_gameWindowSize(1600, 900)
     {
         ImGui::LoadIniSettingsFromDisk(s_PathToLayoutIni);
     }
@@ -19,16 +20,16 @@ namespace pge
     void
     edit_Editor::HandleEvents(const game_Scene* scene)
     {
-        const math_Vec2         windowSize(1600, 900);
+        // const math_Vec2         windowSize(1600, 900);
         const math_Mat4x4       viewProj    = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
-        const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition(), windowSize, viewProj);
+        const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
         const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->GetRaycastStaticMesh(*scene->GetTransformManager(), ray, viewProj);
         if (hoveredMesh != game_StaticMeshId_Invalid) {
             m_selectedEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
-            auto aabb = scene->GetStaticMeshManager()->GetMesh(hoveredMesh)->GetAABB();
+            auto aabb        = scene->GetStaticMeshManager()->GetMesh(hoveredMesh)->GetAABB();
             auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
-            auto world = scene->GetTransformManager()->GetWorld(transformId);
-            aabb = math_TransformAABB(aabb, world);
+            auto world       = scene->GetTransformManager()->GetWorld(transformId);
+            aabb             = math_TransformAABB(aabb, world);
             gfx_DebugDraw_Box(aabb.min, aabb.max);
         }
     }
@@ -56,7 +57,7 @@ namespace pge
                 }
                 if (ImGui::MenuItem("Load layout")) {
                     ImGui::LoadIniSettingsFromDisk(s_PathToLayoutIni);
-                    ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
+                    ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
                 }
                 ImGui::EndMenu();
             }
@@ -72,7 +73,9 @@ namespace pge
         ImGui::Begin(title);
         float r = 16.0f / 9.0f;
         ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - 20 * r));
-        bool isHovered = ImGui::IsWindowHovered();
+        bool isHovered   = ImGui::IsWindowHovered();
+        m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+        m_gameWindowSize = math_Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
         ImGui::End();
         return isHovered;
     }

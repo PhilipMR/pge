@@ -20,13 +20,20 @@
 #include <edit_editor.h>
 #include <gfx_debug_draw.h>
 
-static bool s_hoveringGameWindow = false;
+static bool                           s_hoveringGameWindow = false;
+static pge::gfx_GraphicsAdapterD3D11* s_graphicsAdapter    = nullptr;
+static pge::gfx_GraphicsDevice*       s_graphicsDevice     = nullptr;
 
 static LRESULT CALLBACK
 WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_DESTROY)
         PostQuitMessage(0);
+    if (uMsg == WM_SIZE && s_graphicsAdapter) {
+        s_graphicsAdapter->ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
+        s_graphicsDevice->SetViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
+    }
+
     pge::edit_Win32Events(hwnd, uMsg, wParam, lParam);
     if (s_hoveringGameWindow) {
         pge::input_Win32KeyboardEvents(hwnd, uMsg, wParam, lParam);
@@ -104,6 +111,8 @@ main()
         os_DisplayWin32          display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
         gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
         gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
+        s_graphicsAdapter = &graphicsAdapter;
+        s_graphicsDevice  = &graphicsDevice;
 
         // Setup scene
         res_ResourceManager resources(&graphicsAdapter);
@@ -111,7 +120,7 @@ main()
         InitializeScene(&scene, &resources);
 
         // Set up editor
-        const float      resScale = 5.0f;
+        const float      resScale = 1.0f;
         gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x * resScale, resolution.y * resScale, true, true);
         gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);

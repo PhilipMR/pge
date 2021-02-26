@@ -9,10 +9,52 @@ namespace pge
         ID3D11Device*           m_device;
         ID3D11DeviceContext*    m_deviceContext;
         D3D_FEATURE_LEVEL       m_featureLevel;
-        ID3D11RenderTargetView* m_mainRenderTarget;
-        ID3D11DepthStencilView* m_depthStencil;
+        ID3D11RenderTargetView* m_mainRtv;
+        ID3D11DepthStencilView* m_mainDsv;
         ID3D11RasterizerState*  m_rasterizerState;
     };
+
+    static const DXGI_SAMPLE_DESC SWAPCHAIN_SAMPLE_DESC{8, 0};
+
+    void
+    CreateBackBuffers(IDXGISwapChain*          swapChain,
+                      ID3D11Device*            device,
+                      unsigned                 width,
+                      unsigned                 height,
+                      ID3D11RenderTargetView** rtvOut,
+                      ID3D11DepthStencilView** dsvOut)
+    {
+        // Create back buffer RTV.
+        ID3D11Texture2D* backBuffer;
+        HRESULT result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
+
+        result = device->CreateRenderTargetView(backBuffer, nullptr, rtvOut);
+        backBuffer->Release();
+        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
+
+        // Create depth stencil view.
+        D3D11_TEXTURE2D_DESC depthTextureDesc = {};
+        depthTextureDesc.Width                = width;
+        depthTextureDesc.Height               = height;
+        depthTextureDesc.MipLevels            = 1;
+        depthTextureDesc.ArraySize            = 1;
+        depthTextureDesc.SampleDesc           = SWAPCHAIN_SAMPLE_DESC;
+        depthTextureDesc.Format               = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        depthTextureDesc.BindFlags            = D3D11_BIND_DEPTH_STENCIL;
+
+        ID3D11Texture2D* depthTexture;
+        result = device->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture);
+        diag_Assert(SUCCEEDED(result));
+
+        D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+        depthStencilDesc.Format                        = depthTextureDesc.Format;
+        depthStencilDesc.ViewDimension                 = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+        result                                         = device->CreateDepthStencilView(depthTexture, &depthStencilDesc, dsvOut);
+        depthTexture->Release();
+        diag_Assert(SUCCEEDED(result));
+    }
+
 
     gfx_GraphicsAdapter::gfx_GraphicsAdapter()
         : m_impl(new gfx_GraphicsAdapterImpl)
@@ -30,8 +72,7 @@ namespace pge
         swapChainDesc.BufferDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM;
         swapChainDesc.BufferDesc.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
         swapChainDesc.BufferDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
-        swapChainDesc.SampleDesc.Count                   = 8;
-        swapChainDesc.SampleDesc.Quality                 = 0;
+        swapChainDesc.SampleDesc                         = SWAPCHAIN_SAMPLE_DESC;
         swapChainDesc.BufferUsage                        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount                        = 1;
         swapChainDesc.OutputWindow                       = hwnd;
@@ -59,39 +100,8 @@ namespace pge
                                                        &m_impl->m_deviceContext);
         diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
 
-        // Create back buffer RTV.
-        ID3D11Texture2D* backBuffer;
-        result = m_impl->m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
-
-        result = m_impl->m_device->CreateRenderTargetView(backBuffer, nullptr, &m_impl->m_mainRenderTarget);
-        backBuffer->Release();
-        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
-
-        // Create depth stencil view.
-        D3D11_TEXTURE2D_DESC depthTextureDesc = {};
-        depthTextureDesc.Width                = width;
-        depthTextureDesc.Height               = height;
-        depthTextureDesc.MipLevels            = 1;
-        depthTextureDesc.ArraySize            = 1;
-        depthTextureDesc.SampleDesc.Count     = swapChainDesc.SampleDesc.Count;
-        depthTextureDesc.SampleDesc.Quality   = swapChainDesc.SampleDesc.Quality;
-        depthTextureDesc.Format               = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        depthTextureDesc.BindFlags            = D3D11_BIND_DEPTH_STENCIL;
-
-        ID3D11Texture2D* depthTexture;
-        result = m_impl->m_device->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture);
-        diag_Assert(SUCCEEDED(result));
-
-        D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-        depthStencilDesc.Format                        = depthTextureDesc.Format;
-        depthStencilDesc.ViewDimension                 = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-        result = m_impl->m_device->CreateDepthStencilView(depthTexture, &depthStencilDesc, &m_impl->m_depthStencil);
-        depthTexture->Release();
-        diag_Assert(SUCCEEDED(result));
-
-        // Set the output merger state.
-        m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_mainRenderTarget, m_impl->m_depthStencil);
+        CreateBackBuffers(m_impl->m_swapChain, m_impl->m_device, width, height, &m_impl->m_mainRtv, &m_impl->m_mainDsv);
+        m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_mainRtv, m_impl->m_mainDsv);
 
         D3D11_VIEWPORT viewport = {0};
         viewport.Width          = width;
@@ -122,11 +132,22 @@ namespace pge
     gfx_GraphicsAdapterD3D11::~gfx_GraphicsAdapterD3D11()
     {
         m_impl->m_rasterizerState->Release();
-        m_impl->m_depthStencil->Release();
-        m_impl->m_mainRenderTarget->Release();
+        m_impl->m_mainDsv->Release();
+        m_impl->m_mainRtv->Release();
         m_impl->m_deviceContext->Release();
         m_impl->m_device->Release();
         m_impl->m_swapChain->Release();
+    }
+
+    void
+    gfx_GraphicsAdapterD3D11::ResizeBackBuffer(unsigned width, unsigned height)
+    {
+        m_impl->m_mainDsv->Release();
+        m_impl->m_mainRtv->Release();
+        m_impl->m_swapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+
+        CreateBackBuffers(m_impl->m_swapChain, m_impl->m_device, width, height, &m_impl->m_mainRtv, &m_impl->m_mainDsv);
+        m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_mainRtv, nullptr);
     }
 
     ID3D11Device*
@@ -144,13 +165,13 @@ namespace pge
     ID3D11RenderTargetView*
     gfx_GraphicsAdapterD3D11::GetMainRTV()
     {
-        return m_impl->m_mainRenderTarget;
+        return m_impl->m_mainRtv;
     }
 
     ID3D11DepthStencilView*
     gfx_GraphicsAdapterD3D11::GetDepthStencil()
     {
-        return m_impl->m_depthStencil;
+        return m_impl->m_mainDsv;
     }
 
     IDXGISwapChain*

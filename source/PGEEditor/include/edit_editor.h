@@ -2,6 +2,7 @@
 #define PGE_EDITOR_EDIT_EDITOR_H
 
 #include <game_entity.h>
+#include <math_vec2.h>
 
 namespace pge
 {
@@ -18,12 +19,14 @@ namespace pge
     class game_Scene;
     class edit_Editor {
         game_EntityId m_selectedEntity;
+        math_Vec2     m_gameWindowPos;
+        math_Vec2     m_gameWindowSize;
 
     public:
         edit_Editor();
         void HandleEvents(const game_Scene* scene);
         void DrawMenuBar();
-        bool DrawRenderTarget(const char* title,const gfx_RenderTarget* target);
+        bool DrawRenderTarget(const char* title, const gfx_RenderTarget* target);
         void DrawEntityTree(const game_Scene* scene);
         void DrawInspector(const game_Scene* scene);
         void DrawExplorer();
