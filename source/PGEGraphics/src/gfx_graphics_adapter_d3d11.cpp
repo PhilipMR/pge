@@ -147,7 +147,7 @@ namespace pge
         m_impl->m_swapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
 
         CreateBackBuffers(m_impl->m_swapChain, m_impl->m_device, width, height, &m_impl->m_mainRtv, &m_impl->m_mainDsv);
-        m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_mainRtv, nullptr);
+        m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_mainRtv, m_impl->m_mainDsv);
     }
 
     ID3D11Device*

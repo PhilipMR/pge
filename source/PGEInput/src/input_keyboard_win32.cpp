@@ -36,7 +36,7 @@ namespace pge
     void input_KeyboardClearState()
     {
         for (int i = 0; i < kWin32KeyCodes; i++) {
-            s_key_down[i] = false;
+            //s_key_down[i] = false;
             s_key_pressed[i] = false;
             s_key_released[i] = false;
         }

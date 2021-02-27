@@ -7,30 +7,181 @@
 
 namespace pge
 {
-    static const char* s_PathToLayoutIni = "layout.ini";
+    static const char* PATH_TO_LAYOUT_INI = "layout.ini";
 
     edit_Editor::edit_Editor()
         : m_selectedEntity(game_EntityId_Invalid)
         , m_gameWindowSize(1600, 900)
+        , m_editMode(edit_EditMode::NONE)
     {
-        ImGui::LoadIniSettingsFromDisk(s_PathToLayoutIni);
+        ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
+    }
+
+    static void
+    GetAxisVectors(const edit_Axis& axis, math_Vec3* vecsOut, size_t* numVecsOut)
+    {
+        switch (axis) {
+            case edit_Axis::NONE: {
+                *numVecsOut = 0;
+            } break;
+            case edit_Axis::X: {
+                vecsOut[0]  = math_Vec3(1, 0, 0);
+                *numVecsOut = 1;
+            } break;
+            case edit_Axis::Y: {
+                vecsOut[0]  = math_Vec3(0, 1, 0);
+                *numVecsOut = 1;
+            } break;
+            case edit_Axis::Z: {
+                vecsOut[0]  = math_Vec3(0, 0, 1);
+                *numVecsOut = 1;
+            } break;
+            case edit_Axis::XY: {
+                vecsOut[0]  = math_Vec3(1, 0, 0);
+                vecsOut[1]  = math_Vec3(0, 1, 0);
+                *numVecsOut = 2;
+            } break;
+            case edit_Axis::XZ: {
+                vecsOut[0]  = math_Vec3(1, 0, 0);
+                vecsOut[1]  = math_Vec3(0, 0, 1);
+                *numVecsOut = 2;
+            } break;
+            case edit_Axis::YZ: {
+                vecsOut[0]  = math_Vec3(0, 1, 0);
+                vecsOut[1]  = math_Vec3(0, 0, 1);
+                *numVecsOut = 2;
+            } break;
+            default: {
+                diag_AssertWithReason(false, "Unhandled axis!");
+            } break;
+        }
     }
 
 
-    void
-    edit_Editor::HandleEvents(const game_Scene* scene)
+    static void
+    DrawAxis(const game_TransformManager* tm, const game_Entity& entity, const edit_Axis& axis)
     {
-        // const math_Vec2         windowSize(1600, 900);
-        const math_Mat4x4       viewProj    = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
-        const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
-        const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->GetRaycastStaticMesh(*scene->GetTransformManager(), ray, viewProj);
-        if (hoveredMesh != game_StaticMeshId_Invalid) {
-            m_selectedEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
-            auto aabb        = scene->GetStaticMeshManager()->GetMesh(hoveredMesh)->GetAABB();
+        auto        tid        = tm->GetTransformId(entity);
+        auto        world      = tm->GetWorld(tid);
+        auto        pos        = math_Vec3(world[0][3], world[1][3], world[2][3]);
+        const float lineLength = 10000.0f;
+
+        math_Vec3 axisVecs[2];
+        size_t    numAxisVecs = 0;
+        GetAxisVectors(axis, axisVecs, &numAxisVecs);
+        for (size_t i = 0; i < numAxisVecs; ++i) {
+            const math_Vec3& vec = axisVecs[i];
+            gfx_DebugDraw_Line(pos - vec * lineLength / 2, pos + vec * lineLength / 2, vec);
+        }
+    }
+
+    static void
+    TranslateEntity(game_TransformManager* tm, const game_Entity& entity, const edit_Axis& axis, const math_Mat4x4& viewProj)
+    {
+        math_Vec2 delta = input_MouseDelta();
+        delta.y *= -1;
+        if (math_LengthSquared(delta) == 0)
+            return;
+        float     deltaMag = math_Length(delta);
+        math_Vec2 deltaDir = math_Normalize(delta);
+
+        auto tid   = tm->GetTransformId(entity);
+        auto world = tm->GetWorld(tid);
+        auto pos   = math_Vec3(world[0][3], world[1][3], world[2][3]);
+
+        math_Vec3 axisVecs[2];
+        size_t    numAxisVecs = 0;
+        GetAxisVectors(axis, axisVecs, &numAxisVecs);
+        if (numAxisVecs == 1) {
+            math_Vec4 taxis    = viewProj * math_Vec4(axisVecs[0], 0);
+            math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
+            float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * 0.03f;
+            pos += stepSize * axisVecs[0];
+            world[0][3] = pos.x;
+            world[1][3] = pos.y;
+            world[2][3] = pos.z;
+
+            tm->SetLocal(tid, world);
+        } else if (numAxisVecs == 2) {
+        }
+    }
+
+    void
+    edit_Editor::HandleEvents(game_Scene* scene)
+    {
+        const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
+
+        switch (m_editMode) {
+            case edit_EditMode::NONE: break;
+            case edit_EditMode::TRANSLATE: {
+                DrawAxis(scene->GetTransformManager(), m_selectedEntity, m_editAxis);
+                TranslateEntity(scene->GetTransformManager(), m_selectedEntity, m_editAxis, viewProj);
+                if (input_MouseButtonPressed(input_MouseButton::LEFT))
+                    m_editMode = edit_EditMode::NONE;
+                if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
+                    m_editMode  = edit_EditMode::NONE;
+                    auto tid    = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
+                    auto world  = scene->GetTransformManager()->GetWorld(tid);
+                    world[0][3] = m_preTransformPosition.x;
+                    world[1][3] = m_preTransformPosition.y;
+                    world[2][3] = m_preTransformPosition.z;
+                    scene->GetTransformManager()->SetLocal(tid, world);
+                }
+                break;
+            }
+            default: {
+                diag_AssertWithReason(false, "Unhandled edit mode!");
+            }
+        }
+
+        // Left mouse click to (de-)select entity
+        if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
+            const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
+            const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->GetRaycastStaticMesh(*scene->GetTransformManager(), ray, viewProj);
+            if (hoveredMesh != game_StaticMeshId_Invalid) {
+                m_selectedEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
+            } else {
+                m_selectedEntity = game_EntityId_Invalid;
+                m_editMode       = edit_EditMode::NONE;
+            }
+        }
+
+        // Handle mode switch on selected entity
+        if (m_selectedEntity != game_EntityId_Invalid) {
+            // Draw selected bounding box
+            auto meshId      = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
+            auto aabb        = scene->GetStaticMeshManager()->GetMesh(meshId)->GetAABB();
             auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
             auto world       = scene->GetTransformManager()->GetWorld(transformId);
             aabb             = math_TransformAABB(aabb, world);
             gfx_DebugDraw_Box(aabb.min, aabb.max);
+
+            // Transition to translate-mode (and axis select)
+            if (m_editMode != edit_EditMode::TRANSLATE) {
+                if (input_KeyboardPressed(input_KeyboardKey::G)) {
+                    m_editMode             = edit_EditMode::TRANSLATE;
+                    m_editAxis             = edit_Axis::NONE;
+                    m_preTransformPosition = math_Vec3(world[0][3], world[1][3], world[2][3]);
+                }
+            } else {
+                if (input_KeyboardDown(input_KeyboardKey::LSHIFT)) {
+                    if (input_KeyboardPressed(input_KeyboardKey::X)) {
+                        m_editAxis = edit_Axis::YZ;
+                    } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
+                        m_editAxis = edit_Axis::XZ;
+                    } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
+                        m_editAxis = edit_Axis::XY;
+                    }
+                } else {
+                    if (input_KeyboardPressed(input_KeyboardKey::X)) {
+                        m_editAxis = edit_Axis::X;
+                    } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
+                        m_editAxis = edit_Axis::Y;
+                    } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
+                        m_editAxis = edit_Axis::Z;
+                    }
+                }
+            }
         }
     }
 
@@ -53,10 +204,10 @@ namespace pge
 
             if (ImGui::BeginMenu("Layout")) {
                 if (ImGui::MenuItem("Save layout")) {
-                    ImGui::SaveIniSettingsToDisk(s_PathToLayoutIni);
+                    ImGui::SaveIniSettingsToDisk(PATH_TO_LAYOUT_INI);
                 }
                 if (ImGui::MenuItem("Load layout")) {
-                    ImGui::LoadIniSettingsFromDisk(s_PathToLayoutIni);
+                    ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
                     ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
                 }
                 ImGui::EndMenu();

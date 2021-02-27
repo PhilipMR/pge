@@ -9,6 +9,9 @@ namespace pge
 
         ENTER = 13,
 
+        LSHIFT = 16,
+        RSHIFT,
+
         SPACE = 32,
 
         ARROW_LEFT = 37,
@@ -30,8 +33,6 @@ namespace pge
         V, W, X, Y,
         Z,
 
-        LSHIFT = 160,
-        RSHIFT
     };
 
     void input_KeyboardClearState();
