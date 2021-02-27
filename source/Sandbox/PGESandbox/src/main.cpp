@@ -168,7 +168,7 @@ main()
             gfx_DebugDraw_SetProjection(scene.GetCamera()->GetProjectionMatrix());
 
             const float thickness = 0.1f;
-            const float length    = 100.0f;
+            const float length    = 10000.0f;
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);

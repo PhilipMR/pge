@@ -92,18 +92,16 @@ namespace pge
         math_Vec3 axisVecs[2];
         size_t    numAxisVecs = 0;
         GetAxisVectors(axis, axisVecs, &numAxisVecs);
-        if (numAxisVecs == 1) {
-            math_Vec4 taxis    = viewProj * math_Vec4(axisVecs[0], 0);
+        for (size_t i = 0; i < numAxisVecs; ++i) {
+            math_Vec4 taxis    = viewProj * math_Vec4(axisVecs[i], 0);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * 0.03f;
-            pos += stepSize * axisVecs[0];
-            world[0][3] = pos.x;
-            world[1][3] = pos.y;
-            world[2][3] = pos.z;
-
-            tm->SetLocal(tid, world);
-        } else if (numAxisVecs == 2) {
+            pos += stepSize * axisVecs[i];
         }
+        world[0][3] = pos.x;
+        world[1][3] = pos.y;
+        world[2][3] = pos.z;
+        tm->SetLocal(tid, world);
     }
 
     void
