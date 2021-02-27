@@ -19,6 +19,7 @@
 #include <edit_events_win32.h>
 #include <edit_editor.h>
 #include <gfx_debug_draw.h>
+#include <iostream>
 
 static bool                           s_hoveringGameWindow = false;
 static pge::gfx_GraphicsAdapterD3D11* s_graphicsAdapter    = nullptr;
@@ -118,6 +119,10 @@ main()
         res_ResourceManager resources(&graphicsAdapter);
         game_Scene          scene(&graphicsAdapter, &graphicsDevice);
         InitializeScene(&scene, &resources);
+
+        std::ofstream os("test.scene");
+        os << scene;
+        os.close();
 
         // Set up editor
         const float      resScale = 1.0f;

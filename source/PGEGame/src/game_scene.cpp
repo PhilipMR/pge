@@ -68,4 +68,20 @@ namespace pge
     {
         return &m_staticMeshManager;
     }
+
+    std::ostream&
+    operator<<(std::ostream& os, const game_Scene& scene)
+    {
+        os << scene.m_entityManager;
+        os << scene.m_entityMetaManager;
+//        os << scene.m_transformManager;
+//        os << scene.m_staticMeshManager;
+        return os;
+    }
+
+    std::istream&
+    operator>>(std::istream& is, game_Scene& scene)
+    {
+        return is;
+    }
 } // namespace pge

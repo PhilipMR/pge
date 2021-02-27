@@ -28,13 +28,18 @@ namespace pge
     class game_EntityManager {
         std::vector<unsigned> m_generation;
         std::vector<unsigned> m_freeIndices;
-        size_t                m_entityCount;
 
     public:
+        game_EntityManager();
+        game_EntityManager(const game_Entity* entities, size_t numEntities);
+
         game_Entity CreateEntity();
         void        CreateEntities(game_Entity* destBuf, size_t numEntities);
         void        DestroyEntity(const game_Entity& entity);
         bool        IsEntityAlive(const game_Entity& entity) const;
+
+        friend std::ostream& operator<<(std::ostream& os, const game_EntityManager& em);
+        friend std::istream& operator>>(std::istream& is, game_EntityManager& em);
     };
 } // namespace pge
 
@@ -57,7 +62,7 @@ namespace pge
 {
     struct game_EntityMetaData {
         game_Entity entity;
-        char        name[64];
+        char        name[32];
 
         game_EntityMetaData()
             : entity(game_EntityId_Invalid)
@@ -87,6 +92,9 @@ namespace pge
         game_EntityMetaDataIterator      End();
         game_EntityMetaDataConstIterator CBegin() const;
         game_EntityMetaDataConstIterator CEnd() const;
+
+        friend std::ostream& operator<<(std::ostream& os, const game_EntityMetaDataManager& mm);
+        friend std::istream& operator>>(std::istream& is, game_EntityMetaDataManager& mm);
     };
 } // namespace pge
 

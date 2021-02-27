@@ -1,10 +1,11 @@
 #include "../include/game_entity.h"
 #include <diag_assert.h>
+#include <iostream>
 
 namespace pge
 {
-    static const unsigned EntityIndexBits = 22;
-    static const unsigned EntityIndexMask = (1 << EntityIndexBits) - 1;
+    static const unsigned EntityIndexBits   = 22;
+    static const unsigned EntityIndexMask   = (1 << EntityIndexBits) - 1;
 
     static const unsigned EntityGenerationBits = 10;
     static const unsigned EntityGenerationMask = (1 << EntityGenerationBits) - 1;
@@ -42,6 +43,16 @@ namespace pge
     // -------------------------------------------------------
     // game_EntityManager
     // -------------------------------------------------------
+    game_EntityManager::game_EntityManager() = default;
+    game_EntityManager::game_EntityManager(const game_Entity* entities, size_t numEntities)
+    {
+        m_generation.reserve(numEntities);
+        for (size_t i = 0; i < numEntities; ++i) {
+            const game_Entity& entity       = entities[i];
+            m_generation[entity.GetIndex()] = entity.GetGeneration();
+        }
+    }
+
     game_Entity
     game_EntityManager::CreateEntity()
     {
@@ -79,6 +90,34 @@ namespace pge
         return m_generation[entity.GetIndex()] == entity.GetGeneration();
     }
 
+    std::ostream&
+    operator<<(std::ostream& os, const game_EntityManager& em)
+    {
+        unsigned numEntities = em.m_generation.size();
+        os.write((const char*)&numEntities, sizeof(numEntities));
+        for (size_t i = 0; i < em.m_generation.size(); ++i) {
+            const game_Entity entity(i, em.m_generation[i]);
+            os.write((const char*)&entity.id, sizeof(game_EntityId));
+        }
+        return os;
+    }
+
+    std::istream&
+    operator>>(std::istream& is, game_EntityManager& em)
+    {
+        em.m_generation.clear();
+        em.m_freeIndices.clear();
+        size_t numEntities = 0;
+        is >> numEntities;
+        em.m_generation.reserve(numEntities);
+        for (size_t i = 0; i < numEntities; ++i) {
+            game_EntityId entityId = 0;
+            is >> entityId;
+            game_Entity entity(entityId);
+            em.m_generation[entity.GetIndex()] = entity.GetGeneration();
+        }
+        return is;
+    }
 
     // -------------------------------------------------------
     // game_EntityMetaDataManager
@@ -159,5 +198,30 @@ namespace pge
     game_EntityMetaDataManager::CEnd() const
     {
         return m_entityMap.cend();
+    }
+
+    std::ostream&
+    operator<<(std::ostream& os, const game_EntityMetaDataManager& mm)
+    {
+        unsigned numComponents = mm.m_entityMap.size();
+        os.write((const char*)&numComponents, sizeof(numComponents));
+        for (const auto& kv : mm.m_entityMap) {
+            os.write((const char*)&kv.second, sizeof(kv.second));
+        }
+        return os;
+    }
+
+    std::istream&
+    operator>>(std::istream& is, game_EntityMetaDataManager& mm)
+    {
+        mm.m_entityMap.clear();
+        unsigned numComponents = 0;
+        is.read((char*)&numComponents, sizeof(numComponents));
+        for (unsigned i = 0; i < numComponents; ++i) {
+            game_EntityMetaData meta;
+            is.read((char*)&meta, sizeof(meta));
+            mm.m_entityMap.insert(std::make_pair<>(meta.entity, meta));
+        }
+        return is;
     }
 } // namespace pge

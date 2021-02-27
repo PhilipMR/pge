@@ -43,6 +43,9 @@ namespace pge
         {
             return &m_camera;
         }
+
+        friend std::ostream& operator<<(std::ostream& os, const game_Scene& scene);
+        friend std::istream& operator>>(std::istream& is, game_Scene& scene);
     };
 } // namespace pge
 
