@@ -107,12 +107,13 @@ namespace pge
     {
         em.m_generation.clear();
         em.m_freeIndices.clear();
-        size_t numEntities = 0;
-        is >> numEntities;
-        em.m_generation.reserve(numEntities);
+        unsigned numEntities = 0;
+        is.read((char*)&numEntities, sizeof(numEntities));
+        diag_Assert(numEntities > 0);
+        em.m_generation.resize(numEntities);
         for (size_t i = 0; i < numEntities; ++i) {
             game_EntityId entityId = 0;
-            is >> entityId;
+            is.read((char*)&entityId, sizeof(entityId));
             game_Entity entity(entityId);
             em.m_generation[entity.GetIndex()] = entity.GetGeneration();
         }

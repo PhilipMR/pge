@@ -58,6 +58,7 @@ namespace pge
 
 
     class res_SerializedMesh {
+        std::string                 m_path;
         uint16_t                    m_version;
         uint16_t                    m_attributeFlags;
         uint32_t                    m_numVertices;
@@ -81,6 +82,7 @@ namespace pge
 
         void Write(std::ostream& output);
 
+        std::string     GetPath() const;
         uint16_t        GetVersion() const;
         uint16_t        GetAttributeFlags() const;
         uint32_t        GetNumVertices() const;
@@ -93,6 +95,7 @@ namespace pge
     };
 
     class res_Mesh {
+        std::string      m_path;
         gfx_VertexBuffer m_vertexBuffer;
         gfx_IndexBuffer  m_indexBuffer;
         gfx_VertexLayout m_vertexLayout;
@@ -113,9 +116,10 @@ namespace pge
         res_Mesh(gfx_GraphicsAdapter* graphicsAdapter, const res_SerializedMesh& smesh);
         res_Mesh(gfx_GraphicsAdapter* graphicsAdapter, const char* path);
 
-        void      Bind() const;
-        size_t    GetNumTriangles() const;
-        math_AABB GetAABB() const;
+        void        Bind() const;
+        size_t      GetNumTriangles() const;
+        math_AABB   GetAABB() const;
+        std::string GetPath() const;
     };
 
     class res_MeshCache {

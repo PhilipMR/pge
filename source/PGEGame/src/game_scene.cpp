@@ -2,9 +2,9 @@
 
 namespace pge
 {
-    game_Scene::game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
+    game_Scene::game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_transformManager(1000)
-        , m_staticMeshManager(1000, graphicsAdapter, graphicsDevice)
+        , m_staticMeshManager(1000, graphicsAdapter, graphicsDevice, resources)
     {}
 
     void
@@ -74,14 +74,18 @@ namespace pge
     {
         os << scene.m_entityManager;
         os << scene.m_entityMetaManager;
-//        os << scene.m_transformManager;
-//        os << scene.m_staticMeshManager;
+        os << scene.m_transformManager;
+        os << scene.m_staticMeshManager;
         return os;
     }
 
     std::istream&
     operator>>(std::istream& is, game_Scene& scene)
     {
+        is >> scene.m_entityManager;
+        is >> scene.m_entityMetaManager;
+        is >> scene.m_transformManager;
+        is >> scene.m_staticMeshManager;
         return is;
     }
 } // namespace pge

@@ -47,7 +47,7 @@ namespace pge
     public:
         edit_Editor();
         void HandleEvents(game_Scene* scene);
-        void DrawMenuBar();
+        void DrawMenuBar(game_Scene* scene);
         bool DrawRenderTarget(const char* title, const gfx_RenderTarget* target);
         void DrawEntityTree(const game_Scene* scene);
         void DrawInspector(const game_Scene* scene);

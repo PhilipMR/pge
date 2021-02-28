@@ -4,9 +4,13 @@
 
 namespace pge
 {
-    game_StaticMeshManager::game_StaticMeshManager(size_t capacity, gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
+    game_StaticMeshManager::game_StaticMeshManager(size_t               capacity,
+                                                   gfx_GraphicsAdapter* graphicsAdapter,
+                                                   gfx_GraphicsDevice*  graphicsDevice,
+                                                   res_ResourceManager* resources)
         : m_graphicsDevice(graphicsDevice)
         , m_cbTransforms(graphicsAdapter, nullptr, sizeof(CBTransforms), gfx_BufferUsage::DYNAMIC)
+        , m_resources(resources)
     {
         m_meshes.reserve(capacity);
     }
@@ -69,7 +73,8 @@ namespace pge
         return m_meshes[id].entity;
     }
 
-    const res_Mesh* game_StaticMeshManager::GetMesh(const game_StaticMeshId& id) const
+    const res_Mesh*
+    game_StaticMeshManager::GetMesh(const game_StaticMeshId& id) const
     {
         diag_Assert(id < m_meshes.size());
         return m_meshes[id].mesh;
@@ -109,5 +114,64 @@ namespace pge
             }
         }
         return closestMesh;
+    }
+
+    std::ostream&
+    operator<<(std::ostream& os, const game_StaticMeshManager& sm)
+    {
+        unsigned numMeshes = sm.m_meshes.size();
+        os.write((const char*)&numMeshes, sizeof(numMeshes));
+
+        for (const auto& mesh : sm.m_meshes) {
+            os.write((const char*)&mesh.entity, sizeof(mesh.entity));
+
+            auto     meshPath    = mesh.mesh->GetPath();
+            unsigned meshPathLen = meshPath.size();
+            os.write((const char*)&meshPathLen, sizeof(meshPathLen));
+            os.write(meshPath.c_str(), meshPathLen);
+
+            auto     matPath    = mesh.material->GetPath();
+            unsigned matPathLen = matPath.size();
+            os.write((const char*)&matPathLen, sizeof(matPathLen));
+            os.write(matPath.c_str(), matPathLen);
+        }
+        return os;
+    }
+
+    std::istream&
+    operator>>(std::istream& is, game_StaticMeshManager& sm)
+    {
+        unsigned numMeshes = 0;
+        is.read((char*)&numMeshes, sizeof(numMeshes));
+
+        sm.m_meshes.resize(numMeshes);
+        for (unsigned i = 0; i < numMeshes; ++i) {
+            game_EntityId entityId;
+            is.read((char*)&entityId, sizeof(entityId));
+
+            char     meshPath[128];
+            unsigned meshPathLen;
+            is.read((char*)&meshPathLen, sizeof(meshPathLen));
+            diag_Assert(meshPathLen < 127);
+            is.read(meshPath, meshPathLen);
+            meshPath[meshPathLen] = 0;
+
+            char     matPath[128];
+            unsigned matPathLen;
+            is.read((char*)&matPathLen, sizeof(matPathLen));
+            diag_Assert(matPathLen < 127);
+            is.read(matPath, matPathLen);
+            matPath[matPathLen] = 0;
+
+            sm.m_meshes[i].entity   = entityId;
+            sm.m_meshes[i].mesh   = sm.m_resources->GetMesh(meshPath);
+            sm.m_meshes[i].material = sm.m_resources->GetMaterial(matPath);
+        }
+
+        sm.m_entityMap.clear();
+        for (size_t i = 0; i < numMeshes; ++i) {
+            sm.m_entityMap.insert(std::make_pair<>(sm.m_meshes[i].entity, game_StaticMeshId(i)));
+        }
+        return is;
     }
 } // namespace pge

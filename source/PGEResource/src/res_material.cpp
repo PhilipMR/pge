@@ -9,7 +9,8 @@ namespace pge
     // res_Material
     // ---------------------------------
     res_Material::res_Material(gfx_GraphicsAdapter* graphicsAdapter, const res_Effect* effect)
-        : m_effect(effect)
+        : m_path("<from-memory>")
+        , m_effect(effect)
         , m_sampler(graphicsAdapter)
     {
         if (effect->PropertiesCBSize() > 0)
@@ -20,7 +21,8 @@ namespace pge
     }
 
     res_Material::res_Material(gfx_GraphicsAdapter* graphicsAdapter, res_EffectCache* effectCache, res_Texture2DCache* texCache, const char* path)
-        : m_sampler(graphicsAdapter)
+        : m_path(path)
+        , m_sampler(graphicsAdapter)
     {
         std::string   line;
         std::ifstream file(path);
@@ -101,6 +103,12 @@ namespace pge
     res_Material::GetEffect() const
     {
         return m_effect;
+    }
+
+    const std::string
+    res_Material::GetPath() const
+    {
+        return m_path;
     }
 
 

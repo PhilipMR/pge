@@ -184,10 +184,22 @@ namespace pge
     }
 
     void
-    edit_Editor::DrawMenuBar()
+    edit_Editor::DrawMenuBar(game_Scene* scene)
     {
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Save scene", "CTRL+S")) {
+                    std::ofstream os("test.scene");
+                    os << *scene;
+                    os.close();
+                }
+                if (ImGui::MenuItem("Save scene as...", "CTRL+SHIFT+S")) {}
+                if (ImGui::MenuItem("Load scene", "CTRL+L")) {
+                    std::ifstream is("test.scene");
+                    is >> *scene;
+                    is.close();
+                }
+
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Edit")) {

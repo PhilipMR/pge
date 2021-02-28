@@ -13,6 +13,7 @@ namespace pge
     }
 
     res_SerializedMesh::res_SerializedMesh(const char* path)
+     : m_path(path)
     {
         std::ifstream input(path, std::ios::binary);
         diag_Assert(input.is_open());
@@ -36,7 +37,8 @@ namespace pge
                                            size_t     numVertices,
                                            unsigned*  triangleData,
                                            size_t     numTriangles)
-        : m_version(res_SerializedMesh::Version)
+        : m_path("<from-memory>")
+        , m_version(res_SerializedMesh::Version)
         , m_numVertices(numVertices)
         , m_numTriangles(numTriangles)
     {
@@ -84,6 +86,12 @@ namespace pge
         output.write((char*)&m_numTriangles, sizeof(m_numTriangles));
         output.write((char*)m_vertexData.get(), m_vertexDataSize);
         output.write((char*)m_triangleData.get(), GetTriangleDataSize(m_numTriangles));
+    }
+
+    std::string
+    res_SerializedMesh::GetPath() const
+    {
+        return m_path;
     }
 
     uint16_t
@@ -174,7 +182,8 @@ namespace pge
                        size_t                     vertexDataSize,
                        const unsigned*            indexData,
                        size_t                     numIndices)
-        : m_vertexBuffer(graphicsAdapter, vertexData, vertexDataSize, gfx_BufferUsage::STATIC)
+        : m_path("<from-memory>")
+        , m_vertexBuffer(graphicsAdapter, vertexData, vertexDataSize, gfx_BufferUsage::STATIC)
         , m_indexBuffer(graphicsAdapter, indexData, numIndices * sizeof(unsigned), gfx_BufferUsage::STATIC)
         , m_vertexLayout(graphicsAdapter, attributes, numAttributes)
         , m_numTriangles(numIndices / 3)
@@ -191,7 +200,8 @@ namespace pge
     }
 
     res_Mesh::res_Mesh(res_Mesh&& other) noexcept
-        : m_vertexBuffer(std::move(other.m_vertexBuffer))
+        : m_path(other.m_path)
+        , m_vertexBuffer(std::move(other.m_vertexBuffer))
         , m_indexBuffer(std::move(other.m_indexBuffer))
         , m_vertexLayout(std::move(other.m_vertexLayout))
         , m_vertexStride(other.m_vertexStride)
@@ -200,7 +210,8 @@ namespace pge
     {}
 
     res_Mesh::res_Mesh(pge::gfx_GraphicsAdapter* graphicsAdapter, const res_SerializedMesh& smesh)
-        : m_vertexBuffer(graphicsAdapter, smesh.GetVertexData(), smesh.GetVertexDataSize(), gfx_BufferUsage::STATIC)
+        : m_path(smesh.GetPath())
+        , m_vertexBuffer(graphicsAdapter, smesh.GetVertexData(), smesh.GetVertexDataSize(), gfx_BufferUsage::STATIC)
         , m_indexBuffer(graphicsAdapter, smesh.GetTriangleData(), smesh.GetNumTriangles() * 3 * sizeof(unsigned), gfx_BufferUsage::STATIC)
         , m_vertexLayout(CreateVertexLayout(graphicsAdapter, smesh.GetAttributeFlags()))
         , m_vertexStride(smesh.GetVertexStride())
@@ -230,6 +241,12 @@ namespace pge
     res_Mesh::GetAABB() const
     {
         return m_aabb;
+    }
+
+    std::string
+    res_Mesh::GetPath() const
+    {
+        return m_path;
     }
 
     // ---------------------------------

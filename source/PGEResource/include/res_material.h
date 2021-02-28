@@ -11,6 +11,7 @@
 namespace pge
 {
     class res_Material {
+        std::string                         m_path;
         const res_Effect*                   m_effect;
         std::unique_ptr<gfx_ConstantBuffer> m_cbProperties;
         std::unique_ptr<char[]>             m_cbData;
@@ -26,6 +27,7 @@ namespace pge
         void Bind() const;
 
         const res_Effect* GetEffect() const;
+        const std::string GetPath() const;
 
         template <typename T>
         void

@@ -6,6 +6,7 @@
 
 #include <res_mesh.h>
 #include <res_material.h>
+#include <res_resource_manager.h>
 #include <unordered_map>
 #include <gfx_graphics_device.h>
 #include <gfx_buffer.h>
@@ -32,8 +33,13 @@ namespace pge
         gfx_GraphicsDevice* m_graphicsDevice;
         gfx_ConstantBuffer  m_cbTransforms;
 
+        res_ResourceManager* m_resources;
+
     public:
-        game_StaticMeshManager(size_t capacity, gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice);
+        game_StaticMeshManager(size_t               capacity,
+                               gfx_GraphicsAdapter* graphicsAdapter,
+                               gfx_GraphicsDevice*  graphicsDevice,
+                               res_ResourceManager* resources);
 
         void CreateStaticMeshes(const game_Entity* entities, size_t numEntities, game_StaticMeshId* destBuf);
         void DestroyStaticMesh(const game_StaticMeshId& id);
@@ -44,12 +50,14 @@ namespace pge
         void SetMesh(const game_StaticMeshId& id, const res_Mesh* mesh);
         void SetMaterial(const game_StaticMeshId& id, const res_Material* material);
 
-        game_Entity GetEntity(const game_StaticMeshId& id) const;
+        game_Entity     GetEntity(const game_StaticMeshId& id) const;
         const res_Mesh* GetMesh(const game_StaticMeshId& id) const;
 
+        void              DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj);
+        game_StaticMeshId GetRaycastStaticMesh(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const;
 
-        void DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj);
-        game_StaticMeshId GetRaycastStaticMesh(const game_TransformManager& tm,  const math_Ray& ray, const math_Mat4x4& viewProj) const;
+        friend std::ostream& operator<<(std::ostream& os, const game_StaticMeshManager& sm);
+        friend std::istream& operator>>(std::istream& is, game_StaticMeshManager& sm);
     };
 } // namespace pge
 

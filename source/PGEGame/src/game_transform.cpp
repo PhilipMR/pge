@@ -1,15 +1,19 @@
 #include "../include/game_transform.h"
 #include <diag_assert.h>
+#include <iostream>
 
 namespace pge
 {
-    game_TransformManager::game_TransformManager(size_t capacity)
-        : m_size(0)
-        , m_capacity(capacity)
+    static const size_t TRANSFORM_ELEMENT_SIZE = sizeof(game_Entity) + 2 * sizeof(math_Mat4x4) + 4 * sizeof(game_TransformId);
+
+    void
+    game_TransformManager::AllocateBuffers(size_t capacity)
     {
-        diag_Assert(m_capacity > 0);
-        size_t elementSize = sizeof(game_Entity) + 2 * sizeof(math_Mat4x4) + 4 * sizeof(game_TransformId);
-        size_t bufferSize  = elementSize * m_capacity;
+        if (m_buffer != nullptr)
+            free(m_buffer);
+        diag_Assert(capacity > 0);
+        m_capacity        = capacity;
+        size_t bufferSize = TRANSFORM_ELEMENT_SIZE * m_capacity;
 
         m_buffer     = malloc(bufferSize);
         m_entity     = reinterpret_cast<game_Entity*>(m_buffer);
@@ -21,6 +25,13 @@ namespace pge
         m_prev       = m_next + capacity;
     }
 
+    game_TransformManager::game_TransformManager(size_t capacity)
+        : m_capacity(capacity)
+        , m_buffer(nullptr)
+    {
+        AllocateBuffers(capacity);
+    }
+
     game_TransformManager::~game_TransformManager()
     {
         free(m_buffer);
@@ -30,8 +41,8 @@ namespace pge
     game_TransformManager::CreateTransform(const game_Entity& entity, const math_Mat4x4& xform)
     {
         diag_Assert(!HasTransform(entity));
-        diag_Assert(m_size < m_capacity);
-        game_TransformId tid = m_size++;
+        diag_Assert(m_entityMap.size() < m_capacity);
+        game_TransformId tid = m_entityMap.size();
 
         m_entity[tid]     = entity.id;
         m_local[tid]      = xform;
@@ -56,12 +67,12 @@ namespace pge
     void
     game_TransformManager::DestroyTransform(const game_TransformId& id)
     {
-        diag_Assert(id < m_size);
+        diag_Assert(id < m_entityMap.size());
 
         const game_TransformId& delId  = id;
         const game_Entity&      delEnt = m_entity[delId];
 
-        const game_TransformId& lastId  = m_size - 1;
+        const game_TransformId& lastId  = m_entityMap.size() - 1;
         const game_Entity&      lastEnt = m_entity[lastId];
 
         if (delId != lastId) {
@@ -81,14 +92,13 @@ namespace pge
             m_entityMap.erase(delEnt);
             m_entityMap[lastEnt] = delId;
         }
-        m_size--;
     }
 
     void
     game_TransformManager::GarbageCollect(const game_EntityManager& entityManager)
     {
-        for (size_t aliveStreak = 0; m_size > 0 && aliveStreak < 4;) {
-            unsigned randIdx = rand() % m_size;
+        for (size_t aliveStreak = 0; m_entityMap.size() > 0 && aliveStreak < 4;) {
+            unsigned randIdx = rand() % m_entityMap.size();
             if (!entityManager.IsEntityAlive(m_entity[randIdx])) {
                 DestroyTransform(randIdx);
                 aliveStreak = 0;
@@ -118,7 +128,7 @@ namespace pge
     void
     game_TransformManager::Rotate(const game_TransformId& id, const math_Vec3& axis, float degrees)
     {
-        diag_Assert(id < m_size);
+        diag_Assert(id < m_entityMap.size());
         math_Mat4x4 newLocal = m_local[id] * math_CreateRotationMatrix(math_QuaternionFromAxisAngle(axis, degrees));
         SetLocal(id, newLocal);
     }
@@ -142,7 +152,7 @@ namespace pge
     void
     game_TransformManager::SetLocal(const game_TransformId& id, const math_Mat4x4& matrix)
     {
-        diag_Assert(id < m_size);
+        diag_Assert(id < m_entityMap.size());
         m_local[id]                  = matrix;
         game_TransformId parentId    = m_parent[id];
         math_Mat4x4      parentWorld = parentId == game_TransformId_Invalid ? math_Mat4x4() : m_world[parentId];
@@ -164,7 +174,7 @@ namespace pge
     math_Mat4x4
     game_TransformManager::GetLocal(const game_TransformId& id) const
     {
-        diag_Assert(id < m_size);
+        diag_Assert(id < m_entityMap.size());
         return m_local[id];
     }
 
@@ -183,8 +193,51 @@ namespace pge
     math_Mat4x4
     game_TransformManager::GetWorld(const game_TransformId& id) const
     {
-        diag_Assert(id < m_size);
+        diag_Assert(id < m_entityMap.size());
         return m_world[id];
+    }
+
+    std::ostream&
+    operator<<(std::ostream& os, const game_TransformManager& tm)
+    {
+        unsigned numComponents = tm.m_entityMap.size();
+        os.write((const char*)&numComponents, sizeof(numComponents));
+
+        os.write((const char*)tm.m_entity, sizeof(tm.m_entity[0]) * numComponents);
+        os.write((const char*)tm.m_local, sizeof(tm.m_local[0]) * numComponents);
+        os.write((const char*)tm.m_world, sizeof(tm.m_world[0]) * numComponents);
+        os.write((const char*)tm.m_parent, sizeof(tm.m_parent[0]) * numComponents);
+        os.write((const char*)tm.m_firstChild, sizeof(tm.m_firstChild[0]) * numComponents);
+        os.write((const char*)tm.m_next, sizeof(tm.m_next[0]) * numComponents);
+        os.write((const char*)tm.m_prev, sizeof(tm.m_prev[0]) * numComponents);
+
+        return os;
+    }
+
+    std::istream&
+    operator>>(std::istream& is, game_TransformManager& tm)
+    {
+        unsigned numTransforms = 0;
+        is.read((char*)&numTransforms, sizeof(numTransforms));
+
+        if (tm.m_capacity < numTransforms) {
+            tm.AllocateBuffers(numTransforms);
+        }
+
+        is.read((char*)tm.m_entity, sizeof(tm.m_entity[0]) * numTransforms);
+        is.read((char*)tm.m_local, sizeof(tm.m_local[0]) * numTransforms);
+        is.read((char*)tm.m_world, sizeof(tm.m_world[0]) * numTransforms);
+        is.read((char*)tm.m_parent, sizeof(tm.m_parent[0]) * numTransforms);
+        is.read((char*)tm.m_firstChild, sizeof(tm.m_firstChild[0]) * numTransforms);
+        is.read((char*)tm.m_next, sizeof(tm.m_next[0]) * numTransforms);
+        is.read((char*)tm.m_prev, sizeof(tm.m_prev[0]) * numTransforms);
+
+        tm.m_entityMap.clear();
+        for (unsigned i = 0; i < numTransforms; ++i) {
+            tm.m_entityMap.insert(std::make_pair<>(tm.m_entity[i], i));
+        }
+
+        return is;
     }
 
     void

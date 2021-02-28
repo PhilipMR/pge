@@ -12,7 +12,6 @@ namespace pge
     class game_TransformManager {
         std::unordered_map<game_Entity, game_TransformId> m_entityMap;
 
-        size_t m_size;
         size_t m_capacity;
         void*  m_buffer;
 
@@ -24,6 +23,8 @@ namespace pge
         game_TransformId* m_next;
         game_TransformId* m_prev;
 
+        void AllocateBuffers(size_t capacity);
+        game_TransformManager& operator=(const game_TransformManager& rhs) = delete;
     public:
         game_TransformManager(size_t capacity);
         ~game_TransformManager();
@@ -54,6 +55,9 @@ namespace pge
         //        math_Quat   GetWorldRotation(const game_TransformId& id) const;
         //        math_Vec3   GetWorldScale(const game_TransformId& id) const;
         math_Mat4x4 GetWorld(const game_TransformId& id) const;
+
+        friend std::ostream& operator<<(std::ostream& os, const game_TransformManager& tm);
+        friend std::istream& operator>>(std::istream& is, game_TransformManager& tm);
 
     private:
         void Transform(const game_TransformId& id, const math_Mat4x4& parent);

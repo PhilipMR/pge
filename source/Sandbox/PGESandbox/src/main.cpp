@@ -117,12 +117,8 @@ main()
 
         // Setup scene
         res_ResourceManager resources(&graphicsAdapter);
-        game_Scene          scene(&graphicsAdapter, &graphicsDevice);
+        game_Scene          scene(&graphicsAdapter, &graphicsDevice, &resources);
         InitializeScene(&scene, &resources);
-
-        std::ofstream os("test.scene");
-        os << scene;
-        os.close();
 
         // Set up editor
         const float      resScale = 1.0f;
@@ -199,7 +195,7 @@ main()
 
             edit_BeginFrame();
             editor.HandleEvents(&scene);
-            editor.DrawMenuBar();
+            editor.DrawMenuBar(&scene);
             s_hoveringGameWindow = editor.DrawRenderTarget("Game", &rtGameMs);
             editor.DrawEntityTree(&scene);
             editor.DrawInspector(&scene);

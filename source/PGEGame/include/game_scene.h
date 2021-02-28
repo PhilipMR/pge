@@ -18,7 +18,7 @@ namespace pge
         game_FPSCamera             m_camera;
 
     public:
-        game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice);
+        game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
         void Update();
         void Draw();
 
