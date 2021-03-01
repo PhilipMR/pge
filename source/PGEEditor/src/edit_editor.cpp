@@ -4,6 +4,7 @@
 #include <imgui/imgui.h>
 #include <input_mouse.h>
 #include <gfx_debug_draw.h>
+#include <sstream>
 
 namespace pge
 {
@@ -194,7 +195,7 @@ namespace pge
                     os.close();
                 }
                 if (ImGui::MenuItem("Save scene as...", "CTRL+SHIFT+S")) {}
-                if (ImGui::MenuItem("Load scene", "CTRL+L")) {
+                if (ImGui::MenuItem("Load scene...", "CTRL+L")) {
                     std::ifstream is("test.scene");
                     is >> *scene;
                     is.close();
@@ -242,20 +243,48 @@ namespace pge
     }
 
     void
-    edit_Editor::DrawEntityTree(const game_Scene* scene)
+    edit_Editor::DrawEntityTree(game_Scene* scene)
     {
-        const auto* mm = scene->GetEntityMetaDataManager();
         ImGui::Begin("Scene graph", nullptr, 0);
-        if (ImGui::TreeNode("Scene")) {
-            for (auto it = mm->CBegin(); it != mm->CEnd(); ++it) {
-                const auto& entity = it->second;
-                std::string name   = entity.name;
-                if (ImGui::Button(name.c_str())) {
+        ImGui::Text("Scene");
+        ImGui::Indent();
+
+        bool isAnyNodeHovered = false;
+        auto* mm = scene->GetEntityMetaDataManager();
+        for (auto it = mm->Begin(); it != mm->End(); ++it) {
+            const auto&          entity       = it->second;
+            static game_EntityId editEntityId = game_EntityId_Invalid;
+            bool                 isSelected   = entity.entity == m_selectedEntity;
+
+            ImGui::Bullet();
+            ImGui::SameLine();
+
+            if (editEntityId == entity.entity.id) {
+                std::stringstream ss;
+                ss << entity.entity.id;
+                if (ImGui::InputText(entity.name, (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     m_selectedEntity = entity.entity.id;
+                    editEntityId     = game_EntityId_Invalid;
+                }
+            } else {
+                ImGui::Selectable(entity.name, isSelected);
+                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                    editEntityId = entity.entity.id;
+                } else if (ImGui::IsItemClicked()) {
+                    if (m_selectedEntity != entity.entity.id) {
+                        m_selectedEntity = entity.entity.id;
+                        editEntityId     = game_EntityId_Invalid;
+                    }
                 }
             }
-            ImGui::TreePop();
+
+            isAnyNodeHovered |= ImGui::IsItemHovered();
         }
+
+        if (!isAnyNodeHovered && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            m_selectedEntity = game_EntityId_Invalid;
+        }
+
         ImGui::End();
     }
 

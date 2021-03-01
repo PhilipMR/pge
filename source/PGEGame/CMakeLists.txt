@@ -16,5 +16,4 @@ target_include_directories(pge_game PRIVATE
     ../PGEInput/include
     ../PGEGraphics/include
     ../PGEResource/include
-    ../PGERenderer/include
-)
+  )

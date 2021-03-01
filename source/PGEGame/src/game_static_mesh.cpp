@@ -164,7 +164,7 @@ namespace pge
             matPath[matPathLen] = 0;
 
             sm.m_meshes[i].entity   = entityId;
-            sm.m_meshes[i].mesh   = sm.m_resources->GetMesh(meshPath);
+            sm.m_meshes[i].mesh     = sm.m_resources->GetMesh(meshPath);
             sm.m_meshes[i].material = sm.m_resources->GetMaterial(matPath);
         }
 
