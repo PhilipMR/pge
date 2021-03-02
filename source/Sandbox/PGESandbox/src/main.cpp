@@ -85,8 +85,13 @@ UpdateScene(pge::game_Scene* scene)
     using namespace pge;
     auto        tm       = scene->GetTransformManager();
     const float rotSpeed = 360.0f / 60.0f * 0.1f;
-    tm->Rotate(transforms[0], math_Vec3(0, 1, 0), -rotSpeed);
-    tm->Rotate(transforms[1], math_Vec3(0, 1, 0), rotSpeed);
+
+    if(scene->GetEntityManager()->IsEntityAlive(entities[0])) {
+        tm->Rotate(transforms[0], math_Vec3(0, 1, 0), -rotSpeed);
+    }
+    if (scene->GetEntityManager()->IsEntityAlive(entities[1])) {
+        tm->Rotate(transforms[1], math_Vec3(0, 1, 0), rotSpeed);
+    }
 
     scene->Update();
 }

@@ -148,6 +148,9 @@ namespace pge
         // Handle mode switch on selected entity
         if (m_selectedEntity != game_EntityId_Invalid) {
             // Draw selected bounding box
+            if (!scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity)) {
+                return;
+            }
             auto meshId      = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
             auto aabb        = scene->GetStaticMeshManager()->GetMesh(meshId)->GetAABB();
             auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
@@ -246,11 +249,14 @@ namespace pge
     edit_Editor::DrawEntityTree(game_Scene* scene)
     {
         ImGui::Begin("Scene graph", nullptr, 0);
+
         ImGui::Text("Scene");
         ImGui::Indent();
 
-        bool isAnyNodeHovered = false;
-        auto* mm = scene->GetEntityMetaDataManager();
+        bool  isAnyNodeHovered = false;
+        bool  isEntityContextMenu = false;
+        auto* mm               = scene->GetEntityMetaDataManager();
+        std::vector<game_Entity> entitiesToDestroy;
         for (auto it = mm->Begin(); it != mm->End(); ++it) {
             const auto&          entity       = it->second;
             static game_EntityId editEntityId = game_EntityId_Invalid;
@@ -259,10 +265,10 @@ namespace pge
             ImGui::Bullet();
             ImGui::SameLine();
 
-            if (editEntityId == entity.entity.id) {
+            if (isSelected && editEntityId == entity.entity.id) {
                 std::stringstream ss;
                 ss << entity.entity.id;
-                if (ImGui::InputText(entity.name, (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                if (ImGui::InputText(ss.str().c_str(), (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     m_selectedEntity = entity.entity.id;
                     editEntityId     = game_EntityId_Invalid;
                 }
@@ -276,6 +282,19 @@ namespace pge
                         editEntityId     = game_EntityId_Invalid;
                     }
                 }
+
+                std::stringstream ss;
+                ss << "EntityContextMenu" << entity.entity.id;
+                if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
+                    isEntityContextMenu = true;
+                    if (ImGui::Selectable("Delete entity")) {
+                        entitiesToDestroy.push_back(entity.entity);
+                        if (m_selectedEntity == entity.entity.id) {
+                            m_selectedEntity = game_EntityId_Invalid;
+                        }
+                    }
+                    ImGui::EndPopup();
+                }
             }
 
             isAnyNodeHovered |= ImGui::IsItemHovered();
@@ -285,7 +304,24 @@ namespace pge
             m_selectedEntity = game_EntityId_Invalid;
         }
 
+        if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("SceneContextMenu")) {
+            if (ImGui::Selectable("Create entity")) {
+                auto newEntity = scene->GetEntityManager()->CreateEntity();
+                game_EntityMetaData meta;
+                meta.entity = newEntity;
+                std::stringstream ss;
+                ss << "Entity [" << newEntity.id << "]";
+                strcpy_s(meta.name, ss.str().c_str());
+                scene->GetEntityMetaDataManager()->CreateMetaData(newEntity, meta);
+            }
+            ImGui::EndPopup();
+        }
+
         ImGui::End();
+
+        for (const auto& entity : entitiesToDestroy) {
+            scene->GetEntityManager()->DestroyEntity(entity);
+        }
     }
 
     void

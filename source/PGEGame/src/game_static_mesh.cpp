@@ -37,7 +37,37 @@ namespace pge
 
     void
     game_StaticMeshManager::DestroyStaticMesh(const game_StaticMeshId& id)
-    {}
+    {
+        diag_Assert(id < m_entityMap.size());
+
+        const game_StaticMeshId& delId  = id;
+        const game_Entity        delEnt = m_meshes[delId].entity;
+
+        const game_StaticMeshId& lastId  = m_entityMap.size() - 1;
+        const game_Entity        lastEnt = m_meshes[lastId].entity;
+
+        if (delId != lastId) {
+            m_meshes[delId]        = m_meshes[lastId];
+            m_meshes[delId].entity = lastEnt;
+            m_entityMap[lastEnt]   = delId;
+        }
+        m_entityMap.erase(delEnt);
+        m_meshes.pop_back();
+    }
+
+    void
+    game_StaticMeshManager::GarbageCollect(const game_EntityManager& entityManager)
+    {
+        for (size_t aliveStreak = 0; m_meshes.size() > 0 && aliveStreak < 4;) {
+            unsigned randIdx = rand() % m_meshes.size();
+            if (!entityManager.IsEntityAlive(m_meshes[randIdx].entity)) {
+                DestroyStaticMesh(randIdx);
+                aliveStreak = 0;
+            } else {
+                aliveStreak++;
+            }
+        }
+    }
 
     bool
     game_StaticMeshManager::HasStaticMesh(const game_Entity& entity) const
@@ -91,7 +121,7 @@ namespace pge
             mesh.mesh->Bind();
             mesh.material->Bind();
 
-            m_cbTransformsData.modelMatrix = tm.GetWorld(tm.GetTransformId(mesh.entity));
+            m_cbTransformsData.modelMatrix = tm.HasTransform(mesh.entity) ? tm.GetWorld(tm.GetTransformId(mesh.entity)) : math_Mat4x4();
             m_cbTransforms.Update(&m_cbTransformsData, sizeof(CBTransforms));
             m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh.mesh->GetNumTriangles() * 3);
         }

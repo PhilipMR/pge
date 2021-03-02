@@ -70,28 +70,22 @@ namespace pge
         diag_Assert(id < m_entityMap.size());
 
         const game_TransformId& delId  = id;
-        const game_Entity&      delEnt = m_entity[delId];
+        const game_Entity       delEnt = m_entity[delId];
 
         const game_TransformId& lastId  = m_entityMap.size() - 1;
-        const game_Entity&      lastEnt = m_entity[lastId];
+        const game_Entity       lastEnt = m_entity[lastId];
 
         if (delId != lastId) {
-            game_TransformId delChildId = m_firstChild[delId];
-            while (delChildId != game_TransformId_Invalid) {
-                m_parent[delChildId] = delId;
-                delChildId           = m_next[delChildId];
-            }
-
-            m_entity[delId]     = m_entity[lastId];
-            m_local[delId]      = m_local[lastId];
-            m_world[delId]      = m_world[lastId];
-            m_parent[delId]     = m_parent[lastId];
-            m_firstChild[delId] = m_firstChild[lastId];
-            m_next[delId]       = m_next[lastId];
-            m_prev[delId]       = m_prev[lastId];
-            m_entityMap.erase(delEnt);
+            m_entity[delId]      = m_entity[lastId];
+            m_local[delId]       = m_local[lastId];
+            m_world[delId]       = m_world[lastId];
+            m_parent[delId]      = m_parent[lastId];
+            m_firstChild[delId]  = m_firstChild[lastId];
+            m_next[delId]        = m_next[lastId];
+            m_prev[delId]        = m_prev[lastId];
             m_entityMap[lastEnt] = delId;
         }
+        m_entityMap.erase(delEnt);
     }
 
     void

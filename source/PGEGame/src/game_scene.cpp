@@ -12,6 +12,7 @@ namespace pge
     {
         m_camera.UpdateFPS(.1f);
         m_entityMetaManager.GarbageCollect(m_entityManager);
+        m_staticMeshManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);
     }
 

@@ -43,6 +43,7 @@ namespace pge
 
         void CreateStaticMeshes(const game_Entity* entities, size_t numEntities, game_StaticMeshId* destBuf);
         void DestroyStaticMesh(const game_StaticMeshId& id);
+        void GarbageCollect(const game_EntityManager& entityManager);
 
         bool              HasStaticMesh(const game_Entity& entity) const;
         game_StaticMeshId GetStaticMeshId(const game_Entity& entity) const;
