@@ -201,7 +201,7 @@ main()
             edit_BeginFrame();
             editor.HandleEvents(&scene);
             editor.DrawMenuBar(&scene);
-            s_hoveringGameWindow = editor.DrawRenderTarget("Game", &rtGameMs);
+            s_hoveringGameWindow = editor.DrawGameView(&scene, &rtGameMs);
             editor.DrawEntityTree(&scene);
             editor.DrawInspector(&scene);
             editor.DrawExplorer();

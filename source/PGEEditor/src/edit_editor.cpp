@@ -233,14 +233,46 @@ namespace pge
     }
 
     bool
-    edit_Editor::DrawRenderTarget(const char* title, const gfx_RenderTarget* target)
+    edit_Editor::DrawGameView(game_Scene* scene, const gfx_RenderTarget* target)
     {
-        ImGui::Begin(title);
+        ImGui::Begin("Game");
         float r = 16.0f / 9.0f;
         ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - 20 * r));
         bool isHovered   = ImGui::IsWindowHovered();
         m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
         m_gameWindowSize = math_Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+
+
+        // Right mouse click to open entity context menu
+        static bool hoveringSelectedEntity = false;
+        if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+            const math_Mat4x4       viewProj    = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
+            const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
+            const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->GetRaycastStaticMesh(*scene->GetTransformManager(), ray, viewProj);
+            if (hoveredMesh != game_StaticMeshId_Invalid) {
+                game_EntityId hoveredEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
+                hoveringSelectedEntity      = hoveredEntity == m_selectedEntity;
+            } else {
+                hoveringSelectedEntity = false;
+            }
+        }
+
+        static bool contextWasOpen = false;
+        if (hoveringSelectedEntity) {
+            std::stringstream ss;
+            ss << "GameEntityContextMenu" << m_selectedEntity;
+            if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
+                contextWasOpen = true;
+                if (ImGui::Selectable("Delete entity")) {
+                    scene->GetEntityManager()->DestroyEntity(m_selectedEntity);
+                }
+                ImGui::EndPopup();
+            } else if (contextWasOpen) {
+                hoveringSelectedEntity = false;
+                contextWasOpen         = false;
+            }
+        }
+
         ImGui::End();
         return isHovered;
     }
@@ -253,9 +285,9 @@ namespace pge
         ImGui::Text("Scene");
         ImGui::Indent();
 
-        bool  isAnyNodeHovered = false;
-        bool  isEntityContextMenu = false;
-        auto* mm               = scene->GetEntityMetaDataManager();
+        bool                     isAnyNodeHovered    = false;
+        bool                     isEntityContextMenu = false;
+        auto*                    mm                  = scene->GetEntityMetaDataManager();
         std::vector<game_Entity> entitiesToDestroy;
         for (auto it = mm->Begin(); it != mm->End(); ++it) {
             const auto&          entity       = it->second;
@@ -284,7 +316,7 @@ namespace pge
                 }
 
                 std::stringstream ss;
-                ss << "EntityContextMenu" << entity.entity.id;
+                ss << "SceneGraphEntityContextMenu" << entity.entity.id;
                 if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
                     isEntityContextMenu = true;
                     if (ImGui::Selectable("Delete entity")) {
@@ -306,7 +338,7 @@ namespace pge
 
         if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("SceneContextMenu")) {
             if (ImGui::Selectable("Create entity")) {
-                auto newEntity = scene->GetEntityManager()->CreateEntity();
+                auto                newEntity = scene->GetEntityManager()->CreateEntity();
                 game_EntityMetaData meta;
                 meta.entity = newEntity;
                 std::stringstream ss;
