@@ -228,15 +228,18 @@ namespace pge
     }
 
     inline math_Mat4x4
-    math_Perspective(float fov, float aspect, float nearClip, float farClip)
+    math_PerspectiveFovRH(float fov, float aspect, float nearClip, float farClip)
     {
-        float f = 1.0f / tanf(fov * 0.5f * math_PI / 180);
+        float yScale = 1.0f / tanf(fov / 2);
+        float xScale = yScale / aspect;
+        float zn     = nearClip;
+        float zf     = farClip;
         // clang-format off
         return math_Mat4x4(
-            f / aspect, 0, 0, 0,
-            0, f, 0, 0,
-            0, 0, (farClip + nearClip) / (nearClip - farClip), 2 * nearClip * farClip / (nearClip - farClip),
-            0, 0, -1, 0
+        xScale, 0 ,      0,           0,
+        0,      yScale , 0,           0,
+        0, 0,      -zf/(zf-zn), -zn*zf/(zf-zn),
+        0, 0,      -1,           0
         );
         // clang-format on
     }

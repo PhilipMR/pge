@@ -178,9 +178,7 @@ main()
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);
-
-            gfx_DebugDraw_Box(math_Vec3(10, 10, 10), math_Vec3(50, 50, 50), math_Vec3(1, 1, 1), thickness);
-            gfx_DebugDraw_Point(math_Vec3(5, 5, 5), math_Vec3(1, 0, 1), thickness);
+            //gfx_DebugDraw_GridXY(math_Vec3::Zero(), length);
             gfx_DebugDraw_Flush();
 
             // Redraw screen to intermediate texture (additional multisampling)
@@ -203,7 +201,7 @@ main()
             editor.DrawMenuBar(&scene);
             s_hoveringGameWindow = editor.DrawGameView(&scene, &rtGameMs);
             editor.DrawEntityTree(&scene);
-            editor.DrawInspector(&scene);
+            editor.DrawInspector(&scene, &resources);
             editor.DrawExplorer();
             edit_EndFrame();
 

@@ -113,6 +113,8 @@ namespace pge
         switch (m_editMode) {
             case edit_EditMode::NONE: break;
             case edit_EditMode::TRANSLATE: {
+                if (m_selectedEntity == game_EntityId_Invalid)
+                    break;
                 DrawAxis(scene->GetTransformManager(), m_selectedEntity, m_editAxis);
                 TranslateEntity(scene->GetTransformManager(), m_selectedEntity, m_editAxis, viewProj);
                 if (input_MouseButtonPressed(input_MouseButton::LEFT))
@@ -136,7 +138,7 @@ namespace pge
         // Left mouse click to (de-)select entity
         if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
             const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
-            const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->GetRaycastStaticMesh(*scene->GetTransformManager(), ray, viewProj);
+            const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj);
             if (hoveredMesh != game_StaticMeshId_Invalid) {
                 m_selectedEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
             } else {
@@ -248,7 +250,7 @@ namespace pge
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
             const math_Mat4x4       viewProj    = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
             const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
-            const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->GetRaycastStaticMesh(*scene->GetTransformManager(), ray, viewProj);
+            const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj);
             if (hoveredMesh != game_StaticMeshId_Invalid) {
                 game_EntityId hoveredEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
                 hoveringSelectedEntity      = hoveredEntity == m_selectedEntity;
@@ -265,6 +267,7 @@ namespace pge
                 contextWasOpen = true;
                 if (ImGui::Selectable("Delete entity")) {
                     scene->GetEntityManager()->DestroyEntity(m_selectedEntity);
+                    m_selectedEntity = game_EntityId_Invalid;
                 }
                 ImGui::EndPopup();
             } else if (contextWasOpen) {
@@ -357,20 +360,39 @@ namespace pge
     }
 
     void
-    edit_Editor::DrawInspector(const game_Scene* scene)
+    edit_Editor::DrawInspector(game_Scene* scene, res_ResourceManager* resources)
     {
-        const auto* tm = scene->GetTransformManager();
-        const auto* sm = scene->GetStaticMeshManager();
+        auto* tm = scene->GetTransformManager();
+        auto* sm = scene->GetStaticMeshManager();
         ImGui::Begin("Inspector", nullptr, 0);
         if (m_selectedEntity != game_EntityId_Invalid) {
             if (tm->HasTransform(m_selectedEntity)) {
-                ImGui::Text("HasTransform");
-                auto      world = tm->GetWorld(tm->GetTransformId(m_selectedEntity));
+                auto      tid   = tm->GetTransformId(m_selectedEntity);
+                auto      world = tm->GetWorld(tid);
                 math_Vec3 pos(world[0][3], world[1][3], world[2][3]);
-                ImGui::Text("Position: { x:%f, y:%f, z:%f }", pos.x, pos.y, pos.z);
+                if (ImGui::DragFloat3("Position", &pos[0])) {
+                    world[0][3] = pos[0];
+                    world[1][3] = pos[1];
+                    world[2][3] = pos[2];
+                    tm->SetLocal(tid, world);
+                }
+            } else {
+                if (ImGui::Button("Add transform")) {
+                    tm->CreateTransform(m_selectedEntity);
+                }
             }
             if (sm->HasStaticMesh(m_selectedEntity)) {
-                ImGui::Text("HasStaticMesh");
+                game_StaticMeshId mid = sm->GetStaticMeshId(m_selectedEntity);
+                ImGui::Text("%s", sm->GetMesh(mid)->GetPath().c_str());
+            } else {
+                if (ImGui::Button("Add mesh")) {
+                    if (!tm->HasTransform(m_selectedEntity)) {
+                        tm->CreateTransform(m_selectedEntity);
+                    }
+                    game_StaticMeshId mid = sm->CreateStaticMesh(m_selectedEntity);
+                    sm->SetMesh(mid, resources->GetMesh("data/meshes/cube/Cube.001.mesh"));
+                    sm->SetMaterial(mid, resources->GetMaterial("data/materials/checkers.mat"));
+                }
             }
         }
         ImGui::End();

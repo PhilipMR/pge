@@ -14,17 +14,13 @@ namespace pge
 
     public:
         game_FPSCamera()
+         : game_FPSCamera(math_DegToRad(60.0f), 16.0f/9.0f, 0.01f, 1000.0f)
         {
-            const float fov      = 60.0f;
-            const float aspect   = 1920.0f / 1080.0f;
-            const float nearClip = 0.01f;
-            const float farClip  = 100.0f;
-            m_projectionMatrix   = math_Perspective(fov, aspect, nearClip, farClip);
         }
 
         game_FPSCamera(float fov, float aspect, float nearClip, float farClip)
         {
-            m_projectionMatrix = math_Perspective(fov, aspect, nearClip, farClip);
+            m_projectionMatrix   = math_PerspectiveFovRH(fov, aspect, nearClip, farClip);
         }
 
         void

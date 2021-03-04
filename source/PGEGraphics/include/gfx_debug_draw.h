@@ -2,6 +2,7 @@
 #define PGE_GRAPHICS_GFX_DEBUG_DRAW_H
 
 #include <math_mat4x4.h>
+#include <math_vec2.h>
 
 namespace pge
 {
@@ -23,6 +24,12 @@ namespace pge
                            const math_Vec3& color     = math_Vec3(1.f, 1.f, 1.f),
                            float            lineWidth = 0.075f,
                            bool             depthTest = true);
+    void gfx_DebugDraw_GridXY(const math_Vec3& origin,
+                              const float      lineLength,
+                              const math_Vec2& cellSize  = math_Vec2(5.f, 5.f),
+                              const math_Vec3& color     = math_Vec3(1.f, 1.f, 1.f),
+                              const float      lineWidth = 0.1f,
+                              bool             depthTest = true);
     void gfx_DebugDraw_Flush();
 } // namespace pge
 

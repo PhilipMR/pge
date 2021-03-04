@@ -219,17 +219,24 @@ namespace pge
         }
 
         is.read((char*)tm.m_entity, sizeof(tm.m_entity[0]) * numTransforms);
+        size_t pos = is.tellg();
+        bool iseof = is.eof();
         is.read((char*)tm.m_local, sizeof(tm.m_local[0]) * numTransforms);
+
         is.read((char*)tm.m_world, sizeof(tm.m_world[0]) * numTransforms);
         is.read((char*)tm.m_parent, sizeof(tm.m_parent[0]) * numTransforms);
         is.read((char*)tm.m_firstChild, sizeof(tm.m_firstChild[0]) * numTransforms);
         is.read((char*)tm.m_next, sizeof(tm.m_next[0]) * numTransforms);
+
+
+
         is.read((char*)tm.m_prev, sizeof(tm.m_prev[0]) * numTransforms);
 
         tm.m_entityMap.clear();
         for (unsigned i = 0; i < numTransforms; ++i) {
             tm.m_entityMap.insert(std::make_pair<>(tm.m_entity[i], i));
         }
+
 
         return is;
     }

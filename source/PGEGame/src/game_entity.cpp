@@ -140,20 +140,20 @@ namespace pge
     void
     game_EntityMetaDataManager::GarbageCollect(const game_EntityManager& manager)
     {
-        size_t                   aliveStreak = 0;
         std::vector<game_Entity> entitiesToRemove;
-        for (const auto& kv : m_entityMap) {
-            if (manager.IsEntityAlive(kv.first)) {
+        for(size_t aliveStreak = 0; !m_entityMap.empty() && aliveStreak < 4;) {
+            unsigned randIdx = rand() % m_entityMap.size();
+            auto kv = m_entityMap.begin();
+            for (size_t i = 0; i < randIdx; i++) kv++;
+
+            if (manager.IsEntityAlive(kv->first)) {
                 aliveStreak++;
             } else {
-                entitiesToRemove.push_back(kv.first);
+                m_entityMap.erase(kv->first);
                 aliveStreak = 0;
             }
             if (aliveStreak >= 4)
                 return;
-        }
-        for (const auto& e : entitiesToRemove) {
-            m_entityMap.erase(e);
         }
     }
 

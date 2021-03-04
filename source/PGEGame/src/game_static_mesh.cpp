@@ -15,23 +15,28 @@ namespace pge
         m_meshes.reserve(capacity);
     }
 
+    game_StaticMeshId
+    game_StaticMeshManager::CreateStaticMesh(const game_Entity& entity)
+    {
+        diag_Assert(!HasStaticMesh(entity));
+        diag_Assert(m_meshes.size() < m_meshes.capacity());
+
+        StaticMeshEntity meshEntity;
+        meshEntity.entity   = entity;
+        meshEntity.mesh     = nullptr;
+        meshEntity.material = nullptr;
+        m_meshes.push_back(meshEntity);
+
+        game_StaticMeshId meshId = m_meshes.size() - 1;
+        m_entityMap.insert(std::make_pair(entity, meshId));
+        return meshId;
+    }
+
     void
     game_StaticMeshManager::CreateStaticMeshes(const game_Entity* entities, size_t numEntities, game_StaticMeshId* destBuf)
     {
         for (size_t i = 0; i < numEntities; ++i) {
-            diag_Assert(!HasStaticMesh(entities[i]));
-            diag_Assert(m_meshes.size() < m_meshes.capacity());
-
-            StaticMeshEntity meshEntity;
-            meshEntity.entity   = entities[i];
-            meshEntity.mesh     = nullptr;
-            meshEntity.material = nullptr;
-            m_meshes.push_back(meshEntity);
-
-            game_StaticMeshId meshId = m_meshes.size() - 1;
-            destBuf[i]               = meshId;
-
-            m_entityMap.insert(std::make_pair(entities[i], meshId));
+            destBuf[i] = CreateStaticMesh(entities[i]);
         }
     }
 
@@ -128,7 +133,7 @@ namespace pge
     }
 
     game_StaticMeshId
-    game_StaticMeshManager::GetRaycastStaticMesh(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const
+    game_StaticMeshManager::RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const
     {
         float             closestDistance = std::numeric_limits<float>::max();
         game_StaticMeshId closestMesh     = game_StaticMeshId_Invalid;
@@ -172,6 +177,8 @@ namespace pge
     operator>>(std::istream& is, game_StaticMeshManager& sm)
     {
         unsigned numMeshes = 0;
+        size_t pos = is.tellg();
+        bool iseof = is.eof();
         is.read((char*)&numMeshes, sizeof(numMeshes));
 
         sm.m_meshes.resize(numMeshes);

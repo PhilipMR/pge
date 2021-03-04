@@ -41,9 +41,10 @@ namespace pge
                                gfx_GraphicsDevice*  graphicsDevice,
                                res_ResourceManager* resources);
 
-        void CreateStaticMeshes(const game_Entity* entities, size_t numEntities, game_StaticMeshId* destBuf);
-        void DestroyStaticMesh(const game_StaticMeshId& id);
-        void GarbageCollect(const game_EntityManager& entityManager);
+        game_StaticMeshId CreateStaticMesh(const game_Entity& entity);
+        void              CreateStaticMeshes(const game_Entity* entities, size_t numEntities, game_StaticMeshId* destBuf);
+        void              DestroyStaticMesh(const game_StaticMeshId& id);
+        void              GarbageCollect(const game_EntityManager& entityManager);
 
         bool              HasStaticMesh(const game_Entity& entity) const;
         game_StaticMeshId GetStaticMeshId(const game_Entity& entity) const;
@@ -55,7 +56,7 @@ namespace pge
         const res_Mesh* GetMesh(const game_StaticMeshId& id) const;
 
         void              DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj);
-        game_StaticMeshId GetRaycastStaticMesh(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const;
+        game_StaticMeshId RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const;
 
         friend std::ostream& operator<<(std::ostream& os, const game_StaticMeshManager& sm);
         friend std::istream& operator>>(std::istream& is, game_StaticMeshManager& sm);

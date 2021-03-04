@@ -82,10 +82,8 @@ namespace pge
         math_Vec4 color;
     };
 
-    static gfx_VertexAttribute s_debugVertexAttribs[] = {
-        gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT4),
-        gfx_VertexAttribute("COLOR", gfx_VertexAttributeType::FLOAT4)
-    };
+    static gfx_VertexAttribute s_debugVertexAttribs[]
+        = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT4), gfx_VertexAttribute("COLOR", gfx_VertexAttributeType::FLOAT4)};
 
     static const unsigned s_debugVertexCapacity = s_verticesPerPoint * s_pointCapacity + s_verticesPerLine * s_lineCapacity;
     static DebugVertex    s_debugVertices[s_debugVertexCapacity];
@@ -104,7 +102,7 @@ namespace pge
         gfx_GraphicsDevice* graphicsDevice;
 
         DebugDrawResources(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
-            : vertexLayout(graphicsAdapter, s_debugVertexAttribs, sizeof(s_debugVertexAttribs)/sizeof(gfx_VertexAttribute))
+            : vertexLayout(graphicsAdapter, s_debugVertexAttribs, sizeof(s_debugVertexAttribs) / sizeof(gfx_VertexAttribute))
             , vertexShader(graphicsAdapter, s_debugVertexShaderSource, strlen(s_debugVertexShaderSource))
             , pixelShader(graphicsAdapter, s_debugPixelShaderSource, strlen(s_debugPixelShaderSource))
             , vertexBuffer(graphicsAdapter, nullptr, sizeof(s_debugVertices), gfx_BufferUsage::DYNAMIC)
@@ -204,6 +202,32 @@ namespace pge
         }
     }
 
+    void
+    gfx_DebugDraw_GridXY(const math_Vec3& origin,
+                         const float      lineLength,
+                         const math_Vec2& cellSize,
+                         const math_Vec3& color,
+                         const float      lineWidth,
+                         bool             depthTest)
+    {
+        int stepsX = (int)(lineLength / cellSize.x);
+        int stepsY = (int)(lineLength / cellSize.y);
+        for (int i = -stepsX / 2; i < stepsX / 2; ++i) {
+            gfx_DebugDraw_Line(origin + math_Vec3(i * cellSize.x, -lineLength / 2, 0.f),
+                               origin + math_Vec3(i * cellSize.x, lineLength / 2, 0.f),
+                               color,
+                               lineWidth,
+                               depthTest);
+        }
+        for (int i = -stepsY / 2; i < stepsY / 2; ++i) {
+            gfx_DebugDraw_Line(origin + math_Vec3(-lineLength / 2, i * cellSize.y, 0.f),
+                               origin + math_Vec3(lineLength / 2, i * cellSize.y, 0.f),
+                               color,
+                               lineWidth,
+                               depthTest);
+        }
+    }
+
     /**
      * @brief Calculates vertices in modelview space for s_points.
      *
@@ -279,7 +303,10 @@ namespace pge
 
             const math_Vec3 lineVec = math_Normalize(endTransformed - beginTransformed);
             const math_Vec3 midLine = beginTransformed + 0.5f * (endTransformed - beginTransformed);
-            const math_Vec3 sideVec = math_Normalize(math_Cross(lineVec, midLine));
+            math_Vec3 side = math_Cross(lineVec, midLine);
+            if (math_LengthSquared(side) == 0)
+                continue;
+            const math_Vec3 sideVec = math_Normalize(side);
             const float     lineHW  = linesBuffer[i].width * 0.5f;
 
             math_Vec4 positions[4];

@@ -4,6 +4,7 @@
 #include <game_entity.h>
 #include <math_vec2.h>
 #include <math_vec3.h>
+#include <res_resource_manager.h>
 
 namespace pge
 {
@@ -50,7 +51,7 @@ namespace pge
         void DrawMenuBar(game_Scene* scene);
         bool DrawGameView(game_Scene* scene, const gfx_RenderTarget* target);
         void DrawEntityTree(game_Scene* scene);
-        void DrawInspector(const game_Scene* scene);
+        void DrawInspector(game_Scene* scene, res_ResourceManager* resources);
         void DrawExplorer();
     };
 } // namespace pge
