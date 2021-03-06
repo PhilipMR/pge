@@ -8,6 +8,7 @@ namespace pge
 {
     class gfx_GraphicsAdapter;
     class gfx_GraphicsDevice;
+    class gfx_Texture2D;
 
     void gfx_DebugDraw_Initialize(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice);
     void gfx_DebugDraw_Shutdown();
@@ -30,6 +31,10 @@ namespace pge
                               const math_Vec3& color     = math_Vec3(1.f, 1.f, 1.f),
                               const float      lineWidth = 0.1f,
                               bool             depthTest = true);
+    void gfx_DebugDraw_Billboard(const math_Vec3&     position,
+                                 const math_Vec2&     size,
+                                 const gfx_Texture2D* texture,
+                                 const math_Vec3&     color = math_Vec3(1.f, 1.f, 1.f));
     void gfx_DebugDraw_Flush();
 } // namespace pge
 

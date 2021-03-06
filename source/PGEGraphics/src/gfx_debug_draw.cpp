@@ -3,6 +3,7 @@
 #include "../include/gfx_shader.h"
 #include "../include/gfx_buffer.h"
 #include "../include/gfx_graphics_device.h"
+#include "../include/gfx_texture.h"
 
 namespace pge
 {
@@ -38,9 +39,114 @@ namespace pge
     static const unsigned s_lineDepthCapacity = s_lineCapacity;
     static DebugLine      s_linesDepth[s_lineDepthCapacity];
 
+
+    struct DebugBillboard {
+        math_Vec3            position;
+        math_Vec2            size;
+        const gfx_Texture2D* texture;
+        math_Vec3            color;
+    };
+
+    static const unsigned s_billboardCapacity = 1000;
+    static DebugBillboard s_billboards[s_billboardCapacity];
+    static unsigned       s_billboardCount = 0;
+
+    struct DebugBillboardVertex {
+        math_Vec4 position;
+        math_Vec2 size;
+    };
+    static gfx_VertexAttribute s_debugBillboardVertexAttribs[]
+        = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT4), gfx_VertexAttribute("SIZE", gfx_VertexAttributeType::FLOAT2)};
+    static const unsigned       s_debugBillboardVertexCapacity = s_verticesPerPoint * s_billboardCapacity;
+    static DebugBillboardVertex s_debugBillboardVertices[s_debugBillboardVertexCapacity];
+
+    static const char* s_debugBillboardVertexShaderSource = "cbuffer cbuffer_transforms : register(b0)"
+                                                            "{"
+                                                            "  row_major float4x4 viewMatrix;"
+                                                            "  row_major float4x4 projMatrix;"
+                                                            "};"
+                                                            ""
+                                                            "struct VertexIn"
+                                                            "{"
+                                                            "  float4 position : POSITION;"
+                                                            "  float2 size     : SIZE;"
+                                                            "};"
+                                                            ""
+                                                            "struct GeomIn"
+                                                            "{"
+                                                            "  float4 position : POSITION;"
+                                                            "  float2 size     : SIZE;"
+                                                            "};"
+                                                            ""
+                                                            "GeomIn "
+                                                            "VSMain(VertexIn vertex)"
+                                                            "{"
+                                                            "  GeomIn output;"
+                                                            "  output.position = vertex.position;"
+                                                            "  output.size     = vertex.size;"
+                                                            "  return output;"
+                                                            "}";
+
+
+    static const char* s_debugBillboardGeometryShaderSource = "cbuffer cbuffer_transforms : register(b0)"
+                                                              "{"
+                                                              "  row_major float4x4 viewMatrix;"
+                                                              "  row_major float4x4 projMatrix;"
+                                                              "};"
+                                                              ""
+                                                              "struct GeomIn {"
+                                                              "  float4 position : POSITION;"
+                                                              "  float2 size     : SIZE;"
+                                                              "};"
+                                                              ""
+                                                              "struct PixelIn"
+                                                              "{"
+                                                              "  float4 positionNDC : SV_POSITION;"
+                                                              "  float2 texcoord    : TEXTURECOORD;"
+                                                              "};"
+                                                              ""
+                                                              "[maxvertexcount(6)]"
+                                                              "void GSMain(point GeomIn input[1], inout TriangleStream<PixelIn> outputStream)"
+                                                              "{"
+                                                              "    float hw = input[0].size.x / 2;"
+                                                              "    float hh = input[0].size.y / 2;"
+
+                                                              "    float4 viewPos = mul(viewMatrix, input[0].position);"
+
+                                                              "    PixelIn topLeft;"
+                                                              "    topLeft.positionNDC = mul(projMatrix, viewPos + float4(-hw,hh,0,0));"
+                                                              "    topLeft.texcoord = float2(0, 0);"
+
+                                                              "    PixelIn bottomLeft;"
+                                                              "    bottomLeft.positionNDC = mul(projMatrix, viewPos + float4(-hw,-hh,0,0));"
+                                                              "    bottomLeft.texcoord = float2(0, 1);"
+
+                                                              "    PixelIn bottomRight;"
+                                                              "    bottomRight.positionNDC = mul(projMatrix, viewPos + float4(hw,-hh,0,0));"
+                                                              "    bottomRight.texcoord = float2(1, 1);"
+
+                                                              "    PixelIn topRight;"
+                                                              "    topRight.positionNDC = mul(projMatrix, viewPos + float4(hw,hh,0,0));"
+                                                              "    topRight.texcoord = float2(1, 0);"
+
+                                                              "    outputStream.Append(topLeft);"
+                                                              "    outputStream.Append(bottomLeft);"
+                                                              "    outputStream.Append(bottomRight);"
+
+                                                              "    outputStream.RestartStrip();"
+
+                                                              "    outputStream.Append(bottomRight);"
+                                                              "    outputStream.Append(topRight);"
+                                                              "    outputStream.Append(topLeft);"
+
+                                                              // "    outputStream.RestartStrip();"
+                                                              "}";
+
+
     static const char* s_debugVertexShaderSource = "cbuffer cbuffer_transforms : register(b0)"
                                                    "{"
-                                                   "  row_major float4x4 ProjectionMatrix;"
+                                                   "  row_major float4x4 viewMatrix;"
+                                                   "  row_major float4x4 projMatrix;"
                                                    "};"
                                                    ""
                                                    "struct vertex_data"
@@ -59,7 +165,7 @@ namespace pge
                                                    "VSMain(vertex_data Vertex)"
                                                    "{"
                                                    "  pixel_shader_input Output;"
-                                                   "  Output.PositionNDC = mul(ProjectionMatrix, Vertex.position);"
+                                                   "  Output.PositionNDC = mul(projMatrix, Vertex.position);"
                                                    "  Output.color       = Vertex.color;"
                                                    "  return Output;"
                                                    "}";
@@ -76,6 +182,25 @@ namespace pge
                                                   "  return Input.color;"
                                                   "}";
 
+    static const char* s_debugPixelTexShaderSource = "Texture2D DiffuseMap        : register(t0);"
+                                                     "SamplerState DiffuseSampler {};"
+                                                     ""
+                                                     "struct PixelIn"
+                                                     "{"
+                                                     "  float4 positionNDC : SV_POSITION;"
+                                                     "  float2 texcoord    : TEXTURECOORD;"
+                                                     "};"
+                                                     ""
+                                                     "float4 "
+                                                     "PSMain(PixelIn input) : SV_TARGET"
+                                                     "{"
+                                                     "  return DiffuseMap.Sample(DiffuseSampler, input.texcoord);"
+                                                     "}";
+
+    struct DebugCBTransforms {
+        math_Mat4x4 viewMatrix;
+        math_Mat4x4 projMatrix;
+    };
 
     struct DebugVertex {
         math_Vec4 position;
@@ -91,49 +216,67 @@ namespace pge
     static const unsigned s_debugVerticesDepthCapacity = s_verticesPerPoint * s_pointDepthCapacity + s_verticesPerLine * s_lineDepthCapacity;
     static DebugVertex    s_debugVerticesDepth[s_debugVerticesDepthCapacity];
 
-    static math_Mat4x4 s_debugViewMatrix;
+    static DebugCBTransforms s_debugTransforms;
 
     struct DebugDrawResources {
-        gfx_VertexLayout    vertexLayout;
-        gfx_VertexShader    vertexShader;
-        gfx_PixelShader     pixelShader;
-        gfx_VertexBuffer    vertexBuffer;
-        gfx_ConstantBuffer  transformsCB;
-        gfx_GraphicsDevice* graphicsDevice;
+        gfx_VertexLayout     vertexLayout;
+        gfx_VertexLayout     billboardVertexLayout;
+        gfx_VertexShader     vertexShader;
+        gfx_VertexShader billVertexShader;
+        gfx_PixelShader      colorPixelShader;
+        gfx_PixelShader      texPixelShader;
+        gfx_GeometryShader   billGeomShader;
+        gfx_VertexBuffer     vertexBuffer;
+        gfx_VertexBuffer     billVertexBuffer;
+        gfx_ConstantBuffer   transformsCB;
+        gfx_GraphicsDevice*  graphicsDevice;
+        gfx_GraphicsAdapter* graphicsAdapter;
 
         DebugDrawResources(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
             : vertexLayout(graphicsAdapter, s_debugVertexAttribs, sizeof(s_debugVertexAttribs) / sizeof(gfx_VertexAttribute))
+            , billboardVertexLayout(graphicsAdapter,
+                                    s_debugBillboardVertexAttribs,
+                                    sizeof(s_debugBillboardVertexAttribs) / sizeof(gfx_VertexAttribute))
             , vertexShader(graphicsAdapter, s_debugVertexShaderSource, strlen(s_debugVertexShaderSource))
-            , pixelShader(graphicsAdapter, s_debugPixelShaderSource, strlen(s_debugPixelShaderSource))
+            , billVertexShader(graphicsAdapter, s_debugBillboardVertexShaderSource, strlen(s_debugBillboardVertexShaderSource))
+            , colorPixelShader(graphicsAdapter, s_debugPixelShaderSource, strlen(s_debugPixelShaderSource))
+            , texPixelShader(graphicsAdapter, s_debugPixelTexShaderSource, strlen(s_debugPixelTexShaderSource))
+            , billGeomShader(graphicsAdapter, s_debugBillboardGeometryShaderSource, strlen(s_debugBillboardGeometryShaderSource))
             , vertexBuffer(graphicsAdapter, nullptr, sizeof(s_debugVertices), gfx_BufferUsage::DYNAMIC)
-            , transformsCB(graphicsAdapter, nullptr, sizeof(math_Mat4x4), gfx_BufferUsage::DYNAMIC)
+            , billVertexBuffer(graphicsAdapter, nullptr, sizeof(s_debugBillboardVertices), gfx_BufferUsage::DYNAMIC)
+            , transformsCB(graphicsAdapter, nullptr, sizeof(s_debugTransforms), gfx_BufferUsage::DYNAMIC)
             , graphicsDevice(graphicsDevice)
+            , graphicsAdapter(graphicsAdapter)
         {}
     };
-    static DebugDrawResources* s_resources;
+    static DebugDrawResources* s_resources = nullptr;
 
     void
     gfx_DebugDraw_Initialize(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
     {
-        s_resources = new DebugDrawResources(graphicsAdapter, graphicsDevice);
+        if (s_resources == nullptr) {
+            s_resources = new DebugDrawResources(graphicsAdapter, graphicsDevice);
+        }
     }
 
     void
     gfx_DebugDraw_Shutdown()
     {
-        delete s_resources;
+        if (s_resources != nullptr) {
+            delete s_resources;
+        }
     }
 
     void
     gfx_DebugDraw_SetView(const math_Mat4x4& viewMatrix)
     {
-        s_debugViewMatrix = viewMatrix;
+        s_debugTransforms.viewMatrix = viewMatrix;
     }
 
     void
     gfx_DebugDraw_SetProjection(const math_Mat4x4& projectionMatrix)
     {
-        s_resources->transformsCB.Update(&projectionMatrix, sizeof(projectionMatrix));
+        s_debugTransforms.projMatrix = projectionMatrix;
     }
 
     void
@@ -160,8 +303,8 @@ namespace pge
     gfx_DebugDraw_Line(const math_Vec3& begin, const math_Vec3& end, const math_Vec3& color, float width, bool depthTest)
     {
         DebugLine line;
-        line.beginTransformed = s_debugViewMatrix * math_Vec4(begin, 1.f);
-        line.endTransformed   = s_debugViewMatrix * math_Vec4(end, 1.f);
+        line.beginTransformed = s_debugTransforms.viewMatrix * math_Vec4(begin, 1.f);
+        line.endTransformed   = s_debugTransforms.viewMatrix * math_Vec4(end, 1.f);
         line.color            = math_Vec4(color, 1.f);
         line.width            = width;
         if (depthTest) {
@@ -228,6 +371,21 @@ namespace pge
         }
     }
 
+    void
+    gfx_DebugDraw_Billboard(const math_Vec3& position, const math_Vec2& size, const gfx_Texture2D* texture, const math_Vec3& color)
+    {
+        diag_Assert(s_billboardCount < s_billboardCapacity);
+        DebugBillboard billboard;
+        billboard.position               = position;
+        billboard.size                   = size;
+        billboard.texture                = texture;
+        billboard.color                  = color;
+        s_billboards[s_billboardCount++] = billboard;
+        if (s_billboardCount >= s_billboardCapacity) {
+            gfx_DebugDraw_Flush();
+        }
+    }
+
     /**
      * @brief Calculates vertices in modelview space for s_points.
      *
@@ -239,7 +397,7 @@ namespace pge
     static unsigned
     CalculateVerticesForPoints(DebugVertex* destination, DebugPoint* pointsBuffer, unsigned count)
     {
-        // NOTE: Instead of extracing these from the s_debugViewMatrix, we
+        // NOTE: Instead of extracting these from the s_debugViewMatrix, we
         //       set them as constants. Since we want the primitives to always
         //       face the camera.
         const math_Vec3 viewRight   = math_Vec3(1.f, 0.f, 0.f);
@@ -249,7 +407,7 @@ namespace pge
         unsigned vertexIndex = 0;
         for (unsigned i = 0; i < count; ++i) {
             const math_Vec3& position            = pointsBuffer[i].position;
-            const math_Vec3  positionTransformed = (s_debugViewMatrix * math_Vec4(position, 1.f)).xyz;
+            const math_Vec3  positionTransformed = (s_debugTransforms.viewMatrix * math_Vec4(position, 1.f)).xyz;
             math_Vec3        positions[4];
             positions[0] = positionTransformed + pointsBuffer[i].size * (-viewRight + viewUp);
             positions[1] = positionTransformed + pointsBuffer[i].size * (-viewRight - viewUp);
@@ -303,7 +461,7 @@ namespace pge
 
             const math_Vec3 lineVec = math_Normalize(endTransformed - beginTransformed);
             const math_Vec3 midLine = beginTransformed + 0.5f * (endTransformed - beginTransformed);
-            math_Vec3 side = math_Cross(lineVec, midLine);
+            math_Vec3       side    = math_Cross(lineVec, midLine);
             if (math_LengthSquared(side) == 0)
                 continue;
             const math_Vec3 sideVec = math_Normalize(side);
@@ -354,9 +512,11 @@ namespace pge
         vertexIndex = CalculateVerticesForPoints(&s_debugVerticesDepth[0], &s_pointsDepth[0], s_pointDepthCount);
         CalculateVerticesForLines(&s_debugVerticesDepth[vertexIndex], &s_linesDepth[0], s_lineDepthCount);
 
+        s_resources->transformsCB.Update(&s_debugTransforms, sizeof(s_debugTransforms));
+
         s_resources->vertexLayout.Bind();
         s_resources->vertexShader.Bind();
-        s_resources->pixelShader.Bind();
+        s_resources->colorPixelShader.Bind();
         s_resources->vertexBuffer.Bind(0, sizeof(DebugVertex), 0);
         s_resources->transformsCB.BindVS(0);
 
@@ -380,11 +540,11 @@ namespace pge
             //            GPU_SetDepthMode(DEPTH_MODE::LESS_OR_EQUAL);
             s_resources->vertexBuffer.Update(s_debugVerticesDepth, sizeof(s_debugVerticesDepth), 0);
 
-            // Draw s_points.
+            // Draw points.
             if (s_pointDepthCount > 0) {
                 s_resources->graphicsDevice->Draw(gfx_PrimitiveType::TRIANGLELIST, 0, s_verticesPerPoint * s_pointDepthCount);
             }
-            // Draw s_lines.
+            // Draw lines.
             if (s_lineDepthCount > 0) {
                 s_resources->graphicsDevice->Draw(gfx_PrimitiveType::TRIANGLELIST,
                                                   s_verticesPerPoint * s_pointDepthCount,
@@ -392,11 +552,48 @@ namespace pge
             }
         }
 
+
+        // Draw billboards
+        if (s_billboardCount > 0) {
+            s_resources->billboardVertexLayout.Bind();
+            s_resources->billVertexShader.Bind();
+            s_resources->billGeomShader.Bind();
+            s_resources->texPixelShader.Bind();
+
+            for (size_t i = 0; i < s_billboardCount; ++i) {
+                s_debugBillboardVertices[i].position = math_Vec4(s_billboards[i].position, 1);
+                s_debugBillboardVertices[i].size = s_billboards[i].size;
+            }
+            s_resources->billVertexBuffer.Update(s_debugBillboardVertices, sizeof(s_debugBillboardVertices), 0);
+            s_resources->billVertexBuffer.Bind(0, sizeof(DebugBillboardVertex), 0);
+
+            s_resources->transformsCB.BindVS(0);
+            s_resources->transformsCB.BindGS(0);
+
+            const gfx_Texture2D* lastTex = s_billboards[0].texture;
+            size_t sameTexCount = 1;
+            size_t offset = 0;
+            for (size_t i = 0; i < s_billboardCount; ++i) {
+                if (s_billboards[i].texture != lastTex) {
+                    lastTex->Bind(0);
+                    s_resources->graphicsDevice->Draw(gfx_PrimitiveType::POINTLIST, offset, sameTexCount);
+                    offset += sameTexCount;
+                    lastTex = s_billboards[i].texture;
+                } else {
+                    sameTexCount++;
+                }
+            }
+            lastTex->Bind(0);
+            s_resources->graphicsDevice->Draw(gfx_PrimitiveType::POINTLIST, offset, sameTexCount);
+        }
+        gfx_GeometryShader_Unbind(s_resources->graphicsAdapter);
+
         // TODO: Push/Pop or Get previous state so we don't have to remember.
         // GPU_SetDepthMode(DEPTH_MODE::LESS_OR_EQUAL);
 
         s_pointCount = s_pointDepthCount = 0;
         s_lineCount = s_lineDepthCount = 0;
+        s_billboardCount               = 0;
     }
 
 } // namespace pge

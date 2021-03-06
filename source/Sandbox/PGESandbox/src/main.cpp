@@ -136,6 +136,7 @@ main()
 
 
         const res_Effect* screenTexEffect = resources.GetEffect("data/effects/screentex.effect");
+        const gfx_Texture2D* checkersTex = resources.GetTexture("data/materials/checkers.png")->GetTexture();
 
         const gfx_VertexAttribute screenTexAttribs[]  = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2),
                                                         gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2)};
@@ -179,6 +180,10 @@ main()
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);
             //gfx_DebugDraw_GridXY(math_Vec3::Zero(), length);
+
+            gfx_DebugDraw_Billboard(math_Vec3(0, 5, 0), math_Vec2(2, 2), checkersTex);
+            gfx_DebugDraw_Billboard(math_Vec3(0, 10, 0), math_Vec2(2, 2), checkersTex);
+
             gfx_DebugDraw_Flush();
 
             // Redraw screen to intermediate texture (additional multisampling)

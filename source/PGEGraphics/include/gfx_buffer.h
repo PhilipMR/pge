@@ -23,6 +23,7 @@ namespace pge
 
         void Update(const void* data, size_t size);
         void BindVS(unsigned slot) const;
+        void BindGS(unsigned slot) const;
         void BindPS(unsigned slot) const;
     };
 

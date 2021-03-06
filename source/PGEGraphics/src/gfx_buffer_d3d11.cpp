@@ -105,6 +105,11 @@ namespace pge
         m_impl->m_deviceContext->VSSetConstantBuffers(slot, 1, &m_impl->m_buffer);
     }
 
+    void gfx_ConstantBuffer::BindGS(unsigned slot) const
+    {
+        m_impl->m_deviceContext->GSSetConstantBuffers(slot, 1, &m_impl->m_buffer);
+    }
+
     void
     gfx_ConstantBuffer::BindPS(unsigned slot) const
     {
