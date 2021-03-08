@@ -2,27 +2,43 @@
 #define PGE_GAME_GAME_LIGHT_H
 
 #include "game_entity.h"
+#include "game_transform.h"
+#include <math_vec2.h>
 #include <math_vec3.h>
 #include <unordered_map>
+#include <memory>
 
 namespace pge
 {
     struct game_PointLight {
-        math_Vec3 position;
-        math_Vec3 color;
-        float     radius;
-        float     strength;
+        game_Entity entity;
+        math_Vec3   color;
+        float       radius;
+        float       strength;
     };
 
+    using game_PointLightId                               = unsigned;
+    constexpr game_PointLightId game_PointLightId_Invalid = -1;
+
+    class game_TransformManager;
     class game_LightManager {
-        std::unordered_map<game_Entity, game_PointLight> m_pointLightMap;
+        std::unordered_map<game_Entity, game_PointLightId> m_pointLightMap;
+        std::unique_ptr<game_PointLight[]>                 m_pointLights;
+        size_t                                             m_numPointLights;
 
     public:
-        void CreatePointLight(const game_Entity& entity, const game_PointLight& light);
-        bool HasPointLight(const game_Entity& entity) const;
-        game_PointLight GetPointLight(const game_Entity& entity) const;
+        game_LightManager(size_t capacity);
+        void              CreatePointLight(const game_Entity& entity, const game_PointLight& light);
+        bool              HasPointLight(const game_Entity& entity) const;
+        game_PointLightId GetPointLightId(const game_Entity& entity) const;
+        game_PointLight   GetPointLight(const game_PointLightId& id) const;
+        game_Entity       GetEntity(const game_PointLightId& lid) const;
 
-        void BindLightCBuffers();
+        game_PointLightId HoverSelect(const game_TransformManager& tm,
+                                      const math_Vec2&             hoverPosNorm,
+                                      const math_Vec2&             rectSize,
+                                      const math_Mat4x4&           view,
+                                      const math_Mat4x4&           proj) const;
     };
 } // namespace pge
 

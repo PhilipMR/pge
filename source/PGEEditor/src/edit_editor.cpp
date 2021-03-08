@@ -139,7 +139,23 @@ namespace pge
         if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
             const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
             const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj);
-            if (hoveredMesh != game_StaticMeshId_Invalid) {
+
+            math_Vec2 hoverPosNorm(input_MousePosition());
+            hoverPosNorm.x -= m_gameWindowPos.x;
+            hoverPosNorm.y -= m_gameWindowPos.y;
+            hoverPosNorm.x /= m_gameWindowSize.x;
+            hoverPosNorm.y /= m_gameWindowSize.y;
+
+            math_Vec2         billboardSize(2, 2);
+            game_PointLightId plightId = scene->GetLightManager()->HoverSelect(*scene->GetTransformManager(),
+                                                                               hoverPosNorm,
+                                                                               billboardSize,
+                                                                               scene->GetCamera()->GetViewMatrix(),
+                                                                               scene->GetCamera()->GetProjectionMatrix());
+
+            if (plightId != game_PointLightId_Invalid) {
+                m_selectedEntity = scene->GetLightManager()->GetEntity(plightId).id;
+            } else if (hoveredMesh != game_StaticMeshId_Invalid) {
                 m_selectedEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
             } else {
                 m_selectedEntity = game_EntityId_Invalid;
@@ -149,16 +165,19 @@ namespace pge
 
         // Handle mode switch on selected entity
         if (m_selectedEntity != game_EntityId_Invalid) {
-            // Draw selected bounding box
-            if (!scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity)) {
+            if (!scene->GetTransformManager()->HasTransform(m_selectedEntity))
                 return;
-            }
-            auto meshId      = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
-            auto aabb        = scene->GetStaticMeshManager()->GetMesh(meshId)->GetAABB();
+
             auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
             auto world       = scene->GetTransformManager()->GetWorld(transformId);
-            aabb             = math_TransformAABB(aabb, world);
-            gfx_DebugDraw_Box(aabb.min, aabb.max);
+
+            // Draw selected bounding box
+            if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity)) {
+                auto meshId = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
+                auto aabb   = scene->GetStaticMeshManager()->GetMesh(meshId)->GetAABB();
+                aabb        = math_TransformAABB(aabb, world);
+                gfx_DebugDraw_Box(aabb.min, aabb.max);
+            }
 
             // Transition to translate-mode (and axis select)
             if (m_editMode != edit_EditMode::TRANSLATE) {
@@ -235,20 +254,20 @@ namespace pge
     }
 
     bool
-    edit_Editor::DrawGameView(game_Scene* scene, const gfx_RenderTarget* target)
+    edit_Editor::DrawGameView(game_Scene* scene, const gfx_RenderTarget* target, res_ResourceManager* resources)
     {
         ImGui::Begin("Game");
 
-        static bool isPlaying = false;
-        if (!isPlaying) {
-            if (ImGui::Button("PLAY")) {
-                isPlaying = true;
-            }
-        } else {
-            if (ImGui::Button("PAUSE")) {
-                isPlaying = false;
-            }
-        }
+        //        static bool isPlaying = false;
+        //        if (!isPlaying) {
+        //            if (ImGui::Button("PLAY")) {
+        //                isPlaying = true;
+        //            }
+        //        } else {
+        //            if (ImGui::Button("PAUSE")) {
+        //                isPlaying = false;
+        //            }
+        //        }
 
         float r = 16.0f / 9.0f;
         ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - 20 * r));
@@ -285,6 +304,24 @@ namespace pge
             } else if (contextWasOpen) {
                 hoveringSelectedEntity = false;
                 contextWasOpen         = false;
+            }
+        }
+
+
+        static const gfx_Texture2D* testTex = resources->GetTexture("data/materials/checkers.png")->GetTexture();
+        auto*                       mm      = scene->GetEntityMetaDataManager();
+        for (auto it = mm->Begin(); it != mm->End(); ++it) {
+            const auto& entity = it->first;
+            if (scene->GetLightManager()->HasPointLight(entity)) {
+                const auto& plightId = scene->GetLightManager()->GetPointLightId(entity);
+                const auto& plight   = scene->GetLightManager()->GetPointLight(plightId);
+                math_Vec3   plightPos;
+                if (scene->GetTransformManager()->HasTransform(entity)) {
+                    auto tid   = scene->GetTransformManager()->GetTransformId(entity);
+                    auto world = scene->GetTransformManager()->GetWorld(tid);
+                    plightPos += math_Vec3(world[0][3], world[1][3], world[2][3]);
+                }
+                gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), testTex);
             }
         }
 
@@ -360,6 +397,23 @@ namespace pge
                 ss << "Entity [" << newEntity.id << "]";
                 strcpy_s(meta.name, ss.str().c_str());
                 scene->GetEntityMetaDataManager()->CreateMetaData(newEntity, meta);
+            }
+            if (ImGui::Selectable("Create light (directional)")) {
+                auto                newEntity = scene->GetEntityManager()->CreateEntity();
+                game_EntityMetaData meta;
+                meta.entity = newEntity;
+                std::stringstream ss;
+                ss << "DirLight [" << newEntity.id << "]";
+                strcpy_s(meta.name, ss.str().c_str());
+                scene->GetEntityMetaDataManager()->CreateMetaData(newEntity, meta);
+
+                scene->GetTransformManager()->CreateTransform(newEntity);
+
+                game_PointLight plight;
+                plight.radius   = 10.0f;
+                plight.strength = 1.0f;
+                plight.color    = math_Vec3::One();
+                scene->GetLightManager()->CreatePointLight(newEntity, plight);
             }
             ImGui::EndPopup();
         }

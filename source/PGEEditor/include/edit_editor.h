@@ -50,7 +50,7 @@ namespace pge
         void HandleEvents(game_Scene* scene);
         void DrawMenuBar(game_Scene* scene);
         void DrawPlayBar();
-        bool DrawGameView(game_Scene* scene, const gfx_RenderTarget* target);
+        bool DrawGameView(game_Scene* scene, const gfx_RenderTarget* target, res_ResourceManager* resources);
         void DrawEntityTree(game_Scene* scene);
         void DrawInspector(game_Scene* scene, res_ResourceManager* resources);
         void DrawExplorer();

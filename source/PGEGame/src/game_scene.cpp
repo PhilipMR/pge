@@ -5,6 +5,7 @@ namespace pge
     game_Scene::game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_transformManager(1000)
         , m_staticMeshManager(1000, graphicsAdapter, graphicsDevice, resources)
+        , m_lightManager(100)
     {}
 
     void
@@ -46,6 +47,12 @@ namespace pge
         return &m_staticMeshManager;
     }
 
+    game_LightManager*
+    game_Scene::GetLightManager()
+    {
+        return &m_lightManager;
+    }
+
     const game_EntityManager*
     game_Scene::GetEntityManager() const
     {
@@ -68,6 +75,12 @@ namespace pge
     game_Scene::GetStaticMeshManager() const
     {
         return &m_staticMeshManager;
+    }
+
+    const game_LightManager*
+    game_Scene::GetLightManager() const
+    {
+        return &m_lightManager;
     }
 
     std::ostream&

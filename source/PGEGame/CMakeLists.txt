@@ -5,6 +5,7 @@ project(pge_game)
 add_library(pge_game
     src/game_camera.cpp
     src/game_entity.cpp
+    src/game_light.cpp
     src/game_scene.cpp
     src/game_static_mesh.cpp
     src/game_transform.cpp
