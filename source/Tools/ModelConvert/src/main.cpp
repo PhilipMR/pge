@@ -79,8 +79,8 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     unsigned importFlags = 0;
     //    importFlags |= aiProcess_CalcTangentSpace;
     importFlags |= aiProcess_Triangulate;
-    importFlags |= aiProcess_ConvertToLeftHanded;
-    importFlags &= ~aiProcess_FlipWindingOrder;
+    //importFlags |= aiProcess_ConvertToLeftHanded;
+    //importFlags &= ~aiProcess_FlipWindingOrder;
     //    importFlags |= aiProcess_JoinIdenticalVertices;
     //    importFlags |= aiProcess_SortByPType;
     const aiScene* scene = aiImportFile(sourcePath, importFlags);

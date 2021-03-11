@@ -469,9 +469,10 @@ namespace pge
 
             math_Vec4 positions[4];
             positions[0] = math_Vec4(beginTransformed + sideVec * lineHW, 1.f);
-            positions[1] = math_Vec4(endTransformed + sideVec * lineHW, 1.f);
+            positions[1] = math_Vec4(beginTransformed - sideVec * lineHW, 1.f);
             positions[2] = math_Vec4(endTransformed - sideVec * lineHW, 1.f);
-            positions[3] = math_Vec4(beginTransformed - sideVec * lineHW, 1.f);
+            positions[3] = math_Vec4(endTransformed + sideVec * lineHW, 1.f);
+
 
             destination[vertexIndex].position = positions[0];
             destination[vertexIndex].color    = linesBuffer[i].color;

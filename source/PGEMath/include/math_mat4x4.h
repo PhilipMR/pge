@@ -213,7 +213,7 @@ namespace pge
     inline math_Mat4x4
     math_LookAt(const math_Vec3& eye, const math_Vec3& target)
     {
-        const math_Vec3 tmp(0, 1, 0);
+        const math_Vec3 tmp(0, 0, 1);
         math_Vec3       forward = math_Normalize(eye - target);
         math_Vec3       right   = math_Normalize(math_Cross(tmp, forward));
         math_Vec3       up      = math_Cross(forward, right);

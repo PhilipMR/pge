@@ -71,9 +71,9 @@ InitializeScene(pge::game_Scene* scene, pge::res_ResourceManager* resources)
         sm->SetMaterial(meshes[i], material);
     }
 
-    tm->SetLocal(transforms[0], math_CreateTranslationMatrix(math_Vec3(-6, 5, 0)));
-    tm->SetLocal(transforms[1], math_CreateTranslationMatrix(math_Vec3(6, 5, 0)));
-    tm->SetLocal(transforms[2], math_CreateScaleMatrix(math_Vec3(10, 1, 10)));
+    tm->SetLocal(transforms[0], math_CreateTranslationMatrix(math_Vec3(-6, 0, 5)));
+    tm->SetLocal(transforms[1], math_CreateTranslationMatrix(math_Vec3(6, 0, 5)));
+    tm->SetLocal(transforms[2], math_CreateScaleMatrix(math_Vec3(10, 10, 1)));
 
     scene->GetCamera()->SetLookAt(math_Vec3(5, -5.0f, 5.0f), math_Vec3::Zero());
 }
@@ -86,10 +86,10 @@ UpdateScene(pge::game_Scene* scene)
     const float rotSpeed = 360.0f / 60.0f * 0.1f;
 
     if(scene->GetEntityManager()->IsEntityAlive(entities[0])) {
-        tm->Rotate(transforms[0], math_Vec3(0, 1, 0), -rotSpeed);
+        tm->Rotate(transforms[0], math_Vec3(0, 0, 1), -rotSpeed);
     }
     if (scene->GetEntityManager()->IsEntityAlive(entities[1])) {
-        tm->Rotate(transforms[1], math_Vec3(0, 1, 0), rotSpeed);
+        tm->Rotate(transforms[1], math_Vec3(0, 0, 1), rotSpeed);
     }
 
     scene->Update();
@@ -173,15 +173,15 @@ main()
             gfx_DebugDraw_SetView(scene.GetCamera()->GetViewMatrix());
             gfx_DebugDraw_SetProjection(scene.GetCamera()->GetProjectionMatrix());
 
-            const float thickness = 0.1f;
+            const float thickness = 0.2f;
             const float length    = 10000.0f;
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);
-            gfx_DebugDraw_GridXY(math_Vec3::Zero(), length);
+            gfx_DebugDraw_GridXY(math_Vec3(0, 0, -0.2f), length);
 
-            gfx_DebugDraw_Billboard(math_Vec3(0, 5, 0), math_Vec2(2, 2), checkersTex);
-            gfx_DebugDraw_Billboard(math_Vec3(0, 10, 0), math_Vec2(2, 2), checkersTex);
+            gfx_DebugDraw_Billboard(math_Vec3(0, 0, 5), math_Vec2(2, 2), checkersTex);
+            gfx_DebugDraw_Billboard(math_Vec3(0, 0, 10), math_Vec2(2, 2), checkersTex);
 
             gfx_DebugDraw_Flush();
 
