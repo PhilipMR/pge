@@ -222,7 +222,7 @@ namespace pge
         gfx_VertexLayout     vertexLayout;
         gfx_VertexLayout     billboardVertexLayout;
         gfx_VertexShader     vertexShader;
-        gfx_VertexShader billVertexShader;
+        gfx_VertexShader     billVertexShader;
         gfx_PixelShader      colorPixelShader;
         gfx_PixelShader      texPixelShader;
         gfx_GeometryShader   billGeomShader;
@@ -469,9 +469,9 @@ namespace pge
 
             math_Vec4 positions[4];
             positions[0] = math_Vec4(beginTransformed + sideVec * lineHW, 1.f);
-            positions[1] = math_Vec4(beginTransformed - sideVec * lineHW, 1.f);
+            positions[1] = math_Vec4(endTransformed + sideVec * lineHW, 1.f);
             positions[2] = math_Vec4(endTransformed - sideVec * lineHW, 1.f);
-            positions[3] = math_Vec4(endTransformed + sideVec * lineHW, 1.f);
+            positions[3] = math_Vec4(beginTransformed - sideVec * lineHW, 1.f);
 
             destination[vertexIndex].position = positions[0];
             destination[vertexIndex].color    = linesBuffer[i].color;
@@ -562,7 +562,7 @@ namespace pge
 
             for (size_t i = 0; i < s_billboardCount; ++i) {
                 s_debugBillboardVertices[i].position = math_Vec4(s_billboards[i].position, 1);
-                s_debugBillboardVertices[i].size = s_billboards[i].size;
+                s_debugBillboardVertices[i].size     = s_billboards[i].size;
             }
             s_resources->billVertexBuffer.Update(s_debugBillboardVertices, sizeof(s_debugBillboardVertices), 0);
             s_resources->billVertexBuffer.Bind(0, sizeof(DebugBillboardVertex), 0);
@@ -570,9 +570,9 @@ namespace pge
             s_resources->transformsCB.BindVS(0);
             s_resources->transformsCB.BindGS(0);
 
-            const gfx_Texture2D* lastTex = s_billboards[0].texture;
-            size_t sameTexCount = 1;
-            size_t offset = 0;
+            const gfx_Texture2D* lastTex      = s_billboards[0].texture;
+            size_t               sameTexCount = 1;
+            size_t               offset       = 0;
             for (size_t i = 0; i < s_billboardCount; ++i) {
                 if (s_billboards[i].texture != lastTex) {
                     lastTex->Bind(0);

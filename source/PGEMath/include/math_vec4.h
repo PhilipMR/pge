@@ -25,6 +25,12 @@ namespace pge
             return math_Vec4(0, 0, 0, 0);
         };
 
+        constexpr static math_Vec4
+        One()
+        {
+            return math_Vec4(1, 1, 1, 1);
+        };
+
         constexpr math_Vec4()
             : x(0)
             , y(0)

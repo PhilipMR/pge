@@ -14,11 +14,19 @@ namespace pge
             , w(0)
             , h(0)
         {}
+
         math_Rect(float x, float y, float w, float h)
             : x(x)
             , y(y)
             , w(w)
             , h(h)
+        {}
+
+        math_Rect(const math_Vec2& position, const math_Vec2& size)
+            : x(position.x)
+            , y(position.y)
+            , w(size.x)
+            , h(size.y)
         {}
 
         constexpr bool

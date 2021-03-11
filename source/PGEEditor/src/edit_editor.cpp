@@ -258,21 +258,23 @@ namespace pge
     {
         ImGui::Begin("Game");
 
-        //        static bool isPlaying = false;
-        //        if (!isPlaying) {
-        //            if (ImGui::Button("PLAY")) {
-        //                isPlaying = true;
-        //            }
-        //        } else {
-        //            if (ImGui::Button("PAUSE")) {
-        //                isPlaying = false;
-        //            }
-        //        }
+        static bool isPlaying = false;
+        if (!isPlaying) {
+            if (ImGui::Button("PLAY")) {
+                isPlaying = true;
+            }
+        } else {
+            if (ImGui::Button("PAUSE")) {
+                isPlaying = false;
+            }
+        }
+        const float playBarHeight = ImGui::GetItemRectSize().y;
+
 
         float r = 16.0f / 9.0f;
         ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - 20 * r));
         bool isHovered   = ImGui::IsWindowHovered();
-        m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+        m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + playBarHeight);
         m_gameWindowSize = math_Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
 

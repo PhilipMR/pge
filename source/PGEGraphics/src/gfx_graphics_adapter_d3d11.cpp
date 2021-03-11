@@ -119,7 +119,7 @@ namespace pge
         rasterizerDesc.DepthBias             = 0;
         rasterizerDesc.DepthBiasClamp        = 0;
         rasterizerDesc.SlopeScaledDepthBias  = 0;
-        rasterizerDesc.DepthClipEnable       = true;
+        rasterizerDesc.DepthClipEnable       = false;
         rasterizerDesc.ScissorEnable         = false;
         rasterizerDesc.MultisampleEnable     = true;
         rasterizerDesc.AntialiasedLineEnable = false;

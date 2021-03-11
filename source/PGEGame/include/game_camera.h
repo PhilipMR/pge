@@ -14,13 +14,12 @@ namespace pge
 
     public:
         game_FPSCamera()
-         : game_FPSCamera(math_DegToRad(60.0f), 16.0f/9.0f, 0.01f, 1000.0f)
-        {
-        }
+            : game_FPSCamera(math_DegToRad(60.0f), 16.0f / 9.0f, 0.01f, 1000.0f)
+        {}
 
         game_FPSCamera(float fov, float aspect, float nearClip, float farClip)
         {
-            m_projectionMatrix   = math_PerspectiveFovRH(fov, aspect, nearClip, farClip);
+            m_projectionMatrix = math_PerspectiveFovLH(fov, aspect, nearClip, farClip);
         }
 
         void
@@ -36,7 +35,7 @@ namespace pge
             if (!input_MouseButtonDown(input_MouseButton::RIGHT))
                 return;
 
-            if  (input_KeyboardDown(input_KeyboardKey::LSHIFT))
+            if (input_KeyboardDown(input_KeyboardKey::LSHIFT))
                 speed *= 2;
 
             math_Mat4x4 xform;
@@ -49,13 +48,13 @@ namespace pge
             // Update camera movement.
             math_Vec3 velocity;
             if (input_KeyboardDown(input_KeyboardKey::ARROW_UP) || input_KeyboardDown(input_KeyboardKey::W)) {
-                velocity += forward;
+                velocity -= forward;
             }
             if (input_KeyboardDown(input_KeyboardKey::ARROW_LEFT) || input_KeyboardDown(input_KeyboardKey::A)) {
                 velocity -= right;
             }
             if (input_KeyboardDown(input_KeyboardKey::ARROW_DOWN) || input_KeyboardDown(input_KeyboardKey::S)) {
-                velocity -= forward;
+                velocity += forward;
             }
             if (input_KeyboardDown(input_KeyboardKey::ARROW_RIGHT) || input_KeyboardDown(input_KeyboardKey::D)) {
                 velocity += right;
@@ -71,8 +70,8 @@ namespace pge
             math_Vec2 rotation = input_MouseDelta();
             if (math_LengthSquared(rotation) > 0) {
                 const float rotSpeed = 0.005f;
-                yaw += rotation.x * rotSpeed;
-                pitch -= rotation.y * rotSpeed;
+                yaw -= rotation.x * rotSpeed;
+                pitch += rotation.y * rotSpeed;
 
                 if (pitch > 0.25f * math_PI)
                     pitch = 0.25f * math_PI;

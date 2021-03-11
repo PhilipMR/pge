@@ -19,7 +19,6 @@
 #include <edit_events_win32.h>
 #include <edit_editor.h>
 #include <gfx_debug_draw.h>
-#include <iostream>
 
 static bool                           s_hoveringGameWindow = false;
 static pge::gfx_GraphicsAdapterD3D11* s_graphicsAdapter    = nullptr;
@@ -76,7 +75,7 @@ InitializeScene(pge::game_Scene* scene, pge::res_ResourceManager* resources)
     tm->SetLocal(transforms[1], math_CreateTranslationMatrix(math_Vec3(6, 5, 0)));
     tm->SetLocal(transforms[2], math_CreateScaleMatrix(math_Vec3(10, 1, 10)));
 
-    scene->GetCamera()->SetLookAt(math_Vec3(0, 10.0f, -10.0f), math_Vec3::Zero());
+    scene->GetCamera()->SetLookAt(math_Vec3(5, -5.0f, 5.0f), math_Vec3::Zero());
 }
 
 static void
@@ -179,7 +178,7 @@ main()
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), thickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);
-            //gfx_DebugDraw_GridXY(math_Vec3::Zero(), length);
+            gfx_DebugDraw_GridXY(math_Vec3::Zero(), length);
 
             gfx_DebugDraw_Billboard(math_Vec3(0, 5, 0), math_Vec2(2, 2), checkersTex);
             gfx_DebugDraw_Billboard(math_Vec3(0, 10, 0), math_Vec2(2, 2), checkersTex);
