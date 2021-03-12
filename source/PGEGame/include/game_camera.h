@@ -35,7 +35,7 @@ namespace pge
             if (!input_MouseButtonDown(input_MouseButton::RIGHT))
                 return;
 
-            if (input_KeyboardDown(input_KeyboardKey::LSHIFT))
+            if (input_KeyboardDown(input_KeyboardKey::SHIFT))
                 speed *= 2;
 
             math_Mat4x4 xform;
@@ -73,11 +73,6 @@ namespace pge
                 yaw -= rotation.x * rotSpeed;
                 pitch -= rotation.y * rotSpeed;
 
-                //                if (pitch > 0.25f * math_PI)
-                //                    pitch = 0.25f * math_PI;
-                //                if (pitch < -0.25f * math_PI)
-                //                    pitch = -0.25f * math_PI;
-
                 forward = math_Vec3(sinf(yaw) * cosf(pitch), -cosf(yaw) * cosf(pitch), sinf(pitch));
             }
 
@@ -89,6 +84,7 @@ namespace pge
         {
             return m_viewMatrix;
         }
+
         math_Mat4x4
         GetProjectionMatrix() const
         {

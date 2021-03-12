@@ -110,6 +110,17 @@ namespace pge
     {
         const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
 
+        if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Z)) {
+            if (input_KeyboardDown(input_KeyboardKey::SHIFT)) {
+                m_commandStack.Redo();
+            } else {
+                m_commandStack.Undo();
+            }
+        }
+        if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Y)) {
+            m_commandStack.Redo();
+        }
+
         switch (m_editMode) {
             case edit_EditMode::NONE: break;
             case edit_EditMode::TRANSLATE: {
@@ -117,8 +128,16 @@ namespace pge
                     break;
                 DrawAxis(scene->GetTransformManager(), m_selectedEntity, m_editAxis);
                 TranslateEntity(scene->GetTransformManager(), m_selectedEntity, m_editAxis, viewProj);
-                if (input_MouseButtonPressed(input_MouseButton::LEFT))
+                if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
                     m_editMode = edit_EditMode::NONE;
+
+                    auto tid    = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
+                    auto world  = scene->GetTransformManager()->GetWorld(tid);
+                    math_Vec3 curPos(world[0][3], world[1][3], world[2][3]);
+                    math_Vec3 trans = curPos - m_preTransformPosition;
+                    edit_CommandTranslate x(m_selectedEntity, trans, scene->GetTransformManager());
+                    m_commandStack.Add(edit_CommandTranslate::Create(m_selectedEntity, trans, scene->GetTransformManager()));
+                }
                 if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
                     m_editMode  = edit_EditMode::NONE;
                     auto tid    = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
@@ -164,7 +183,7 @@ namespace pge
         }
 
         // Handle mode switch on selected entity
-        if (m_selectedEntity != game_EntityId_Invalid) {
+        if (m_selectedEntity.id != game_EntityId_Invalid) {
             if (!scene->GetTransformManager()->HasTransform(m_selectedEntity))
                 return;
 
@@ -187,7 +206,7 @@ namespace pge
                     m_preTransformPosition = math_Vec3(world[0][3], world[1][3], world[2][3]);
                 }
             } else {
-                if (input_KeyboardDown(input_KeyboardKey::LSHIFT)) {
+                if (input_KeyboardDown(input_KeyboardKey::SHIFT)) {
                     if (input_KeyboardPressed(input_KeyboardKey::X)) {
                         m_editAxis = edit_Axis::YZ;
                     } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
@@ -286,7 +305,7 @@ namespace pge
             const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj);
             if (hoveredMesh != game_StaticMeshId_Invalid) {
                 game_EntityId hoveredEntity = scene->GetStaticMeshManager()->GetEntity(hoveredMesh).id;
-                hoveringSelectedEntity      = hoveredEntity == m_selectedEntity;
+                hoveringSelectedEntity      = hoveredEntity == m_selectedEntity.id;
             } else {
                 hoveringSelectedEntity = false;
             }
@@ -295,12 +314,12 @@ namespace pge
         static bool contextWasOpen = false;
         if (hoveringSelectedEntity) {
             std::stringstream ss;
-            ss << "GameEntityContextMenu" << m_selectedEntity;
+            ss << "GameEntityContextMenu" << m_selectedEntity.id;
             if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
                 contextWasOpen = true;
                 if (ImGui::Selectable("Delete entity")) {
                     scene->GetEntityManager()->DestroyEntity(m_selectedEntity);
-                    m_selectedEntity = game_EntityId_Invalid;
+                    m_selectedEntity.id = game_EntityId_Invalid;
                 }
                 ImGui::EndPopup();
             } else if (contextWasOpen) {
@@ -363,8 +382,8 @@ namespace pge
                 if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                     editEntityId = entity.entity.id;
                 } else if (ImGui::IsItemClicked()) {
-                    if (m_selectedEntity != entity.entity.id) {
-                        m_selectedEntity = entity.entity.id;
+                    if (m_selectedEntity.id != entity.entity.id) {
+                        m_selectedEntity.id = entity.entity.id;
                         editEntityId     = game_EntityId_Invalid;
                     }
                 }
@@ -433,7 +452,7 @@ namespace pge
         auto* tm = scene->GetTransformManager();
         auto* sm = scene->GetStaticMeshManager();
         ImGui::Begin("Inspector", nullptr, 0);
-        if (m_selectedEntity != game_EntityId_Invalid) {
+        if (m_selectedEntity.id != game_EntityId_Invalid) {
             if (tm->HasTransform(m_selectedEntity)) {
                 auto      tid   = tm->GetTransformId(m_selectedEntity);
                 auto      world = tm->GetWorld(tid);

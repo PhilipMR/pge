@@ -9,8 +9,8 @@ namespace pge
 
         ENTER = 13,
 
-        LSHIFT = 16,
-        RSHIFT,
+        SHIFT = 16,
+        CTRL = 17,
 
         SPACE = 32,
 
