@@ -129,7 +129,8 @@ main()
         gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x * resScale, resolution.y * resScale, true, true);
         gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);
-        edit_Editor editor;
+        edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
+        editor.LoadScene("test.scene");
 
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
@@ -195,19 +196,11 @@ main()
             rtGame.BindTexture(0);
             graphicsDevice.DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, 6);
 
-
             // Draw editor (with scene texture to window) to main render target
             gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
             gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
 
-            edit_BeginFrame();
-            editor.HandleEvents(&scene);
-            editor.DrawMenuBar(&scene);
-            s_hoveringGameWindow = editor.DrawGameView(&scene, &rtGameMs, &resources);
-            editor.DrawEntityTree(&scene);
-            editor.DrawInspector(&scene, &resources);
-            editor.DrawExplorer();
-            edit_EndFrame();
+            s_hoveringGameWindow = editor.UpdateAndDraw(&rtGameMs);
 
             graphicsDevice.Present();
         }

@@ -1,4 +1,5 @@
 #include "../include/edit_editor.h"
+#include "../include/edit_mesh.h"
 #include <game_scene.h>
 #include <gfx_render_target.h>
 #include <imgui/imgui.h>
@@ -10,12 +11,18 @@ namespace pge
 {
     static const char* PATH_TO_LAYOUT_INI = "layout.ini";
 
-    edit_Editor::edit_Editor()
-        : m_selectedEntity(game_EntityId_Invalid)
+    edit_Editor::edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
+        : m_graphicsAdapter(graphicsAdapter)
+        , m_graphicsDevice(graphicsDevice)
+        , m_resources(resources)
+        , m_scene(std::make_unique<game_Scene>(m_graphicsAdapter, m_graphicsDevice, m_resources))
+        , m_selectedEntity(game_EntityId_Invalid)
         , m_gameWindowSize(1600, 900)
         , m_editMode(edit_EditMode::NONE)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager())));
     }
 
     static void
@@ -106,6 +113,31 @@ namespace pge
     }
 
     void
+    edit_Editor::LoadScene(const char* path)
+    {
+        std::ifstream is(path, std::ios::binary);
+        game_Scene&   s = *m_scene;
+        is >> s;
+        is.close();
+    }
+
+    bool
+    edit_Editor::UpdateAndDraw(const gfx_RenderTarget* target)
+    {
+        edit_BeginFrame();
+
+        HandleEvents(m_scene.get());
+        DrawMenuBar(m_scene.get());
+        bool ishovering = DrawGameView(m_scene.get(), target, m_resources);
+        DrawEntityTree(m_scene.get());
+        DrawInspector(m_scene.get(), m_resources);
+        DrawExplorer();
+
+        edit_EndFrame();
+        return ishovering;
+    }
+
+    void
     edit_Editor::HandleEvents(game_Scene* scene)
     {
         const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
@@ -131,10 +163,10 @@ namespace pge
                 if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
                     m_editMode = edit_EditMode::NONE;
 
-                    auto tid    = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
-                    auto world  = scene->GetTransformManager()->GetWorld(tid);
-                    math_Vec3 curPos(world[0][3], world[1][3], world[2][3]);
-                    math_Vec3 trans = curPos - m_preTransformPosition;
+                    auto                  tid   = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
+                    auto                  world = scene->GetTransformManager()->GetWorld(tid);
+                    math_Vec3             curPos(world[0][3], world[1][3], world[2][3]);
+                    math_Vec3             trans = curPos - m_preTransformPosition;
                     edit_CommandTranslate x(m_selectedEntity, trans, scene->GetTransformManager());
                     m_commandStack.Add(edit_CommandTranslate::Create(m_selectedEntity, trans, scene->GetTransformManager()));
                 }
@@ -384,7 +416,7 @@ namespace pge
                 } else if (ImGui::IsItemClicked()) {
                     if (m_selectedEntity.id != entity.entity.id) {
                         m_selectedEntity.id = entity.entity.id;
-                        editEntityId     = game_EntityId_Invalid;
+                        editEntityId        = game_EntityId_Invalid;
                     }
                 }
 
@@ -453,33 +485,8 @@ namespace pge
         auto* sm = scene->GetStaticMeshManager();
         ImGui::Begin("Inspector", nullptr, 0);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
-            if (tm->HasTransform(m_selectedEntity)) {
-                auto      tid   = tm->GetTransformId(m_selectedEntity);
-                auto      world = tm->GetWorld(tid);
-                math_Vec3 pos(world[0][3], world[1][3], world[2][3]);
-                if (ImGui::DragFloat3("Position", &pos[0])) {
-                    world[0][3] = pos[0];
-                    world[1][3] = pos[1];
-                    world[2][3] = pos[2];
-                    tm->SetLocal(tid, world);
-                }
-            } else {
-                if (ImGui::Button("Add transform")) {
-                    tm->CreateTransform(m_selectedEntity);
-                }
-            }
-            if (sm->HasStaticMesh(m_selectedEntity)) {
-                game_StaticMeshId mid = sm->GetStaticMeshId(m_selectedEntity);
-                ImGui::Text("%s", sm->GetMesh(mid)->GetPath().c_str());
-            } else {
-                if (ImGui::Button("Add mesh")) {
-                    if (!tm->HasTransform(m_selectedEntity)) {
-                        tm->CreateTransform(m_selectedEntity);
-                    }
-                    game_StaticMeshId mid = sm->CreateStaticMesh(m_selectedEntity);
-                    sm->SetMesh(mid, resources->GetMesh("data/meshes/cube/Cube.001.mesh"));
-                    sm->SetMaterial(mid, resources->GetMaterial("data/materials/checkers.mat"));
-                }
+            for (auto& compEditor : m_componentEditors) {
+                compEditor->UpdateAndDraw(m_selectedEntity);
             }
         }
         ImGui::End();
