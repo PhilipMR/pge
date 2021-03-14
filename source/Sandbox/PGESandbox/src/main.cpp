@@ -42,59 +42,6 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-
-pge::game_Entity       entities[3];
-pge::game_TransformId  transforms[3];
-pge::game_StaticMeshId meshes[3];
-
-static void
-InitializeScene(pge::game_Scene* scene, pge::res_ResourceManager* resources)
-{
-    using namespace pge;
-
-    auto em = scene->GetEntityManager();
-    auto mm = scene->GetEntityMetaDataManager();
-    auto tm = scene->GetTransformManager();
-    auto sm = scene->GetStaticMeshManager();
-
-    const res_Mesh*     mesh     = resources->GetMesh(R"(data\meshes\cube\Cube.001.mesh)");
-    const res_Material* material = resources->GetMaterial(R"(data\materials\checkers.mat)");
-
-    em->CreateEntities(entities, 3);
-    tm->CreateTransforms(entities, 3, transforms);
-    sm->CreateStaticMeshes(entities, 3, meshes);
-
-    for (size_t i = 0; i < 3; ++i) {
-        const char* name = i == 0 ? "Alpha" : (i == 1 ? "Beta" : (i == 2 ? "Charlie" : "Unknown"));
-        mm->CreateMetaData(entities[i], game_EntityMetaData(entities[i], name));
-        sm->SetMesh(meshes[i], mesh);
-        sm->SetMaterial(meshes[i], material);
-    }
-
-    tm->SetLocal(transforms[0], math_CreateTranslationMatrix(math_Vec3(-6, 0, 5)));
-    tm->SetLocal(transforms[1], math_CreateTranslationMatrix(math_Vec3(6, 0, 5)));
-    tm->SetLocal(transforms[2], math_CreateScaleMatrix(math_Vec3(10, 10, 1)));
-
-    scene->GetCamera()->SetLookAt(math_Vec3(5, -5.0f, 5.0f), math_Vec3::Zero());
-}
-
-static void
-UpdateScene(pge::game_Scene* scene)
-{
-    using namespace pge;
-    auto        tm       = scene->GetTransformManager();
-    const float rotSpeed = 360.0f / 60.0f * 0.1f;
-
-    if(scene->GetEntityManager()->IsEntityAlive(entities[0])) {
-        tm->Rotate(transforms[0], math_Vec3(0, 0, 1), -rotSpeed);
-    }
-    if (scene->GetEntityManager()->IsEntityAlive(entities[1])) {
-        tm->Rotate(transforms[1], math_Vec3(0, 0, 1), rotSpeed);
-    }
-
-    scene->Update();
-}
-
 int
 main()
 {
@@ -121,8 +68,6 @@ main()
 
         // Setup scene
         res_ResourceManager resources(&graphicsAdapter);
-        game_Scene          scene(&graphicsAdapter, &graphicsDevice, &resources);
-        InitializeScene(&scene, &resources);
 
         // Set up editor
         const float      resScale = 1.0f;
@@ -131,12 +76,13 @@ main()
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
         editor.LoadScene("test.scene");
+        game_Scene& scene = editor.GetScene();
 
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
 
-        const res_Effect* screenTexEffect = resources.GetEffect("data/effects/screentex.effect");
-        const gfx_Texture2D* checkersTex = resources.GetTexture("data/materials/checkers.png")->GetTexture();
+        const res_Effect*    screenTexEffect = resources.GetEffect("data/effects/screentex.effect");
+        const gfx_Texture2D* checkersTex     = resources.GetTexture("data/materials/checkers.png")->GetTexture();
 
         const gfx_VertexAttribute screenTexAttribs[]  = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2),
                                                         gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2)};
@@ -163,7 +109,7 @@ main()
             input_KeyboardClearDelta();
             input_MouseClearDelta();
             display.HandleEvents();
-            UpdateScene(&scene);
+            scene.Update();
 
             // Draw scene to texture
             gfx_Texture2D_Unbind(&graphicsAdapter, 0);
