@@ -25,7 +25,7 @@ namespace pge
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
-        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager())));
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager(), resources)));
     }
 
     void
@@ -262,6 +262,7 @@ namespace pge
 
 
         // Right mouse click to open entity context menu
+        static bool mouseDownOnEntity = false;
         static bool hoveringSelectedEntity = false;
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
             hoveringSelectedEntity = SelectEntity() == m_selectedEntity.id;

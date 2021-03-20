@@ -115,6 +115,13 @@ namespace pge
         return m_meshes[id].mesh;
     }
 
+    const res_Material*
+    game_StaticMeshManager::GetMaterial(const game_StaticMeshId& id) const
+    {
+        diag_Assert(id < m_meshes.size());
+        return m_meshes[id].material;
+    }
+
     void
     game_StaticMeshManager::DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj)
     {
@@ -177,8 +184,8 @@ namespace pge
     operator>>(std::istream& is, game_StaticMeshManager& sm)
     {
         unsigned numMeshes = 0;
-        size_t pos = is.tellg();
-        bool iseof = is.eof();
+        size_t   pos       = is.tellg();
+        bool     iseof     = is.eof();
         is.read((char*)&numMeshes, sizeof(numMeshes));
 
         sm.m_meshes.resize(numMeshes);

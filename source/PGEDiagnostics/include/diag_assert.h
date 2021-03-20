@@ -1,4 +1,4 @@
-#ifndef PGE_DIAGNOSTICS_DIAG_ASSERT_H
+  #ifndef PGE_DIAGNOSTICS_DIAG_ASSERT_H
 #define PGE_DIAGNOSTICS_DIAG_ASSERT_H
 
 #include "diag_log.h"
@@ -24,7 +24,6 @@ namespace pge
             if (!(expr)) {                                                                                                      \
                 pge::diag_LogErrorf("ASSERT FAILED: %s in file %s at line %d, because: %s", #expr, __FILE__, __LINE__, reason); \
                 __debugbreak();                                                                                                 \
-                                                                                                                                \
             } else {                                                                                                            \
             }
 #    else
