@@ -262,10 +262,15 @@ namespace pge
 
 
         // Right mouse click to open entity context menu
-        static bool mouseDownOnEntity = false;
-        static bool hoveringSelectedEntity = false;
-        if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-            hoveringSelectedEntity = SelectEntity() == m_selectedEntity.id;
+        static bool        mouseDownOnEntity      = false;
+        static bool        hoveringSelectedEntity = false;
+        static game_Entity entDown                = game_EntityId_Invalid;
+        if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
+            entDown = SelectEntity();
+        }
+        if (input_MouseButtonReleased(input_MouseButton::RIGHT)) {
+            game_Entity selected   = SelectEntity();
+            hoveringSelectedEntity = (selected.id != game_EntityId_Invalid) && (selected.id == entDown.id) && (selected.id == m_selectedEntity.id);
         }
 
         static bool contextWasOpen = false;

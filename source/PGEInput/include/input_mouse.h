@@ -13,6 +13,7 @@ namespace pge
         NUM_BUTTONS
     };
 
+    void      input_MouseClearState();
     void      input_MouseClearDelta();
     bool      input_MouseButtonDown(input_MouseButton button);
     bool      input_MouseButtonPressed(input_MouseButton button);

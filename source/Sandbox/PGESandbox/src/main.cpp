@@ -38,6 +38,9 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (s_hoveringGameWindow) {
         pge::input_Win32KeyboardEvents(hwnd, uMsg, wParam, lParam);
         pge::input_Win32MouseEvents(hwnd, uMsg, wParam, lParam);
+    } else {
+        pge::input_KeyboardClearDelta();
+        pge::input_MouseClearDelta();
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -146,7 +149,13 @@ main()
             gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
             gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
 
-            s_hoveringGameWindow = editor.UpdateAndDraw(&rtGameMs);
+            bool isHovered = editor.UpdateAndDraw(&rtGameMs);
+            if (s_hoveringGameWindow && !isHovered) {
+                input_KeyboardClearState();
+                input_MouseClearState();
+            }
+            s_hoveringGameWindow = isHovered;
+
 
             graphicsDevice.Present();
         }
