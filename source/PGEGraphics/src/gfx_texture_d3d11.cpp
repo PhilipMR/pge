@@ -86,6 +86,11 @@ namespace pge
         m_impl->m_deviceContext->PSSetShaderResources(slot, 1, &m_impl->m_srv);
     }
 
+    void* gfx_Texture2D::GetNativeTexture() const
+    {
+        return m_impl->m_srv;
+    }
+
     void gfx_Texture2D_Unbind(gfx_GraphicsAdapter* graphicsAdapter, unsigned slot)
     {
         auto                    graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);

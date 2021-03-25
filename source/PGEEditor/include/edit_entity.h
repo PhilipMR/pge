@@ -21,17 +21,17 @@ namespace pge
     };
 
     class edit_CommandDeleteEntity : public edit_Command {
-        game_Entity m_entity;
-        game_Scene* m_scene;
+        game_Entity         m_entity;
+        game_Scene*         m_scene;
 
         bool                m_hasMetaData;
         game_EntityMetaData m_metaData;
 
-        bool        m_hasTransform;
-        math_Mat4x4 m_localTransform;
+        bool                m_hasTransform;
+        math_Mat4x4         m_localTransform;
 
-        bool            m_hasPointLight;
-        game_PointLight m_pointLight;
+        bool                m_hasPointLight;
+        game_PointLight     m_pointLight;
 
         bool                m_hasMesh;
         const res_Material* m_meshMaterial;

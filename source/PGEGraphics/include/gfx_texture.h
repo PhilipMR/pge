@@ -18,6 +18,7 @@ namespace pge
         gfx_Texture2D(gfx_GraphicsAdapter* graphicsAdapter, gfx_PixelFormat format, unsigned width, unsigned height, void* data);
         ~gfx_Texture2D();
         void Bind(unsigned slot) const;
+        void* GetNativeTexture() const;
     };
 
     void gfx_Texture2D_Unbind(gfx_GraphicsAdapter* graphicsAdapter, unsigned slot);

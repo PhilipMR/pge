@@ -9,9 +9,10 @@
 
 namespace pge
 {
-    extern void        edit_BeginFrame();
-    extern void        edit_EndFrame();
-    static const char* PATH_TO_LAYOUT_INI = "layout.ini";
+    extern void                   edit_BeginFrame();
+    extern void                   edit_EndFrame();
+    static const char*            PATH_TO_LAYOUT_INI = "layout.ini";
+    static const ImGuiWindowFlags PANEL_WINDOW_FLAGS = ImGuiWindowFlags_NoTitleBar;
 
 
     edit_Editor::edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
@@ -27,6 +28,10 @@ namespace pge
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager(), resources)));
+
+        m_icons.sceneNode   = resources->GetTexture("data/materials/checkers.png")->GetTexture();
+        m_icons.playButton  = resources->GetTexture("data/materials/checkers.png")->GetTexture();
+        m_icons.pauseButton = resources->GetTexture("data/meshes/suzanne/Suzanne.001_albedo.png")->GetTexture();
     }
 
     void
@@ -230,7 +235,7 @@ namespace pge
                 }
                 if (ImGui::MenuItem("Load layout")) {
                     ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
-                    ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+                    ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
                 }
                 ImGui::EndMenu();
             }
@@ -244,23 +249,37 @@ namespace pge
     edit_Editor::DrawGameView(const gfx_RenderTarget* target)
     {
         auto* scene = m_scene.get();
-        ImGui::Begin("Game");
 
-        //        static bool isPlaying = false;
-        //        if (!isPlaying) {
-        //            if (ImGui::Button("PLAY")) {
-        //                isPlaying = true;
-        //            }
-        //        } else {
-        //            if (ImGui::Button("PAUSE")) {
-        //                isPlaying = false;
-        //            }
-        //        }
+
+        ImGui::Begin("Game", nullptr, PANEL_WINDOW_FLAGS);
+
+        auto ButtonCenteredOnLine = [&](const gfx_Texture2D* texture, float alignment = 0.5f) {
+            ImGuiStyle& style = ImGui::GetStyle();
+
+            const ImVec2 size(50, 20);
+            float  avail = ImGui::GetContentRegionAvail().x;
+            float  off   = (avail - size.x) * alignment;
+            if (off > 0.0f)
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+
+            return ImGui::ImageButton(texture->GetNativeTexture(), size);
+        };
+
+        static bool isPlaying = false;
+        if (!isPlaying) {
+            if (ButtonCenteredOnLine(m_icons.playButton)) {
+                isPlaying = true;
+            }
+        } else {
+            if (ButtonCenteredOnLine(m_icons.pauseButton)) {
+                isPlaying = false;
+            }
+        }
         const float playBarHeight = ImGui::GetItemRectSize().y;
 
 
         float r = 16.0f / 9.0f;
-        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - 20 * r));
+        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, (ImGui::GetWindowSize().y - (playBarHeight+10)) - 20 * r));
         bool isHovered   = ImGui::IsWindowHovered();
         m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + playBarHeight);
         m_gameWindowSize = math_Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
@@ -304,8 +323,11 @@ namespace pge
     {
         auto* scene = m_scene.get();
 
-        ImGui::Begin("Scene graph", nullptr, 0);
+        ImGui::Begin("Scene graph", nullptr, PANEL_WINDOW_FLAGS);
 
+        ImGui::StyleColorsDark();
+        ImGui::Image(m_icons.sceneNode->GetNativeTexture(), ImVec2(15, 15));
+        ImGui::SameLine();
         ImGui::Text("Scene");
         ImGui::Indent();
 
@@ -318,7 +340,7 @@ namespace pge
             static game_EntityId editEntityId = game_EntityId_Invalid;
             bool                 isSelected   = entity.entity == m_selectedEntity;
 
-            ImGui::Bullet();
+            ImGui::Image(m_icons.sceneNode->GetNativeTexture(), ImVec2(15, 15));
             ImGui::SameLine();
 
             if (isSelected && editEntityId == entity.entity.id) {
@@ -326,7 +348,7 @@ namespace pge
                 ss << entity.entity.id;
                 if (ImGui::InputText(ss.str().c_str(), (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
-                    editEntityId     = game_EntityId_Invalid;
+                    editEntityId = game_EntityId_Invalid;
                 }
             } else {
                 ImGui::Selectable(entity.name, isSelected);
@@ -335,7 +357,7 @@ namespace pge
                 } else if (ImGui::IsItemClicked()) {
                     if (m_selectedEntity.id != entity.entity.id) {
                         m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
-                        editEntityId        = game_EntityId_Invalid;
+                        editEntityId = game_EntityId_Invalid;
                     }
                 }
 
@@ -344,16 +366,20 @@ namespace pge
                 if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
                     isEntityContextMenu = true;
                     if (ImGui::Selectable("Delete entity")) {
-                        m_commandStack.Do(edit_CommandDeleteEntity::Create(entity.entity, scene));
-                        if (m_selectedEntity == entity.entity.id) {
-                            m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
-                        }
+                        entitiesToDestroy.push_back(entity.entity);
                     }
                     ImGui::EndPopup();
                 }
             }
 
             isAnyNodeHovered |= ImGui::IsItemHovered();
+        }
+
+        for (const auto& entity : entitiesToDestroy) {
+            m_commandStack.Do(edit_CommandDeleteEntity::Create(entity, scene));
+            if (m_selectedEntity == entity) {
+                m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
+            }
         }
 
         if (!isAnyNodeHovered && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
@@ -379,7 +405,7 @@ namespace pge
     void
     edit_Editor::DrawInspector()
     {
-        ImGui::Begin("Inspector", nullptr, 0);
+        ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
             for (auto& compEditor : m_componentEditors) {
                 compEditor->UpdateAndDraw(m_selectedEntity);
@@ -391,7 +417,7 @@ namespace pge
     void
     edit_Editor::DrawExplorer()
     {
-        ImGui::Begin("Explorer", nullptr, 0);
+        ImGui::Begin("Explorer", nullptr, PANEL_WINDOW_FLAGS);
         ImGui::End();
     }
 } // namespace pge

@@ -29,7 +29,15 @@ namespace pge
         TRANSLATE,
     };
 
+
+
     class edit_Editor {
+        struct {
+            const gfx_Texture2D* sceneNode;
+            const gfx_Texture2D* playButton;
+            const gfx_Texture2D* pauseButton;
+        } m_icons;
+
         gfx_GraphicsAdapter* m_graphicsAdapter;
         gfx_GraphicsDevice*  m_graphicsDevice;
         res_ResourceManager* m_resources;
