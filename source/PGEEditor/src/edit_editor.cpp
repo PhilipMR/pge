@@ -13,6 +13,7 @@ namespace pge
     extern void        edit_EndFrame();
     static const char* PATH_TO_LAYOUT_INI = "layout.ini";
 
+
     edit_Editor::edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_graphicsAdapter(graphicsAdapter)
         , m_graphicsDevice(graphicsDevice)
@@ -101,12 +102,15 @@ namespace pge
 
         // Selected entity AABB
         if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity)) {
-            auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
-            auto world       = scene->GetTransformManager()->GetWorld(transformId);
-            auto meshId      = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
-            auto aabb        = scene->GetStaticMeshManager()->GetMesh(meshId)->GetAABB();
-            aabb             = math_TransformAABB(aabb, world);
-            gfx_DebugDraw_Box(aabb.min, aabb.max);
+            auto            meshId = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
+            const res_Mesh* mesh   = scene->GetStaticMeshManager()->GetMesh(meshId);
+            if (mesh != nullptr) {
+                auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
+                auto world       = scene->GetTransformManager()->GetWorld(transformId);
+                auto aabb        = mesh->GetAABB();
+                aabb             = math_TransformAABB(aabb, world);
+                gfx_DebugDraw_Box(aabb.min, aabb.max);
+            }
         }
 
         // Light billboards
@@ -168,8 +172,9 @@ namespace pge
 
         // Left mouse click to (de-)select entity
         if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
-            m_selectedEntity = SelectEntity();
-            if (m_selectedEntity == game_EntityId_Invalid) {
+            game_Entity entity = SelectEntity();
+            m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
+            if (entity == game_EntityId_Invalid) {
                 m_editMode = edit_EditMode::NONE;
             }
         }
@@ -280,7 +285,7 @@ namespace pge
             if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
                 contextWasOpen = true;
                 if (ImGui::Selectable("Delete entity")) {
-                    scene->GetEntityManager()->DestroyEntity(m_selectedEntity);
+                    m_commandStack.Do(edit_CommandDeleteEntity::Create(m_selectedEntity, scene));
                     m_selectedEntity.id = game_EntityId_Invalid;
                 }
                 ImGui::EndPopup();
@@ -320,7 +325,7 @@ namespace pge
                 std::stringstream ss;
                 ss << entity.entity.id;
                 if (ImGui::InputText(ss.str().c_str(), (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    m_selectedEntity = entity.entity.id;
+                    m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
                     editEntityId     = game_EntityId_Invalid;
                 }
             } else {
@@ -329,7 +334,7 @@ namespace pge
                     editEntityId = entity.entity.id;
                 } else if (ImGui::IsItemClicked()) {
                     if (m_selectedEntity.id != entity.entity.id) {
-                        m_selectedEntity.id = entity.entity.id;
+                        m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
                         editEntityId        = game_EntityId_Invalid;
                     }
                 }
@@ -339,9 +344,9 @@ namespace pge
                 if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
                     isEntityContextMenu = true;
                     if (ImGui::Selectable("Delete entity")) {
-                        entitiesToDestroy.push_back(entity.entity);
+                        m_commandStack.Do(edit_CommandDeleteEntity::Create(entity.entity, scene));
                         if (m_selectedEntity == entity.entity.id) {
-                            m_selectedEntity = game_EntityId_Invalid;
+                            m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
                         }
                     }
                     ImGui::EndPopup();
@@ -352,44 +357,23 @@ namespace pge
         }
 
         if (!isAnyNodeHovered && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            m_selectedEntity = game_EntityId_Invalid;
+            m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
         }
 
         if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("SceneContextMenu")) {
             if (ImGui::Selectable("Create entity")) {
-                auto                newEntity = scene->GetEntityManager()->CreateEntity();
-                game_EntityMetaData meta;
-                meta.entity = newEntity;
-                std::stringstream ss;
-                ss << "Entity [" << newEntity.id << "]";
-                strcpy_s(meta.name, ss.str().c_str());
-                scene->GetEntityMetaDataManager()->CreateMetaData(newEntity, meta);
+                m_commandStack.Do(edit_CommandCreateEntity::Create(scene->GetEntityManager(), scene->GetEntityMetaDataManager()));
             }
             if (ImGui::Selectable("Create light (directional)")) {
-                auto                newEntity = scene->GetEntityManager()->CreateEntity();
-                game_EntityMetaData meta;
-                meta.entity = newEntity;
-                std::stringstream ss;
-                ss << "DirLight [" << newEntity.id << "]";
-                strcpy_s(meta.name, ss.str().c_str());
-                scene->GetEntityMetaDataManager()->CreateMetaData(newEntity, meta);
-
-                scene->GetTransformManager()->CreateTransform(newEntity);
-
-                game_PointLight plight;
-                plight.radius   = 10.0f;
-                plight.strength = 1.0f;
-                plight.color    = math_Vec3::One();
-                scene->GetLightManager()->CreatePointLight(newEntity, plight);
+                m_commandStack.Do(edit_CommandCreatePointLight::Create(scene->GetEntityManager(),
+                                                                       scene->GetEntityMetaDataManager(),
+                                                                       scene->GetTransformManager(),
+                                                                       scene->GetLightManager()));
             }
             ImGui::EndPopup();
         }
 
         ImGui::End();
-
-        for (const auto& entity : entitiesToDestroy) {
-            scene->GetEntityManager()->DestroyEntity(entity);
-        }
     }
 
     void

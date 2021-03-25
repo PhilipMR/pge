@@ -130,6 +130,8 @@ namespace pge
 
         m_cbTransforms.BindVS(0);
         for (const auto& mesh : m_meshes) {
+            if (mesh.mesh == nullptr || mesh.material == nullptr)
+                continue;
             mesh.mesh->Bind();
             mesh.material->Bind();
 

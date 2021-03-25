@@ -17,7 +17,8 @@ namespace pge
 
     class edit_CommandStack {
         std::vector<std::unique_ptr<edit_Command>> m_stack;
-        int                                        m_cursor;
+        int                                        m_undos;
+
     public:
         edit_CommandStack();
         void Add(std::unique_ptr<edit_Command> command);

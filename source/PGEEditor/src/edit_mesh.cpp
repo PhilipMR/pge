@@ -10,10 +10,11 @@ namespace pge
     {}
 
 
-    void edit_MeshEditor::SyncResourcePaths()
+    void
+    edit_MeshEditor::SyncResourcePaths()
     {
         static const unsigned SECONDS_PER_SYNC = 10;
-        time_t tm;
+        time_t                tm;
         time(&tm);
         double diffSecs = difftime(tm, m_lastFileSync);
         if (diffSecs < SECONDS_PER_SYNC)
@@ -21,8 +22,8 @@ namespace pge
         else
             m_lastFileSync = tm;
 
-        m_meshItems    = os_ListItemsWithExtension("data", "mesh", true);
-        m_matItems     = os_ListItemsWithExtension("data", "mat", true);
+        m_meshItems = os_ListItemsWithExtension("data", "mesh", true);
+        m_matItems  = os_ListItemsWithExtension("data", "mat", true);
     }
 
     void
@@ -53,15 +54,22 @@ namespace pge
 
         // Get active mesh index
         game_StaticMeshId mid         = m_meshManager->GetStaticMeshId(entity);
-        std::string       curMeshPath = m_meshManager->GetMesh(mid)->GetPath();
-        int               curMeshIdx  = -1;
-        for (int i = 0; i < meshPaths.size(); ++i) {
-            if (curMeshPath == meshPaths[i]) {
-                curMeshIdx = i;
-                break;
+        const res_Mesh*   mesh        = m_meshManager->GetMesh(mid);
+        std::string       curMeshPath = mesh == nullptr ? "Not set" : mesh->GetPath();
+        int               curMeshIdx  = 0;
+        if (mesh != nullptr) {
+            curMeshIdx = -1;
+            for (int i = 0; i < meshPaths.size(); ++i) {
+                if (curMeshPath == meshPaths[i]) {
+                    curMeshIdx = i;
+                    break;
+                }
             }
         }
         diag_AssertWithReason(curMeshIdx >= 0, "The mesh that was assigned to the entity has been relocated or renamed.");
+        if (mesh == nullptr) {
+            m_meshManager->SetMesh(mid, m_resources->GetMesh(meshPaths[curMeshIdx]));
+        }
 
         // Mesh dropdown select
         int nextMeshIdx = curMeshIdx;
@@ -73,15 +81,22 @@ namespace pge
 
 
         // Get active material index
-        std::string curMatPath = m_meshManager->GetMaterial(mid)->GetPath();
-        int         curMatIdx  = -1;
-        for (int i = 0; i < matPaths.size(); ++i) {
-            if (curMatPath == matPaths[i]) {
-                curMatIdx = i;
-                break;
+        const res_Material* mat        = m_meshManager->GetMaterial(mid);
+        std::string         curMatPath = mat == nullptr ? "Not set" : mat->GetPath();
+        int curMatIdx = 0;
+        if (mat != nullptr) {
+            curMatIdx = -1;
+            for (int i = 0; i < matPaths.size(); ++i) {
+                if (curMatPath == matPaths[i]) {
+                    curMatIdx = i;
+                    break;
+                }
             }
         }
         diag_AssertWithReason(curMatIdx >= 0, "The material that was assigned to the entity has been relocated or renamed.");
+        if (mat == nullptr) {
+            m_meshManager->SetMaterial(mid, m_resources->GetMaterial(matPaths[curMatIdx]));
+        }
 
         // Material dropdown select
         int nextMatIdx = curMatIdx;

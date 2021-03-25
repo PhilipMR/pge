@@ -10,13 +10,14 @@ namespace pge
 {
     enum class edit_Axis
     {
-        // clang-format off
         NONE,
-        X, Y, Z,
-        XY, XZ,YZ
-        // clang-format on
+        X,
+        Y,
+        Z,
+        XY,
+        XZ,
+        YZ
     };
-
 
     class edit_CommandTranslate : public edit_Command {
         game_Entity            m_entity;

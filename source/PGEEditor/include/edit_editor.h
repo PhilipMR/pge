@@ -1,10 +1,13 @@
 #ifndef PGE_EDITOR_EDIT_EDITOR_H
 #define PGE_EDITOR_EDIT_EDITOR_H
 
-#include <memory>
-#include "edit_command.h"
 #include "edit_transform.h"
+#include "edit_entity.h"
 #include <math_vec2.h>
+#include <game_light.h>
+#include <game_scene.h>
+#include <memory>
+#include <vector>
 
 namespace pge
 {

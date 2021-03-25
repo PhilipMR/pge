@@ -15,15 +15,22 @@ namespace pge
         game_Entity(game_EntityId id);
         game_Entity(unsigned index, unsigned generation);
 
-        bool
-        operator==(const game_Entity& other) const
-        {
-            return id == other.id;
-        }
-
         unsigned GetIndex() const;
         unsigned GetGeneration() const;
     };
+
+    inline bool
+    operator==(const game_Entity& lhs, const game_Entity& rhs)
+    {
+        return lhs.id == rhs.id;
+    }
+
+    inline bool
+    operator!=(const game_Entity& lhs, const game_Entity& rhs)
+    {
+        return lhs.id != rhs.id;
+    }
+
 
     class game_EntityManager {
         std::vector<unsigned> m_generation;
@@ -34,6 +41,7 @@ namespace pge
         game_EntityManager(const game_Entity* entities, size_t numEntities);
 
         game_Entity CreateEntity();
+        void        CreateEntity(const game_Entity& entity);
         void        CreateEntities(game_Entity* destBuf, size_t numEntities);
         void        DestroyEntity(const game_Entity& entity);
         bool        IsEntityAlive(const game_Entity& entity) const;

@@ -18,6 +18,22 @@ namespace pge
         m_pointLights[lid].entity = entity;
     }
 
+    void
+    game_LightManager::DestroyPointLight(const game_PointLightId& id)
+    {
+        diag_Assert(id < m_numPointLights);
+        game_Entity entity = m_pointLights[id].entity;
+        game_PointLightId lastId = m_numPointLights-1;
+        if (id != lastId) {
+            m_pointLights[id] = m_pointLights[lastId];
+
+            game_Entity lastEntity = m_pointLights[lastId].entity;
+            m_pointLightMap[lastEntity] = id;
+        }
+        m_pointLightMap.erase(m_pointLightMap.find(entity));
+        m_numPointLights--;
+    }
+
     bool
     game_LightManager::HasPointLight(const game_Entity& entity) const
     {
@@ -79,7 +95,7 @@ namespace pge
 
             math_Vec2 screenRectSize(botRightHom.x - topLeftHom.x, botRightHom.y - topLeftHom.y);
             math_Vec2 hscreenRectSize = screenRectSize / 2;
-            math_Vec2 screenRectPos = screenPosXY - hscreenRectSize;
+            math_Vec2 screenRectPos   = screenPosXY - hscreenRectSize;
             math_Rect billboard(screenRectPos, screenRectSize);
             if (billboard.Intersects(math_Vec2(hoverPosNorm.x, hoverPosNorm.y))) {
                 return i;

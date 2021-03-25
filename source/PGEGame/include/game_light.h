@@ -29,6 +29,7 @@ namespace pge
     public:
         game_LightManager(size_t capacity);
         void              CreatePointLight(const game_Entity& entity, const game_PointLight& light);
+        void              DestroyPointLight(const game_PointLightId& id);
         bool              HasPointLight(const game_Entity& entity) const;
         game_PointLightId GetPointLightId(const game_Entity& entity) const;
         game_PointLight   GetPointLight(const game_PointLightId& id) const;

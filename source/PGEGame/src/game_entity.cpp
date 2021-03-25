@@ -4,8 +4,8 @@
 
 namespace pge
 {
-    static const unsigned EntityIndexBits   = 22;
-    static const unsigned EntityIndexMask   = (1 << EntityIndexBits) - 1;
+    static const unsigned EntityIndexBits = 22;
+    static const unsigned EntityIndexMask = (1 << EntityIndexBits) - 1;
 
     static const unsigned EntityGenerationBits = 10;
     static const unsigned EntityGenerationMask = (1 << EntityGenerationBits) - 1;
@@ -66,6 +66,16 @@ namespace pge
             diag_Assert(idx < (1 << EntityIndexBits));
         }
         return game_Entity(idx, m_generation[idx]);
+    }
+
+    void
+    game_EntityManager::CreateEntity(const game_Entity& entity)
+    {
+        auto it = std::find(m_freeIndices.begin(), m_freeIndices.end(), entity.GetIndex());
+        if (it != m_freeIndices.end()) {
+            m_freeIndices.erase(it);
+        }
+        m_generation[entity.GetIndex()] = entity.GetGeneration();
     }
 
     void
@@ -141,10 +151,11 @@ namespace pge
     game_EntityMetaDataManager::GarbageCollect(const game_EntityManager& manager)
     {
         std::vector<game_Entity> entitiesToRemove;
-        for(size_t aliveStreak = 0; !m_entityMap.empty() && aliveStreak < 4;) {
+        for (size_t aliveStreak = 0; !m_entityMap.empty() && aliveStreak < 4;) {
             unsigned randIdx = rand() % m_entityMap.size();
-            auto kv = m_entityMap.begin();
-            for (size_t i = 0; i < randIdx; i++) kv++;
+            auto     kv      = m_entityMap.begin();
+            for (size_t i = 0; i < randIdx; i++)
+                kv++;
 
             if (manager.IsEntityAlive(kv->first)) {
                 aliveStreak++;
