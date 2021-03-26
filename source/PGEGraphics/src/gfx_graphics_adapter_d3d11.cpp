@@ -12,6 +12,7 @@ namespace pge
         ID3D11RenderTargetView* m_mainRtv;
         ID3D11DepthStencilView* m_mainDsv;
         ID3D11RasterizerState*  m_rasterizerState;
+        ID3D11BlendState*       m_blendState;
     };
 
     static const DXGI_SAMPLE_DESC SWAPCHAIN_SAMPLE_DESC{8, 0};
@@ -26,7 +27,7 @@ namespace pge
     {
         // Create back buffer RTV.
         ID3D11Texture2D* backBuffer;
-        HRESULT result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+        HRESULT          result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
         diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
 
         result = device->CreateRenderTargetView(backBuffer, nullptr, rtvOut);
@@ -127,10 +128,31 @@ namespace pge
         result = m_impl->m_device->CreateRasterizerState(&rasterizerDesc, &m_impl->m_rasterizerState);
         diag_Assert(SUCCEEDED(result));
         m_impl->m_deviceContext->RSSetState(m_impl->m_rasterizerState);
+
+
+        // Create the blend state.
+        D3D11_RENDER_TARGET_BLEND_DESC rtBlendDesc;
+        rtBlendDesc.BlendEnable           = true;
+        rtBlendDesc.SrcBlend              = D3D11_BLEND_ONE;
+        rtBlendDesc.DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;
+        rtBlendDesc.BlendOp               = D3D11_BLEND_OP_ADD;
+        rtBlendDesc.SrcBlendAlpha         = D3D11_BLEND_ONE;
+        rtBlendDesc.DestBlendAlpha        = D3D11_BLEND_INV_SRC_ALPHA;
+        rtBlendDesc.BlendOpAlpha          = D3D11_BLEND_OP_ADD;
+        rtBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        D3D11_BLEND_DESC blendDesc;
+        blendDesc.AlphaToCoverageEnable  = false;
+        blendDesc.IndependentBlendEnable = false;
+        blendDesc.RenderTarget[0]        = rtBlendDesc;
+        result                           = m_impl->m_device->CreateBlendState(&blendDesc, &m_impl->m_blendState);
+        diag_Assert(SUCCEEDED(result));
+        m_impl->m_deviceContext->OMSetBlendState(m_impl->m_blendState, nullptr, 0xFFFFFFFF);
     }
 
     gfx_GraphicsAdapterD3D11::~gfx_GraphicsAdapterD3D11()
     {
+        m_impl->m_blendState->Release();
         m_impl->m_rasterizerState->Release();
         m_impl->m_mainDsv->Release();
         m_impl->m_mainRtv->Release();

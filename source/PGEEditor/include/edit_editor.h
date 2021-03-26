@@ -8,6 +8,7 @@
 #include <game_scene.h>
 #include <memory>
 #include <vector>
+#include <imgui/imgui.h>
 
 namespace pge
 {
@@ -27,15 +28,16 @@ namespace pge
     {
         NONE,
         TRANSLATE,
+        SCALE,
     };
-
 
 
     class edit_Editor {
         struct {
-            const gfx_Texture2D* sceneNode;
-            const gfx_Texture2D* playButton;
-            const gfx_Texture2D* pauseButton;
+            ImTextureID sceneNode;
+            ImTextureID  playButton;
+            ImTextureID  pauseButton;
+            const gfx_Texture2D* pointLight;
         } m_icons;
 
         gfx_GraphicsAdapter* m_graphicsAdapter;
@@ -44,6 +46,7 @@ namespace pge
 
         std::unique_ptr<game_Scene>                        m_scene;
         edit_TranslateTool                                 m_translator;
+        edit_ScalingTool                                   m_scaler;
         std::vector<std::unique_ptr<edit_ComponentEditor>> m_componentEditors;
 
         edit_EditMode     m_editMode;

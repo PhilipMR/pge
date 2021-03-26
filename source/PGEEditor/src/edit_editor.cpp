@@ -23,15 +23,17 @@ namespace pge
         , m_selectedEntity(game_EntityId_Invalid)
         , m_gameWindowSize(1600, 900)
         , m_translator(m_scene->GetTransformManager())
+        , m_scaler(m_scene->GetTransformManager())
         , m_editMode(edit_EditMode::NONE)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager(), resources)));
 
-        m_icons.sceneNode   = resources->GetTexture("data/materials/checkers.png")->GetTexture();
-        m_icons.playButton  = resources->GetTexture("data/materials/checkers.png")->GetTexture();
-        m_icons.pauseButton = resources->GetTexture("data/meshes/suzanne/Suzanne.001_albedo.png")->GetTexture();
+        m_icons.sceneNode   = (ImTextureID)resources->GetTexture("data/materials/checkers.png")->GetTexture()->GetNativeTexture();
+        m_icons.playButton  = (ImTextureID)resources->GetTexture("data/materials/checkers.png")->GetTexture()->GetNativeTexture();
+        m_icons.pauseButton = (ImTextureID)resources->GetTexture("data/meshes/suzanne/Suzanne.001_albedo.png")->GetTexture()->GetNativeTexture();
+        m_icons.pointLight  = resources->GetTexture("data/icons/light_point.png")->GetTexture();
     }
 
     void
@@ -118,8 +120,8 @@ namespace pge
             }
         }
 
+
         // Light billboards
-        static const gfx_Texture2D* testTex = resources->GetTexture("data/materials/checkers.png")->GetTexture();
         auto*                       mm      = scene->GetEntityMetaDataManager();
         for (auto it = mm->Begin(); it != mm->End(); ++it) {
             const auto& entity = it->first;
@@ -132,7 +134,7 @@ namespace pge
                     auto world = scene->GetTransformManager()->GetWorld(tid);
                     plightPos += math_Vec3(world[0][3], world[1][3], world[2][3]);
                 }
-                gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), testTex);
+                gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), m_icons.pointLight);
             }
         }
     }
@@ -168,11 +170,26 @@ namespace pge
                     m_editMode = edit_EditMode::NONE;
                     m_translator.CancelTranslation();
                 }
-                break;
-            }
+            } break;
+
+            case edit_EditMode::SCALE: {
+                if (m_selectedEntity == game_EntityId_Invalid)
+                    break;
+                const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
+                m_scaler.UpdateAndDraw(viewProj, input_MouseDelta());
+                if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
+                    m_editMode = edit_EditMode::NONE;
+                    m_scaler.CompleteScale(&m_commandStack);
+                }
+                if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
+                    m_editMode = edit_EditMode::NONE;
+                    m_scaler.CancelScale();
+                }
+            } break;
+
             default: {
                 diag_AssertWithReason(false, "Unhandled edit mode!");
-            }
+            } break;
         }
 
         // Left mouse click to (de-)select entity
@@ -193,6 +210,14 @@ namespace pge
                 if (input_KeyboardPressed(input_KeyboardKey::G)) {
                     m_editMode = edit_EditMode::TRANSLATE;
                     m_translator.BeginTranslation(m_selectedEntity);
+                    m_scaler.CancelScale();
+                }
+            }
+            if (m_editMode != edit_EditMode::SCALE) {
+                if (input_KeyboardPressed(input_KeyboardKey::S) && !input_MouseButtonDown(input_MouseButton::RIGHT)) {
+                    m_editMode = edit_EditMode::SCALE;
+                    m_translator.CancelTranslation();
+                    m_scaler.BeginScale(m_selectedEntity);
                 }
             }
         }
@@ -253,16 +278,16 @@ namespace pge
 
         ImGui::Begin("Game", nullptr, PANEL_WINDOW_FLAGS);
 
-        auto ButtonCenteredOnLine = [&](const gfx_Texture2D* texture, float alignment = 0.5f) {
+        auto ButtonCenteredOnLine = [&](ImTextureID texture, float alignment = 0.5f) {
             ImGuiStyle& style = ImGui::GetStyle();
 
             const ImVec2 size(50, 20);
-            float  avail = ImGui::GetContentRegionAvail().x;
-            float  off   = (avail - size.x) * alignment;
+            float        avail = ImGui::GetContentRegionAvail().x;
+            float        off   = (avail - size.x) * alignment;
             if (off > 0.0f)
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
 
-            return ImGui::ImageButton(texture->GetNativeTexture(), size);
+            return ImGui::ImageButton(texture, size);
         };
 
         static bool isPlaying = false;
@@ -279,23 +304,27 @@ namespace pge
 
 
         float r = 16.0f / 9.0f;
-        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, (ImGui::GetWindowSize().y - (playBarHeight+10)) - 20 * r));
+        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, (ImGui::GetWindowSize().y - (playBarHeight + 10)) - 20 * r));
         bool isHovered   = ImGui::IsWindowHovered();
         m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + playBarHeight);
         m_gameWindowSize = math_Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
 
         // Right mouse click to open entity context menu
-        static bool        mouseDownOnEntity      = false;
-        static bool        hoveringSelectedEntity = false;
-        static game_Entity entDown                = game_EntityId_Invalid;
+        static bool         mouseDownOnEntity      = false;
+        static bool         hoveringSelectedEntity = false;
+        static game_Entity  entDown                = game_EntityId_Invalid;
+        static double       downStartTime          = 0;
+        static const double deleteClickTime        = 0.5;
         if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
-            entDown = SelectEntity();
+            entDown       = SelectEntity();
+            downStartTime = ImGui::GetTime();
         }
-        if (input_MouseButtonReleased(input_MouseButton::RIGHT)) {
+        if (input_MouseButtonReleased(input_MouseButton::RIGHT) && (ImGui::GetTime() - downStartTime) <= deleteClickTime) {
             game_Entity selected   = SelectEntity();
             hoveringSelectedEntity = (selected.id != game_EntityId_Invalid) && (selected.id == entDown.id) && (selected.id == m_selectedEntity.id);
         }
+        hoveringSelectedEntity = hoveringSelectedEntity && math_FloatEqual(math_LengthSquared(input_MouseDelta()), 0);
 
         static bool contextWasOpen = false;
         if (hoveringSelectedEntity) {
@@ -326,7 +355,7 @@ namespace pge
         ImGui::Begin("Scene graph", nullptr, PANEL_WINDOW_FLAGS);
 
         ImGui::StyleColorsDark();
-        ImGui::Image(m_icons.sceneNode->GetNativeTexture(), ImVec2(15, 15));
+        ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
         ImGui::SameLine();
         ImGui::Text("Scene");
         ImGui::Indent();
@@ -340,7 +369,7 @@ namespace pge
             static game_EntityId editEntityId = game_EntityId_Invalid;
             bool                 isSelected   = entity.entity == m_selectedEntity;
 
-            ImGui::Image(m_icons.sceneNode->GetNativeTexture(), ImVec2(15, 15));
+            ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
             ImGui::SameLine();
 
             if (isSelected && editEntityId == entity.entity.id) {

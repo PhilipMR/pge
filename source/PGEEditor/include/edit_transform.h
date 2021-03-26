@@ -16,7 +16,8 @@ namespace pge
         Z,
         XY,
         XZ,
-        YZ
+        YZ,
+        XYZ
     };
 
     class edit_CommandTranslate : public edit_Command {
@@ -31,6 +32,20 @@ namespace pge
 
         static std::unique_ptr<edit_Command> Create(const game_Entity& entity, const math_Vec3& translation, game_TransformManager* tm);
     };
+
+    class edit_CommandScale : public edit_Command {
+        game_Entity            m_entity;
+        math_Vec3              m_scale;
+        game_TransformManager* m_tmanager;
+
+    public:
+        edit_CommandScale(const game_Entity& entity, const math_Vec3& scale, game_TransformManager* tm);
+        virtual void Do() override;
+        virtual void Undo() override;
+
+        static std::unique_ptr<edit_Command> Create(const game_Entity& entity, const math_Vec3& scale, game_TransformManager* tm);
+    };
+
 
 
     class edit_TransformEditor : public edit_ComponentEditor {
@@ -53,6 +68,21 @@ namespace pge
         void BeginTranslation(const game_Entity& entity);
         void CompleteTranslation(edit_CommandStack* cstack);
         void CancelTranslation();
+        void UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta);
+    };
+
+    class edit_ScalingTool {
+        game_TransformManager* m_tmanager;
+        game_Entity            m_entity;
+        edit_Axis              m_axis;
+        math_Vec3              m_initialScale;
+        bool                   m_hasBegun;
+
+    public:
+        edit_ScalingTool(game_TransformManager* tm);
+        void BeginScale(const game_Entity& entity);
+        void CompleteScale(edit_CommandStack* cstack);
+        void CancelScale();
         void UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta);
     };
 } // namespace pge

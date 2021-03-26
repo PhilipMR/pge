@@ -5,10 +5,8 @@
 namespace pge
 {
     struct gfx_GraphicsDevice::gfx_GraphicsDeviceImpl {
-        IDXGISwapChain*         m_swapChain;
-        ID3D11DeviceContext*    m_deviceContext;
-        ID3D11RenderTargetView* m_mainRTV;
-        ID3D11DepthStencilView* m_depthStencil;
+        IDXGISwapChain*      m_swapChain;
+        ID3D11DeviceContext* m_deviceContext;
     };
     gfx_GraphicsDevice::gfx_GraphicsDevice(gfx_GraphicsAdapter* adapter)
         : m_impl(new gfx_GraphicsDeviceImpl)
@@ -16,8 +14,6 @@ namespace pge
         auto adapterD3D11       = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(adapter);
         m_impl->m_swapChain     = adapterD3D11->GetSwapChain();
         m_impl->m_deviceContext = adapterD3D11->GetDeviceContext();
-        m_impl->m_mainRTV       = adapterD3D11->GetMainRTV();
-        m_impl->m_depthStencil  = adapterD3D11->GetDepthStencil();
     }
 
     gfx_GraphicsDevice::~gfx_GraphicsDevice() = default;
