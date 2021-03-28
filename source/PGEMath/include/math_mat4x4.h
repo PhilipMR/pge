@@ -311,6 +311,12 @@ namespace pge
         return mat;
     }
 
+    inline math_Mat4x4
+    math_CreateTransformMatrix(const math_Vec3& position, const math_Quat& rotation, const math_Vec3& scale)
+    {
+        return math_CreateTranslationMatrix(position) * math_CreateScaleMatrix(scale) * math_CreateRotationMatrix(rotation);
+    }
+
     inline bool
     math_Invert(const math_Mat4x4& mat, math_Mat4x4* out)
     {

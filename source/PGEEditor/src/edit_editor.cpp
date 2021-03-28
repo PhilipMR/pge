@@ -24,16 +24,21 @@ namespace pge
         , m_gameWindowSize(1600, 900)
         , m_translator(m_scene->GetTransformManager())
         , m_scaler(m_scene->GetTransformManager())
+        , m_rotator(m_scene->GetTransformManager())
         , m_editMode(edit_EditMode::NONE)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager(), resources)));
 
-        m_icons.sceneNode   = (ImTextureID)resources->GetTexture("data/materials/checkers.png")->GetTexture()->GetNativeTexture();
-        m_icons.playButton  = (ImTextureID)resources->GetTexture("data/materials/checkers.png")->GetTexture()->GetNativeTexture();
-        m_icons.pauseButton = (ImTextureID)resources->GetTexture("data/meshes/suzanne/Suzanne.001_albedo.png")->GetTexture()->GetNativeTexture();
-        m_icons.pointLight  = resources->GetTexture("data/icons/light_point.png")->GetTexture();
+        auto GetImTexture = [&](const char* path) {
+            return (ImTextureID)resources->GetTexture(path)->GetTexture()->GetNativeTexture();
+        };
+        m_icons.sceneNode         = GetImTexture("data/icons/node.png");
+        m_icons.sceneNodeSelected = GetImTexture("data/icons/node_selected.png");
+        m_icons.playButton        = GetImTexture("data/icons/btn_play.png");
+        m_icons.pauseButton       = GetImTexture("data/icons/btn_pause.png");
+        m_icons.pointLight        = resources->GetTexture("data/icons/light_point.png")->GetTexture();
     }
 
     void
@@ -122,7 +127,7 @@ namespace pge
 
 
         // Light billboards
-        auto*                       mm      = scene->GetEntityMetaDataManager();
+        auto* mm = scene->GetEntityMetaDataManager();
         for (auto it = mm->Begin(); it != mm->End(); ++it) {
             const auto& entity = it->first;
             if (scene->GetLightManager()->HasPointLight(entity)) {
@@ -187,6 +192,21 @@ namespace pge
                 }
             } break;
 
+            case edit_EditMode::ROTATE: {
+                if (m_selectedEntity == game_EntityId_Invalid)
+                    break;
+                const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
+                m_rotator.UpdateAndDraw(viewProj, input_MouseDelta());
+                if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
+                    m_editMode = edit_EditMode::NONE;
+                    m_rotator.CompleteRotation(&m_commandStack);
+                }
+                if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
+                    m_editMode = edit_EditMode::NONE;
+                    m_rotator.CancelRotation();
+                }
+            } break;
+
             default: {
                 diag_AssertWithReason(false, "Unhandled edit mode!");
             } break;
@@ -211,6 +231,7 @@ namespace pge
                     m_editMode = edit_EditMode::TRANSLATE;
                     m_translator.BeginTranslation(m_selectedEntity);
                     m_scaler.CancelScale();
+                    m_rotator.CancelRotation();
                 }
             }
             if (m_editMode != edit_EditMode::SCALE) {
@@ -218,6 +239,15 @@ namespace pge
                     m_editMode = edit_EditMode::SCALE;
                     m_translator.CancelTranslation();
                     m_scaler.BeginScale(m_selectedEntity);
+                    m_rotator.CancelRotation();
+                }
+            }
+            if (m_editMode != edit_EditMode::ROTATE) {
+                if (input_KeyboardPressed(input_KeyboardKey::R)) {
+                    m_editMode = edit_EditMode::ROTATE;
+                    m_translator.CancelTranslation();
+                    m_scaler.CancelScale();
+                    m_rotator.BeginRotation(m_selectedEntity);
                 }
             }
         }
@@ -369,7 +399,7 @@ namespace pge
             static game_EntityId editEntityId = game_EntityId_Invalid;
             bool                 isSelected   = entity.entity == m_selectedEntity;
 
-            ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
+            ImGui::Image(isSelected ? m_icons.sceneNodeSelected : m_icons.sceneNode, ImVec2(15, 15));
             ImGui::SameLine();
 
             if (isSelected && editEntityId == entity.entity.id) {

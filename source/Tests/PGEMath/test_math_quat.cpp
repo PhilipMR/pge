@@ -156,22 +156,22 @@ TEST(math_Quat, Lerp) {
 }
 
 TEST(math_Quat, FromAxisAngle) {
-    math_Quat quat1 = math_QuaternionFromAxisAngle(math_Vec3(), 0.0f);
+    math_Quat quat1 = math_QuatFromAxisAngle(math_Vec3(), 0.0f);
     EXPECT_EQ(quat1, math_Quat(1, 0, 0, 0));
 
-    math_Quat quat2 = math_QuaternionFromAxisAngle(math_Vec3(0, 1, 0), 90.0f);
+    math_Quat quat2 = math_QuatFromAxisAngle(math_Vec3(0, 1, 0), 90.0f);
     const float halfSqrt2 = 0.5f * sqrtf(2);
     EXPECT_EQ(quat2, math_Quat(halfSqrt2, 0, halfSqrt2, 0));
 }
 
 TEST(math_Quat, RotateVec) {
     math_Vec4 vec1(1.0f, 0.0f, 0.0f, 0.0f);
-    math_Quat rot90DegY = math_QuaternionFromAxisAngle(math_Vec3(0, 1, 0), 90.0f);
+    math_Quat rot90DegY = math_QuatFromAxisAngle(math_Vec3(0, 1, 0), 90.0f);
     math_Vec4 rotatedVec1 = math_Rotate(vec1, rot90DegY);
     EXPECT_EQ(rotatedVec1.xyz, math_Vec3(0, 0, -1.0f));
 
     math_Vec4 vec2(0.0f, 1.0f, 0.0f, 0.0f);
-    math_Quat rot45DegX = math_QuaternionFromAxisAngle(math_Vec3(1, 0, 0), 45.0f);
+    math_Quat rot45DegX = math_QuatFromAxisAngle(math_Vec3(1, 0, 0), 45.0f);
     math_Vec4 rotatedVec2 = math_Rotate(vec2, rot45DegX);
     const float halfSqrt2 = 0.5f * sqrtf(2);
     EXPECT_EQ(rotatedVec2.xyz, math_Vec3(0, halfSqrt2, halfSqrt2));

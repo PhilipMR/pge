@@ -4,7 +4,13 @@
 
 namespace pge
 {
-    static const size_t TRANSFORM_ELEMENT_SIZE = sizeof(game_Entity) + 2 * sizeof(math_Mat4x4) + 4 * sizeof(game_TransformId);
+    struct LocalTransformData {
+        math_Vec3 position;
+        math_Quat rotation;
+        math_Vec3 scale;
+    };
+    static const size_t TRANSFORM_ELEMENT_SIZE
+        = sizeof(game_Entity) + sizeof(LocalTransformData) + 2 * sizeof(math_Mat4x4) + 4 * sizeof(game_TransformId);
 
     void
     game_TransformManager::AllocateBuffers(size_t capacity)
@@ -17,7 +23,8 @@ namespace pge
 
         m_buffer     = malloc(bufferSize);
         m_entity     = reinterpret_cast<game_Entity*>(m_buffer);
-        m_local      = reinterpret_cast<math_Mat4x4*>(m_entity + capacity);
+        m_localData  = reinterpret_cast<LocalTransformData*>(m_entity + capacity);
+        m_local      = reinterpret_cast<math_Mat4x4*>(m_localData + capacity);
         m_world      = m_local + capacity;
         m_parent     = reinterpret_cast<game_TransformId*>(m_world + capacity);
         m_firstChild = m_parent + capacity;
@@ -38,14 +45,17 @@ namespace pge
     }
 
     game_TransformId
-    game_TransformManager::CreateTransform(const game_Entity& entity, const math_Mat4x4& xform)
+    game_TransformManager::CreateTransform(const game_Entity& entity, const math_Vec3& position, const math_Quat& rotation, const math_Vec3& scale)
     {
         diag_Assert(!HasTransform(entity));
         diag_Assert(m_entityMap.size() < m_capacity);
         game_TransformId tid = m_entityMap.size();
 
-        m_entity[tid]     = entity.id;
-        m_local[tid]      = xform;
+        m_entity[tid]          = entity.id;
+        m_localData[tid]       = {};
+        m_localData[tid].scale = math_Vec3::One();
+
+        math_Mat4x4 xform = math_CreateTransformMatrix(position, rotation, scale);
         m_world[tid]      = xform;
         m_parent[tid]     = game_TransformId_Invalid;
         m_firstChild[tid] = game_TransformId_Invalid;
@@ -53,6 +63,8 @@ namespace pge
         m_prev[tid]       = game_TransformId_Invalid;
 
         m_entityMap.insert(std::make_pair(entity, tid));
+        SetLocal(tid, xform);
+
         return tid;
     }
 
@@ -60,7 +72,7 @@ namespace pge
     game_TransformManager::CreateTransforms(const game_Entity* entities, size_t numEntities, game_TransformId* destBuf)
     {
         for (size_t i = 0; i < numEntities; ++i) {
-            destBuf[i] = CreateTransform(entities[i], math_Mat4x4());
+            destBuf[i] = CreateTransform(entities[i], math_Vec3::Zero(), math_Quat(), math_Vec3::One());
         }
     }
 
@@ -77,6 +89,7 @@ namespace pge
 
         if (delId != lastId) {
             m_entity[delId]      = m_entity[lastId];
+            m_localData[delId]   = m_localData[lastId];
             m_local[delId]       = m_local[lastId];
             m_world[delId]       = m_world[lastId];
             m_parent[delId]      = m_parent[lastId];
@@ -114,56 +127,81 @@ namespace pge
         diag_Assert(HasTransform(entity));
         return m_entityMap.at(entity);
     }
-    //
-    //    void
-    //    game_TransformManager::Translate(const game_TransformId& id, const math_Vec3& translation)
-    //    {}
-    //
+
+    void
+    game_TransformManager::Translate(const game_TransformId& id, const math_Vec3& translation)
+    {
+        diag_Assert(id < m_entityMap.size());
+        m_localData[id].position += translation;
+        for (size_t i = 0; i < 3; ++i)
+            m_local[id][i][3] = m_localData[id].position[i];
+        SetLocal(id, m_local[id]);
+    }
+
     void
     game_TransformManager::Rotate(const game_TransformId& id, const math_Vec3& axis, float degrees)
     {
         diag_Assert(id < m_entityMap.size());
-        math_Mat4x4 newLocal = m_local[id] * math_CreateRotationMatrix(math_QuaternionFromAxisAngle(axis, degrees));
-        SetLocal(id, newLocal);
-    }
-    //
-    //    void
-    //    game_TransformManager::Scale(const game_TransformId& id, const math_Vec3& scale)
-    //    {}
 
-    //    void
-    //    game_TransformManager::SetLocalPosition(const game_TransformId& id, const math_Vec3& position)
-    //    {}
-    //
-    //    void
-    //    game_TransformManager::SetLocalRotation(const game_TransformId& id, const math_Quat& rotation)
-    //    {}
-    //
-    //    void
-    //    game_TransformManager::SetLocalScale(const game_TransformId& id, const math_Vec3& scale)
-    //    {}
+        m_localData[id].rotation *= math_QuatFromAxisAngle(axis, degrees);
+        SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
+    }
 
     void
-    game_TransformManager::SetLocal(const game_TransformId& id, const math_Mat4x4& matrix)
+    game_TransformManager::Scale(const game_TransformId& id, const math_Vec3& scale)
     {
         diag_Assert(id < m_entityMap.size());
-        m_local[id]                  = matrix;
-        game_TransformId parentId    = m_parent[id];
-        math_Mat4x4      parentWorld = parentId == game_TransformId_Invalid ? math_Mat4x4() : m_world[parentId];
-        Transform(id, parentWorld);
+        for (size_t i = 0; i < 3; ++i)
+            m_localData[id].scale[i] *= scale[i];
+        SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
     }
 
-    //    math_Vec3
-    //    game_TransformManager::GetLocalPosition(const game_TransformId& id) const
-    //    {}
-    //
-    //    math_Quat
-    //    game_TransformManager::GetLocalRotation(const game_TransformId& id) const
-    //    {}
-    //
-    //    math_Vec3
-    //    game_TransformManager::GetLocalScale(const game_TransformId& id) const
-    //    {}
+    void
+    game_TransformManager::SetLocalPosition(const game_TransformId& id, const math_Vec3& position)
+    {
+        diag_Assert(id < m_entityMap.size());
+        m_localData[id].position = position;
+        for (size_t i = 0; i < 3; ++i)
+            m_local[id][i][3] = m_localData[id].position[i];
+        SetLocal(id, m_local[id]);
+    }
+
+    void
+    game_TransformManager::SetLocalRotation(const game_TransformId& id, const math_Quat& rotation)
+    {
+        diag_Assert(id < m_entityMap.size());
+        m_localData[id].rotation = rotation;
+        SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
+    }
+
+    void
+    game_TransformManager::SetLocalScale(const game_TransformId& id, const math_Vec3& scale)
+    {
+        diag_Assert(id < m_entityMap.size());
+        m_localData[id].scale = scale;
+        SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
+    }
+
+    math_Vec3
+    game_TransformManager::GetLocalPosition(const game_TransformId& id) const
+    {
+        diag_Assert(id < m_entityMap.size());
+        return m_localData[id].position;
+    }
+
+    math_Quat
+    game_TransformManager::GetLocalRotation(const game_TransformId& id) const
+    {
+        diag_Assert(id < m_entityMap.size());
+        return m_localData[id].rotation;
+    }
+
+    math_Vec3
+    game_TransformManager::GetLocalScale(const game_TransformId& id) const
+    {
+        diag_Assert(id < m_entityMap.size());
+        return m_localData[id].scale;
+    }
 
     math_Mat4x4
     game_TransformManager::GetLocal(const game_TransformId& id) const
@@ -172,17 +210,44 @@ namespace pge
         return m_local[id];
     }
 
-    //    math_Vec3
-    //    game_TransformManager::GetWorldPosition(const game_TransformId& id) const
-    //    {}
-    //
-    //    math_Quat
-    //    game_TransformManager::GetWorldRotation(const game_TransformId& id) const
-    //    {}
-    //
-    //    math_Vec3
-    //    game_TransformManager::GetWorldScale(const game_TransformId& id) const
-    //    {}
+    math_Vec3
+    game_TransformManager::GetWorldPosition(const game_TransformId& id) const
+    {
+        diag_Assert(id < m_entityMap.size());
+        game_TransformId pid = m_parent[id];
+        math_Vec3        parPos;
+        if (pid != game_TransformId_Invalid) {
+            parPos = GetWorldPosition(pid);
+        }
+        return parPos + m_localData[id].position;
+    }
+
+    math_Quat
+    game_TransformManager::GetWorldRotation(const game_TransformId& id) const
+    {
+        diag_Assert(id < m_entityMap.size());
+        game_TransformId pid = m_parent[id];
+        math_Quat        parRot;
+        if (pid != game_TransformId_Invalid) {
+            parRot = GetWorldRotation(pid);
+        }
+        return parRot * m_localData[id].rotation;
+    }
+
+    math_Vec3
+    game_TransformManager::GetWorldScale(const game_TransformId& id) const
+    {
+        diag_Assert(id < m_entityMap.size());
+        game_TransformId pid = m_parent[id];
+        math_Vec3        parScale;
+        if (pid != game_TransformId_Invalid) {
+            parScale = GetWorldScale(pid);
+        }
+        math_Vec3 scale = m_localData[id].scale;
+        for (size_t i = 0; i < 3; ++i)
+            scale[i] *= parScale[i];
+        return scale;
+    }
 
     math_Mat4x4
     game_TransformManager::GetWorld(const game_TransformId& id) const
@@ -198,7 +263,7 @@ namespace pge
         os.write((const char*)&numComponents, sizeof(numComponents));
 
         os.write((const char*)tm.m_entity, sizeof(tm.m_entity[0]) * numComponents);
-        os.write((const char*)tm.m_local, sizeof(tm.m_local[0]) * numComponents);
+        os.write((const char*)tm.m_localData, sizeof(tm.m_localData[0]) * numComponents);
         os.write((const char*)tm.m_world, sizeof(tm.m_world[0]) * numComponents);
         os.write((const char*)tm.m_parent, sizeof(tm.m_parent[0]) * numComponents);
         os.write((const char*)tm.m_firstChild, sizeof(tm.m_firstChild[0]) * numComponents);
@@ -219,17 +284,11 @@ namespace pge
         }
 
         is.read((char*)tm.m_entity, sizeof(tm.m_entity[0]) * numTransforms);
-        size_t pos = is.tellg();
-        bool iseof = is.eof();
-        is.read((char*)tm.m_local, sizeof(tm.m_local[0]) * numTransforms);
-
+        is.read((char*)tm.m_localData, sizeof(tm.m_localData[0]) * numTransforms);
         is.read((char*)tm.m_world, sizeof(tm.m_world[0]) * numTransforms);
         is.read((char*)tm.m_parent, sizeof(tm.m_parent[0]) * numTransforms);
         is.read((char*)tm.m_firstChild, sizeof(tm.m_firstChild[0]) * numTransforms);
         is.read((char*)tm.m_next, sizeof(tm.m_next[0]) * numTransforms);
-
-
-
         is.read((char*)tm.m_prev, sizeof(tm.m_prev[0]) * numTransforms);
 
         tm.m_entityMap.clear();
@@ -237,6 +296,10 @@ namespace pge
             tm.m_entityMap.insert(std::make_pair<>(tm.m_entity[i], i));
         }
 
+        for (size_t i = 0; i < numTransforms; ++i) {
+            LocalTransformData data = tm.m_localData[i];
+            tm.SetLocal(i, math_CreateTransformMatrix(data.position, data.rotation, data.scale));
+        }
 
         return is;
     }
@@ -250,5 +313,15 @@ namespace pge
             Transform(child, m_world[id]);
             child = m_next[child];
         }
+    }
+
+    void
+    game_TransformManager::SetLocal(const game_TransformId& id, const math_Mat4x4& matrix)
+    {
+        diag_Assert(id < m_entityMap.size());
+        m_local[id]                  = matrix;
+        game_TransformId parentId    = m_parent[id];
+        math_Mat4x4      parentWorld = parentId == game_TransformId_Invalid ? math_Mat4x4() : m_world[parentId];
+        Transform(id, parentWorld);
     }
 } // namespace pge

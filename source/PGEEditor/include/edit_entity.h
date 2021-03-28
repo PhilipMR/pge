@@ -28,7 +28,9 @@ namespace pge
         game_EntityMetaData m_metaData;
 
         bool                m_hasTransform;
-        math_Mat4x4         m_localTransform;
+        math_Vec3           m_localPos;
+        math_Quat           m_localRot;
+        math_Vec3           m_localScale;
 
         bool                m_hasPointLight;
         game_PointLight     m_pointLight;

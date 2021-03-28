@@ -32,7 +32,6 @@ namespace pge
     }
 
 
-
     // ===============================
     // edit_CommandDeleteEntity
     // ===============================
@@ -55,7 +54,9 @@ namespace pge
         m_hasTransform = m_scene->GetTransformManager()->HasTransform(m_entity);
         if (m_hasTransform) {
             game_TransformId tid = m_scene->GetTransformManager()->GetTransformId(m_entity);
-            m_localTransform     = m_scene->GetTransformManager()->GetLocal(tid);
+            m_localPos           = m_scene->GetTransformManager()->GetLocalPosition(tid);
+            m_localRot           = m_scene->GetTransformManager()->GetLocalRotation(tid);
+            m_localScale         = m_scene->GetTransformManager()->GetLocalScale(tid);
             m_scene->GetTransformManager()->DestroyTransform(tid);
         }
 
@@ -86,7 +87,7 @@ namespace pge
             m_scene->GetEntityMetaDataManager()->CreateMetaData(m_entity, m_metaData);
         }
         if (m_hasTransform) {
-            m_scene->GetTransformManager()->CreateTransform(m_entity, m_localTransform);
+            m_scene->GetTransformManager()->CreateTransform(m_entity, m_localPos, m_localRot, m_localScale);
         }
         if (m_hasPointLight) {
             m_scene->GetLightManager()->CreatePointLight(m_entity, m_pointLight);

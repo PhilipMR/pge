@@ -18,23 +18,15 @@ namespace pge
     void
     edit_CommandTranslate::Do()
     {
-        auto tid   = m_tmanager->GetTransformId(m_entity);
-        auto local = m_tmanager->GetLocal(tid);
-        for (size_t i = 0; i < 3; ++i) {
-            local[i][3] += m_translation[i];
-        }
-        m_tmanager->SetLocal(tid, local);
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->Translate(tid, m_translation);
     }
 
     void
     edit_CommandTranslate::Undo()
     {
-        auto tid   = m_tmanager->GetTransformId(m_entity);
-        auto local = m_tmanager->GetLocal(tid);
-        for (size_t i = 0; i < 3; ++i) {
-            local[i][3] -= m_translation[i];
-        }
-        m_tmanager->SetLocal(tid, local);
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->Translate(tid, -m_translation);
     }
 
     std::unique_ptr<edit_Command>
@@ -56,29 +48,58 @@ namespace pge
     void
     edit_CommandScale::Do()
     {
-        auto tid   = m_tmanager->GetTransformId(m_entity);
-        auto local = m_tmanager->GetLocal(tid);
-        for (size_t i = 0; i < 3; ++i) {
-            local[i][i] *= m_scale[i];
-        }
-        m_tmanager->SetLocal(tid, local);
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->Scale(tid, m_scale);
     }
 
     void
     edit_CommandScale::Undo()
     {
-        auto tid   = m_tmanager->GetTransformId(m_entity);
-        auto local = m_tmanager->GetLocal(tid);
+        auto      tid = m_tmanager->GetTransformId(m_entity);
+        math_Vec3 scale;
         for (size_t i = 0; i < 3; ++i) {
-            local[i][i] /= m_scale[i];
+            scale[i] = 1.0f / m_scale[i];
         }
-        m_tmanager->SetLocal(tid, local);
+        m_tmanager->Scale(tid, scale);
     }
 
     std::unique_ptr<edit_Command>
     edit_CommandScale::Create(const game_Entity& entity, const math_Vec3& scale, game_TransformManager* tm)
     {
         return std::unique_ptr<edit_Command>(new edit_CommandScale(entity, scale, tm));
+    }
+
+
+    // ---------------------------------
+    // edit_CommandRotate
+    // ---------------------------------
+    edit_CommandSetRotation::edit_CommandSetRotation(const game_Entity& entity, const math_Quat& rotation, game_TransformManager* tm)
+        : m_entity(entity)
+        , m_rotation(rotation)
+        , m_tmanager(tm)
+    {
+        auto tid          = tm->GetTransformId(entity);
+        m_initialRotation = tm->GetLocalRotation(tid);
+    }
+
+    void
+    edit_CommandSetRotation::Do()
+    {
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->SetLocalRotation(tid, m_rotation);
+    }
+
+    void
+    edit_CommandSetRotation::Undo()
+    {
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->SetLocalRotation(tid, m_initialRotation);
+    }
+
+    std::unique_ptr<edit_Command>
+    edit_CommandSetRotation::Create(const game_Entity& entity, const math_Quat& rotation, game_TransformManager* tm)
+    {
+        return std::unique_ptr<edit_Command>(new edit_CommandSetRotation(entity, rotation, tm));
     }
 
 
@@ -99,14 +120,24 @@ namespace pge
                 return;
             }
         }
-        auto      tid   = m_tmanager->GetTransformId(entity);
-        auto      world = m_tmanager->GetWorld(tid);
-        math_Vec3 pos(world[0][3], world[1][3], world[2][3]);
-        if (ImGui::DragFloat3("Position", &pos[0])) {
-            world[0][3] = pos[0];
-            world[1][3] = pos[1];
-            world[2][3] = pos[2];
-            m_tmanager->SetLocal(tid, world);
+        auto tid = m_tmanager->GetTransformId(entity);
+        auto pos = m_tmanager->GetLocalPosition(tid);
+        if (ImGui::DragFloat3("Position", &pos[0], 0.1f)) {
+            m_tmanager->SetLocalPosition(tid, pos);
+        }
+        math_Vec3 scl = m_tmanager->GetLocalScale(tid);
+        if (ImGui::DragFloat3("Scale", &scl[0], 0.1f)) {
+            m_tmanager->SetLocalScale(tid, scl);
+        }
+        math_Quat rotQuat = m_tmanager->GetLocalRotation(tid);
+        math_Vec3 rot     = math_EulerAnglesFromQuaternion(rotQuat);
+        for (size_t i = 0; i < 3; ++i)
+            rot[i] = math_RadToDeg(rot[i]);
+        if (ImGui::DragFloat3("Rotation", &rot[0])) {
+            for (size_t i = 0; i < 3; ++i)
+                rot[i] = math_DegToRad(rot[i]);
+            rotQuat = math_QuatFromEulerAngles(rot);
+            m_tmanager->SetLocalRotation(tid, rotQuat);
         }
     }
 
@@ -160,6 +191,29 @@ namespace pge
         }
     }
 
+    static edit_Axis
+    GetActiveAxis(const edit_Axis& axis)
+    {
+        if (input_KeyboardDown(input_KeyboardKey::SHIFT)) {
+            if (input_KeyboardPressed(input_KeyboardKey::X)) {
+                return edit_Axis::YZ;
+            } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
+                return edit_Axis::XZ;
+            } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
+                return edit_Axis::XY;
+            }
+        } else {
+            if (input_KeyboardPressed(input_KeyboardKey::X)) {
+                return edit_Axis::X;
+            } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
+                return edit_Axis::Y;
+            } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
+                return edit_Axis::Z;
+            }
+        }
+        return axis;
+    }
+
     static void
     DrawAxis(const game_TransformManager* tm, const game_Entity& entity, const edit_Axis& axis)
     {
@@ -201,10 +255,7 @@ namespace pge
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             pos += stepSize * axisVecs[i];
         }
-        world[0][3] = pos.x;
-        world[1][3] = pos.y;
-        world[2][3] = pos.z;
-        tm->SetLocal(tid, world);
+        tm->SetLocalPosition(tid, pos);
     }
 
     edit_TranslateTool::edit_TranslateTool(game_TransformManager* tm)
@@ -220,8 +271,7 @@ namespace pge
     {
         diag_Assert(!m_hasBegun);
         auto tid          = m_tmanager->GetTransformId(entity);
-        auto local        = m_tmanager->GetLocal(tid);
-        m_initialPosition = math_Vec3(local[0][3], local[1][3], local[2][3]);
+        m_initialPosition = m_tmanager->GetLocalPosition(tid);
         m_entity          = entity;
         m_axis            = edit_Axis::NONE;
         m_hasBegun        = true;
@@ -234,10 +284,9 @@ namespace pge
         diag_Assert(m_hasBegun);
         m_hasBegun = false;
 
-        auto      tid   = m_tmanager->GetTransformId(m_entity);
-        auto      world = m_tmanager->GetWorld(tid);
-        math_Vec3 curPos(world[0][3], world[1][3], world[2][3]);
-        math_Vec3 trans = curPos - m_initialPosition;
+        auto      tid    = m_tmanager->GetTransformId(m_entity);
+        math_Vec3 curPos = m_tmanager->GetLocalPosition(tid);
+        math_Vec3 trans  = curPos - m_initialPosition;
         cstack->Add(edit_CommandTranslate::Create(m_entity, trans, m_tmanager));
     }
 
@@ -248,37 +297,15 @@ namespace pge
             return;
         m_hasBegun = false;
 
-        auto tid    = m_tmanager->GetTransformId(m_entity);
-        auto world  = m_tmanager->GetWorld(tid);
-        world[0][3] = m_initialPosition.x;
-        world[1][3] = m_initialPosition.y;
-        world[2][3] = m_initialPosition.z;
-        m_tmanager->SetLocal(tid, world);
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->SetLocalPosition(tid, m_initialPosition);
     }
 
     void
     edit_TranslateTool::UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta)
     {
         if (m_hasBegun) {
-            if (input_KeyboardDown(input_KeyboardKey::SHIFT)) {
-                if (input_KeyboardPressed(input_KeyboardKey::X)) {
-                    m_axis = edit_Axis::YZ;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
-                    m_axis = edit_Axis::XZ;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
-                    m_axis = edit_Axis::XY;
-                }
-            } else {
-                if (input_KeyboardPressed(input_KeyboardKey::X)) {
-                    m_axis = edit_Axis::X;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
-                    m_axis = edit_Axis::Y;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
-                    m_axis = edit_Axis::Z;
-                }
-            }
-
-
+            m_axis = GetActiveAxis(m_axis);
             DrawAxis(m_tmanager, m_entity, m_axis);
             TranslateEntity(m_tmanager, m_entity, m_axis, viewProj, delta);
         }
@@ -297,27 +324,21 @@ namespace pge
         float     deltaMag = math_Length(delta);
         math_Vec2 deltaDir = math_Normalize(delta);
 
-        auto tid   = tm->GetTransformId(entity);
-        auto world = tm->GetWorld(tid);
-        auto scl   = math_Vec3(world[0][0], world[1][1], world[2][2]);
+        auto tid = tm->GetTransformId(entity);
+        auto scl = tm->GetLocalScale(tid);
 
         math_Vec3 axisVecs[3];
         size_t    numAxisVecs = 0;
         GetAxisVectors(axis, axisVecs, &numAxisVecs);
         for (size_t i = 0; i < numAxisVecs; ++i) {
             math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
-
-
             auto      taxlen = math_Length(taxis);
             // diag_LogDebugf("taxlen = %f", taxlen);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             scl += stepSize * axisVecs[i];
         }
-        world[0][0] = scl.x;
-        world[1][1] = scl.y;
-        world[2][2] = scl.z;
-        tm->SetLocal(tid, world);
+        tm->SetLocalScale(tid, scl);
     }
 
     edit_ScalingTool::edit_ScalingTool(game_TransformManager* tm)
@@ -360,38 +381,96 @@ namespace pge
             return;
         m_hasBegun = false;
 
-        auto tid    = m_tmanager->GetTransformId(m_entity);
-        auto world  = m_tmanager->GetWorld(tid);
-        world[0][0] = m_initialScale.x;
-        world[1][1] = m_initialScale.y;
-        world[2][2] = m_initialScale.z;
-        m_tmanager->SetLocal(tid, world);
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->SetLocalScale(tid, m_initialScale);
     }
 
     void
     edit_ScalingTool::UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta)
     {
         if (m_hasBegun) {
-            if (input_KeyboardDown(input_KeyboardKey::SHIFT)) {
-                if (input_KeyboardPressed(input_KeyboardKey::X)) {
-                    m_axis = edit_Axis::YZ;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
-                    m_axis = edit_Axis::XZ;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
-                    m_axis = edit_Axis::XY;
-                }
-            } else {
-                if (input_KeyboardPressed(input_KeyboardKey::X)) {
-                    m_axis = edit_Axis::X;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Y)) {
-                    m_axis = edit_Axis::Y;
-                } else if (input_KeyboardPressed(input_KeyboardKey::Z)) {
-                    m_axis = edit_Axis::Z;
-                }
-            }
-
+            m_axis = GetActiveAxis(m_axis);
             DrawAxis(m_tmanager, m_entity, m_axis);
             ScaleEntity(m_tmanager, m_entity, m_axis, viewProj, delta);
+        }
+    }
+
+
+    // ---------------------------------
+    // edit_RotationTool
+    // ---------------------------------
+    static void
+    RotateEntity(game_TransformManager* tm, const game_Entity& entity, const edit_Axis& axis, const math_Mat4x4& viewProj, math_Vec2 delta)
+    {
+        delta.y *= -1;
+        if (math_LengthSquared(delta) == 0)
+            return;
+        float     deltaMag = math_Length(delta);
+        math_Vec2 deltaDir = math_Normalize(delta);
+
+        auto tid = tm->GetTransformId(entity);
+        auto eulerRot = math_EulerAnglesFromQuaternion(tm->GetLocalRotation(tid));
+
+        math_Vec3 axisVecs[3];
+        size_t    numAxisVecs = 0;
+        GetAxisVectors(axis, axisVecs, &numAxisVecs);
+        for (size_t i = 0; i < numAxisVecs; ++i) {
+            math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
+            auto      taxlen = math_Length(taxis);
+            // diag_LogDebugf("taxlen = %f", taxlen);
+            math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
+            float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
+
+            eulerRot += stepSize * axisVecs[i];
+        }
+        tm->SetLocalRotation(tid, math_QuatFromEulerAngles(eulerRot));
+    }
+    edit_RotationTool::edit_RotationTool(game_TransformManager* tm)
+        : m_tmanager(tm)
+        , m_entity(game_EntityId_Invalid)
+        , m_axis(edit_Axis::NONE)
+        , m_initialRot()
+        , m_hasBegun(false)
+    {}
+
+    void
+    edit_RotationTool::BeginRotation(const game_Entity& entity)
+    {
+        diag_Assert(!m_hasBegun);
+        auto tid     = m_tmanager->GetTransformId(entity);
+        m_initialRot = m_tmanager->GetLocalRotation(tid);
+        m_entity     = entity;
+        m_axis       = edit_Axis::NONE;
+        m_hasBegun   = true;
+    }
+
+    void
+    edit_RotationTool::CompleteRotation(edit_CommandStack* cstack)
+    {
+        diag_Assert(m_hasBegun);
+        m_hasBegun = false;
+        auto      tid   = m_tmanager->GetTransformId(m_entity);
+        cstack->Add(edit_CommandSetRotation::Create(m_entity, m_tmanager->GetLocalRotation(tid), m_tmanager));
+    }
+
+    void
+    edit_RotationTool::CancelRotation()
+    {
+        if (!m_hasBegun)
+            return;
+        m_hasBegun = false;
+
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        m_tmanager->SetLocalRotation(tid, m_initialRot);
+    }
+
+    void
+    edit_RotationTool::UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta)
+    {
+        if (m_hasBegun) {
+            m_axis = GetActiveAxis(m_axis);
+            DrawAxis(m_tmanager, m_entity, m_axis);
+            RotateEntity(m_tmanager, m_entity, m_axis, viewProj, delta);
         }
     }
 } // namespace pge

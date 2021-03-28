@@ -29,14 +29,16 @@ namespace pge
         NONE,
         TRANSLATE,
         SCALE,
+        ROTATE
     };
 
 
     class edit_Editor {
         struct {
-            ImTextureID sceneNode;
-            ImTextureID  playButton;
-            ImTextureID  pauseButton;
+            ImTextureID          sceneNode;
+            ImTextureID          sceneNodeSelected;
+            ImTextureID          playButton;
+            ImTextureID          pauseButton;
             const gfx_Texture2D* pointLight;
         } m_icons;
 
@@ -47,6 +49,7 @@ namespace pge
         std::unique_ptr<game_Scene>                        m_scene;
         edit_TranslateTool                                 m_translator;
         edit_ScalingTool                                   m_scaler;
+        edit_RotationTool                                  m_rotator;
         std::vector<std::unique_ptr<edit_ComponentEditor>> m_componentEditors;
 
         edit_EditMode     m_editMode;

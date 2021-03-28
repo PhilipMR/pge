@@ -224,19 +224,70 @@ namespace pge
     }
 
     constexpr math_Quat
-    math_QuaternionFromAxisAngle(const math_Vec3& axis, float degrees)
+    math_QuatFromAxisAngle(const math_Vec3& axis, float degrees)
     {
-        const float rad = math_DegToRad(degrees);
-        math_Vec3 naxis = axis;
+        const float rad   = math_DegToRad(degrees);
+        math_Vec3   naxis = axis;
         if (math_LengthSquared(naxis) > 0)
             naxis = math_Normalize(naxis);
         return math_Quat(static_cast<float>(cosf(rad * 0.5f)), static_cast<float>(sinf(rad * 0.5f)) * naxis);
     }
 
+    inline math_Quat
+    math_QuatFromEulerAngles(const math_Vec3& euler)
+    {
+        const float roll  = euler.x;
+        const float pitch = euler.y;
+        const float yaw   = euler.z;
+
+        double cy = cosf(yaw * 0.5);
+        double sy = sinf(yaw * 0.5);
+        double cp = cosf(pitch * 0.5);
+        double sp = sinf(pitch * 0.5);
+        double cr = cosf(roll * 0.5);
+        double sr = sinf(roll * 0.5);
+
+        math_Quat q;
+        q.w = cr * cp * cy + sr * sp * sy;
+        q.x = sr * cp * cy - cr * sp * sy;
+        q.y = cr * sp * cy + sr * cp * sy;
+        q.z = cr * cp * sy - sr * sp * cy;
+
+        return q;
+    }
+
+    inline math_Vec3
+    math_EulerAnglesFromQuaternion(const math_Quat& quat)
+    {
+        struct EulerAngles {
+            float roll, pitch, yaw;
+        } angles;
+        const math_Quat& q = quat;
+
+        // roll (x-axis rotation)
+        double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+        double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        angles.roll = std::atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis rotation)
+        double sinp = 2 * (q.w * q.y - q.z * q.x);
+        if (std::abs(sinp) >= 1)
+            angles.pitch = std::copysign(math_PI / 2, sinp); // use 90 degrees if out of range
+        else
+            angles.pitch = std::asin(sinp);
+
+        // yaw (z-axis rotation)
+        double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+        double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        angles.yaw = std::atan2(siny_cosp, cosy_cosp);
+
+        return math_Vec3(angles.roll, angles.pitch, angles.yaw);
+    }
+
     constexpr math_Vec4
     math_Rotate(const math_Vec4& vec, const math_Quat& quat)
     {
-        math_Quat qinv = math_Invert(quat);
+        math_Quat qinv   = math_Invert(quat);
         math_Quat result = quat * math_Quat(vec.w, vec.xyz) * qinv;
         return math_Vec4(result.xyz, result.w);
     }
@@ -251,7 +302,7 @@ namespace pge
     constexpr math_Quat
     math_Rotate(const math_Quat& quat, const math_Vec3& axis, float degrees)
     {
-        math_Quat rotation = math_QuaternionFromAxisAngle(axis, degrees);
+        math_Quat rotation = math_QuatFromAxisAngle(axis, degrees);
         return rotation * quat;
     }
 } // namespace pge

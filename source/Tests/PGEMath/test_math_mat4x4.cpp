@@ -187,7 +187,7 @@ TEST(math_Mat4x4, Translation) {
 
 TEST(math_Mat4x4, Rotation) {
     math_Vec3 initialVec(1, 0, 0);
-    math_Quat rot90Y = math_QuaternionFromAxisAngle(math_Vec3(0, 1, 0), 90);
+    math_Quat rot90Y = math_QuatFromAxisAngle(math_Vec3(0, 1, 0), 90);
     math_Mat4x4 rotMat = math_CreateRotationMatrix(rot90Y);
     math_Vec3 expected(0, 0, -1);
     math_Vec3 result = (rotMat * math_Vec4(initialVec, 1)).xyz;
