@@ -29,6 +29,9 @@ namespace pge
     void
     edit_MeshEditor::UpdateAndDraw(const game_Entity& entity)
     {
+        if (!ImGui::CollapsingHeader("Static mesh"))
+            return;
+
         if (!m_meshManager->HasStaticMesh(entity)) {
             if (ImGui::Button("Add static mesh")) {
                 m_meshManager->CreateStaticMesh(entity);

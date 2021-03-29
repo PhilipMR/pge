@@ -267,7 +267,7 @@ namespace pge
         // roll (x-axis rotation)
         double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
         double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-        angles.roll = std::atan2(sinr_cosp, cosr_cosp);
+        angles.roll      = std::atan2(sinr_cosp, cosr_cosp);
 
         // pitch (y-axis rotation)
         double sinp = 2 * (q.w * q.y - q.z * q.x);
@@ -279,7 +279,7 @@ namespace pge
         // yaw (z-axis rotation)
         double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
         double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-        angles.yaw = std::atan2(siny_cosp, cosy_cosp);
+        angles.yaw       = std::atan2(siny_cosp, cosy_cosp);
 
         return math_Vec3(angles.roll, angles.pitch, angles.yaw);
     }

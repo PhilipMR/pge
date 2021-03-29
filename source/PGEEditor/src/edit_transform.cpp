@@ -113,6 +113,9 @@ namespace pge
     void
     edit_TransformEditor::UpdateAndDraw(const game_Entity& entity)
     {
+        if (!ImGui::CollapsingHeader("Transform"))
+            return;
+
         if (!m_tmanager->HasTransform(entity)) {
             if (ImGui::Button("Add transform")) {
                 m_tmanager->CreateTransform(entity);
@@ -425,6 +428,7 @@ namespace pge
         }
         tm->SetLocalRotation(tid, math_QuatFromEulerAngles(eulerRot));
     }
+
     edit_RotationTool::edit_RotationTool(game_TransformManager* tm)
         : m_tmanager(tm)
         , m_entity(game_EntityId_Invalid)

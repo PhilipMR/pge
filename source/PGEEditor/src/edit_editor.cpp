@@ -6,6 +6,7 @@
 #include <input_mouse.h>
 #include <gfx_debug_draw.h>
 #include <sstream>
+#include <imgui/IconFontAwesome5.h>
 
 namespace pge
 {
@@ -113,7 +114,8 @@ namespace pge
         auto* resources = m_resources;
 
         // Selected entity AABB
-        if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity)) {
+        if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) &&
+            scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
             auto            meshId = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
             const res_Mesh* mesh   = scene->GetStaticMeshManager()->GetMesh(meshId);
             if (mesh != nullptr) {
@@ -260,6 +262,9 @@ namespace pge
 
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("New scene", "CTRL+N")) {
+                    //m_scene.reset(new game_Scene(m_graphicsAdapter, m_graphicsDevice, m_resources));
+                }
                 if (ImGui::MenuItem("Save scene", "CTRL+S")) {
                     std::ofstream os("test.scene");
                     os << *scene;
@@ -334,7 +339,7 @@ namespace pge
 
 
         float r = 16.0f / 9.0f;
-        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, (ImGui::GetWindowSize().y - (playBarHeight + 10)) - 20 * r));
+        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, (ImGui::GetWindowSize().y - (playBarHeight + 5)) - 20 * r));
         bool isHovered   = ImGui::IsWindowHovered();
         m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + playBarHeight);
         m_gameWindowSize = math_Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
@@ -384,10 +389,9 @@ namespace pge
 
         ImGui::Begin("Scene graph", nullptr, PANEL_WINDOW_FLAGS);
 
-        ImGui::StyleColorsDark();
-        ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
+        //ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
         ImGui::SameLine();
-        ImGui::Text("Scene");
+        ImGui::Text("%s Scene", ICON_FA_CARET_SQUARE_DOWN);
         ImGui::Indent();
 
         bool                     isAnyNodeHovered    = false;
@@ -399,7 +403,10 @@ namespace pge
             static game_EntityId editEntityId = game_EntityId_Invalid;
             bool                 isSelected   = entity.entity == m_selectedEntity;
 
-            ImGui::Image(isSelected ? m_icons.sceneNodeSelected : m_icons.sceneNode, ImVec2(15, 15));
+            //ImGui::Image(isSelected ? m_icons.sceneNodeSelected : m_icons.sceneNode, ImVec2(15, 15));
+
+            //ImGui::Bullet();
+            ImGui::Text("%s", ICON_FA_CARET_RIGHT);
             ImGui::SameLine();
 
             if (isSelected && editEntityId == entity.entity.id) {
