@@ -53,11 +53,11 @@ namespace pge
         game_TransformManager* m_tmanager;
 
     public:
-        edit_CommandSetRotation(const game_Entity& entity, const math_Quat& rotation, game_TransformManager* tm);
+        edit_CommandSetRotation(const game_Entity& entity, const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm);
         virtual void Do() override;
         virtual void Undo() override;
 
-        static std::unique_ptr<edit_Command> Create(const game_Entity& entity, const math_Quat& rotation, game_TransformManager* tm);
+        static std::unique_ptr<edit_Command> Create(const game_Entity& entity, const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm);
     };
 
 

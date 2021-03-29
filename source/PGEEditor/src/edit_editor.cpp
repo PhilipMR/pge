@@ -217,9 +217,14 @@ namespace pge
         // Left mouse click to (de-)select entity
         if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
             game_Entity entity = SelectEntity();
-            m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
-            if (entity == game_EntityId_Invalid) {
-                m_editMode = edit_EditMode::NONE;
+            if (entity != m_selectedEntity) {
+                m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
+                if (entity == game_EntityId_Invalid) {
+                    m_editMode = edit_EditMode::NONE;
+                }
+                m_translator.CancelTranslation();
+                m_scaler.CancelScale();
+                m_rotator.CancelRotation();
             }
         }
 
@@ -230,25 +235,31 @@ namespace pge
             // Transition to translate-mode (and axis select)
             if (m_editMode != edit_EditMode::TRANSLATE) {
                 if (input_KeyboardPressed(input_KeyboardKey::G)) {
-                    m_editMode = edit_EditMode::TRANSLATE;
-                    m_translator.BeginTranslation(m_selectedEntity);
+                    m_translator.CancelTranslation();
                     m_scaler.CancelScale();
                     m_rotator.CancelRotation();
+
+                    m_editMode = edit_EditMode::TRANSLATE;
+                    m_translator.BeginTranslation(m_selectedEntity);
                 }
             }
             if (m_editMode != edit_EditMode::SCALE) {
                 if (input_KeyboardPressed(input_KeyboardKey::S) && !input_MouseButtonDown(input_MouseButton::RIGHT)) {
-                    m_editMode = edit_EditMode::SCALE;
                     m_translator.CancelTranslation();
-                    m_scaler.BeginScale(m_selectedEntity);
+                    m_scaler.CancelScale();
                     m_rotator.CancelRotation();
+
+                    m_editMode = edit_EditMode::SCALE;
+                    m_scaler.BeginScale(m_selectedEntity);
                 }
             }
             if (m_editMode != edit_EditMode::ROTATE) {
                 if (input_KeyboardPressed(input_KeyboardKey::R)) {
-                    m_editMode = edit_EditMode::ROTATE;
                     m_translator.CancelTranslation();
                     m_scaler.CancelScale();
+                    m_rotator.CancelRotation();
+
+                    m_editMode = edit_EditMode::ROTATE;
                     m_rotator.BeginRotation(m_selectedEntity);
                 }
             }

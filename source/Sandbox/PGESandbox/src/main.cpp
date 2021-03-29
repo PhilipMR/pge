@@ -60,7 +60,7 @@ main()
 
     // Scope main body so everything is deallocated by the end of main.
     {
-        const math_Vec2 resolution(1600, 900);
+        const math_Vec2 resolution(1920, 1080);
 
         // Create graphics context
         os_DisplayWin32          display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
@@ -68,6 +68,8 @@ main()
         gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
         s_graphicsAdapter = &graphicsAdapter;
         s_graphicsDevice  = &graphicsDevice;
+        ShowWindow(display.GetWindowHandle(), SW_SHOWMAXIMIZED);
+
 
         // Setup scene
         res_ResourceManager resources(&graphicsAdapter);

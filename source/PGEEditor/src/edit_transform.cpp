@@ -73,13 +73,12 @@ namespace pge
     // ---------------------------------
     // edit_CommandRotate
     // ---------------------------------
-    edit_CommandSetRotation::edit_CommandSetRotation(const game_Entity& entity, const math_Quat& rotation, game_TransformManager* tm)
+    edit_CommandSetRotation::edit_CommandSetRotation(const game_Entity& entity,const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm)
         : m_entity(entity)
-        , m_rotation(rotation)
+        , m_initialRotation(initialRot)
+        , m_rotation(newRot)
         , m_tmanager(tm)
     {
-        auto tid          = tm->GetTransformId(entity);
-        m_initialRotation = tm->GetLocalRotation(tid);
     }
 
     void
@@ -97,9 +96,9 @@ namespace pge
     }
 
     std::unique_ptr<edit_Command>
-    edit_CommandSetRotation::Create(const game_Entity& entity, const math_Quat& rotation, game_TransformManager* tm)
+    edit_CommandSetRotation::Create(const game_Entity& entity, const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm)
     {
-        return std::unique_ptr<edit_Command>(new edit_CommandSetRotation(entity, rotation, tm));
+        return std::unique_ptr<edit_Command>(new edit_CommandSetRotation(entity, initialRot, newRot, tm));
     }
 
 
@@ -454,7 +453,7 @@ namespace pge
         diag_Assert(m_hasBegun);
         m_hasBegun = false;
         auto      tid   = m_tmanager->GetTransformId(m_entity);
-        cstack->Add(edit_CommandSetRotation::Create(m_entity, m_tmanager->GetLocalRotation(tid), m_tmanager));
+        cstack->Add(edit_CommandSetRotation::Create(m_entity, m_initialRot, m_tmanager->GetLocalRotation(tid), m_tmanager));
     }
 
     void
