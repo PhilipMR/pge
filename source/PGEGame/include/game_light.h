@@ -28,6 +28,7 @@ namespace pge
 
     public:
         game_LightManager(size_t capacity);
+        void              GarbageCollect(const game_EntityManager& entityManager);
         void              CreatePointLight(const game_Entity& entity, const game_PointLight& light);
         void              DestroyPointLight(const game_PointLightId& id);
         bool              HasPointLight(const game_Entity& entity) const;
@@ -40,6 +41,9 @@ namespace pge
                                       const math_Vec2&             rectSize,
                                       const math_Mat4x4&           view,
                                       const math_Mat4x4&           proj) const;
+
+        friend std::ostream& operator<<(std::ostream& os, const game_LightManager& lm);
+        friend std::istream& operator>>(std::istream& is, game_LightManager& lm);
     };
 } // namespace pge
 

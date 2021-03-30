@@ -212,9 +212,13 @@ namespace pge
         return m_entityMap.cend();
     }
 
+    constexpr unsigned SERIALIZE_META_VERSION = 1;
+
     std::ostream&
     operator<<(std::ostream& os, const game_EntityMetaDataManager& mm)
     {
+        unsigned version = SERIALIZE_META_VERSION;
+        os.write((const char*)&version, sizeof(version));
         unsigned numComponents = mm.m_entityMap.size();
         os.write((const char*)&numComponents, sizeof(numComponents));
         for (const auto& kv : mm.m_entityMap) {
@@ -227,6 +231,10 @@ namespace pge
     operator>>(std::istream& is, game_EntityMetaDataManager& mm)
     {
         mm.m_entityMap.clear();
+
+        unsigned version = 0;
+        is.read((char*)&version, sizeof(version));
+
         unsigned numComponents = 0;
         is.read((char*)&numComponents, sizeof(numComponents));
         for (unsigned i = 0; i < numComponents; ++i) {

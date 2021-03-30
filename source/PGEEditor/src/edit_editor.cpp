@@ -138,8 +138,7 @@ namespace pge
                 math_Vec3   plightPos;
                 if (scene->GetTransformManager()->HasTransform(entity)) {
                     auto tid   = scene->GetTransformManager()->GetTransformId(entity);
-                    auto world = scene->GetTransformManager()->GetWorld(tid);
-                    plightPos += math_Vec3(world[0][3], world[1][3], world[2][3]);
+                    plightPos += scene->GetTransformManager()->GetWorldPosition(tid);
                 }
                 gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), m_icons.pointLight);
             }

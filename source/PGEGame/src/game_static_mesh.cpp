@@ -160,9 +160,15 @@ namespace pge
         return closestMesh;
     }
 
+
+    constexpr unsigned SERIALIZE_VERSION = 1;
+
     std::ostream&
     operator<<(std::ostream& os, const game_StaticMeshManager& sm)
     {
+        unsigned version = SERIALIZE_VERSION;
+        os.write((const char*)&version, sizeof(version));
+
         unsigned numMeshes = sm.m_meshes.size();
         os.write((const char*)&numMeshes, sizeof(numMeshes));
 
@@ -185,6 +191,9 @@ namespace pge
     std::istream&
     operator>>(std::istream& is, game_StaticMeshManager& sm)
     {
+        unsigned version = 0;
+        is.read((char*)&version, sizeof(version));
+
         unsigned numMeshes = 0;
         size_t   pos       = is.tellg();
         bool     iseof     = is.eof();

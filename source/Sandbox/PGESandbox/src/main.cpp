@@ -87,7 +87,7 @@ main()
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
 
-        const res_Effect* screenTexEffect = resources.GetEffect("data/effects/screentex.effect");
+        const res_Effect*         screenTexEffect     = resources.GetEffect("data/effects/screentex.effect");
         const gfx_VertexAttribute screenTexAttribs[]  = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2),
                                                         gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2)};
         const math_Vec2           screenTexVertices[] = {math_Vec2(-1, 1),
@@ -131,9 +131,9 @@ main()
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);
             gfx_DebugDraw_GridXY(math_Vec3(0, 0, -0.2f), length);
 
-            //static const gfx_Texture2D* checkersTex = resources.GetTexture("data/materials/checkers.png")->GetTexture();
-            //gfx_DebugDraw_Billboard(math_Vec3(0, 0, 5), math_Vec2(2, 2), checkersTex);
-            //gfx_DebugDraw_Billboard(math_Vec3(0, 0, 10), math_Vec2(2, 2), checkersTex);
+            // static const gfx_Texture2D* checkersTex = resources.GetTexture("data/materials/checkers.png")->GetTexture();
+            // gfx_DebugDraw_Billboard(math_Vec3(0, 0, 5), math_Vec2(2, 2), checkersTex);
+            // gfx_DebugDraw_Billboard(math_Vec3(0, 0, 10), math_Vec2(2, 2), checkersTex);
 
             gfx_DebugDraw_Flush();
 

@@ -15,6 +15,7 @@ namespace pge
         m_entityMetaManager.GarbageCollect(m_entityManager);
         m_staticMeshManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);
+        m_lightManager.GarbageCollect(m_entityManager);
     }
 
     void
@@ -83,23 +84,31 @@ namespace pge
         return &m_lightManager;
     }
 
+
+    constexpr unsigned SERIALIZE_VERSION = 1;
+
     std::ostream&
     operator<<(std::ostream& os, const game_Scene& scene)
     {
+        os << SERIALIZE_VERSION;
         os << scene.m_entityManager;
         os << scene.m_entityMetaManager;
         os << scene.m_transformManager;
         os << scene.m_staticMeshManager;
+        os << scene.m_lightManager;
         return os;
     }
 
     std::istream&
     operator>>(std::istream& is, game_Scene& scene)
     {
+        int version = 0;
+        is >> version;
         is >> scene.m_entityManager;
         is >> scene.m_entityMetaManager;
         is >> scene.m_transformManager;
         is >> scene.m_staticMeshManager;
+        is >> scene.m_lightManager;
         return is;
     }
 } // namespace pge

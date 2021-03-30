@@ -256,10 +256,15 @@ namespace pge
         return m_world[id];
     }
 
+    constexpr unsigned SERIALIZE_VERSION = 1;
+
     std::ostream&
     operator<<(std::ostream& os, const game_TransformManager& tm)
     {
         unsigned numComponents = tm.m_entityMap.size();
+
+        unsigned version = SERIALIZE_VERSION;
+        os.write((const char*)&version, sizeof(version));
         os.write((const char*)&numComponents, sizeof(numComponents));
 
         os.write((const char*)tm.m_entity, sizeof(tm.m_entity[0]) * numComponents);
@@ -276,6 +281,9 @@ namespace pge
     std::istream&
     operator>>(std::istream& is, game_TransformManager& tm)
     {
+        unsigned version = 0;
+        is.read((char*)&version, sizeof(version));
+
         unsigned numTransforms = 0;
         is.read((char*)&numTransforms, sizeof(numTransforms));
 
