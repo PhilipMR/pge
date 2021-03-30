@@ -583,7 +583,7 @@ namespace pge
             const gfx_Texture2D* lastTex      = s_billboards[0].texture;
             size_t               sameTexCount = 1;
             size_t               offset       = 0;
-            for (size_t i = 0; i < s_billboardCount; ++i) {
+            for (size_t i = 1; i < s_billboardCount; ++i) {
                 if (s_billboards[i].texture != lastTex) {
                     lastTex->Bind(0);
                     s_resources->graphicsDevice->Draw(gfx_PrimitiveType::POINTLIST, offset, sameTexCount);
