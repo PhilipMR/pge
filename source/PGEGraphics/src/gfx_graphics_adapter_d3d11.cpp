@@ -117,10 +117,10 @@ namespace pge
         rasterizerDesc.FillMode              = D3D11_FILL_SOLID; // D3D11_FILL_WIREFRAME;
         rasterizerDesc.CullMode              = D3D11_CULL_BACK;
         rasterizerDesc.FrontCounterClockwise = true;
-        rasterizerDesc.DepthBias             = 0;
-        rasterizerDesc.DepthBiasClamp        = 0;
-        rasterizerDesc.SlopeScaledDepthBias  = 0;
-        rasterizerDesc.DepthClipEnable       = false;
+        rasterizerDesc.DepthBias             = D3D11_DEFAULT_DEPTH_BIAS;
+        rasterizerDesc.DepthBiasClamp        = D3D11_DEFAULT_DEPTH_BIAS_CLAMP;
+        rasterizerDesc.SlopeScaledDepthBias  = D3D11_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+        rasterizerDesc.DepthClipEnable       = true;
         rasterizerDesc.ScissorEnable         = false;
         rasterizerDesc.MultisampleEnable     = true;
         rasterizerDesc.AntialiasedLineEnable = false;

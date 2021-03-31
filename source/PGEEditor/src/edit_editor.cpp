@@ -21,12 +21,13 @@ namespace pge
         , m_graphicsDevice(graphicsDevice)
         , m_resources(resources)
         , m_scene(std::make_unique<game_Scene>(m_graphicsAdapter, m_graphicsDevice, m_resources))
-        , m_selectedEntity(game_EntityId_Invalid)
-        , m_gameWindowSize(1600, 900)
         , m_translator(m_scene->GetTransformManager())
         , m_scaler(m_scene->GetTransformManager())
         , m_rotator(m_scene->GetTransformManager())
         , m_editMode(edit_EditMode::NONE)
+        , m_selectedEntity(game_EntityId_Invalid)
+        , m_drawGrid(true)
+        , m_gameWindowSize(1600, 900)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
@@ -113,9 +114,19 @@ namespace pge
         auto* scene     = m_scene.get();
         auto* resources = m_resources;
 
+        if (m_drawGrid) {
+            const float     axisThickness = 0.1f;
+            const float     thickness     = 0.025f;
+            const float     length        = 10000.0f;
+            const math_Vec2 cellSize(5.0f, 5.0f);
+            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), axisThickness);
+            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), axisThickness);
+            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), axisThickness);
+            gfx_DebugDraw_GridXY(math_Vec3(0, 0, -thickness), length, cellSize, math_Vec3::One(), thickness);
+        }
+
         // Selected entity AABB
-        if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) &&
-            scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
+        if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
             auto            meshId = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
             const res_Mesh* mesh   = scene->GetStaticMeshManager()->GetMesh(meshId);
             if (mesh != nullptr) {
@@ -137,7 +148,7 @@ namespace pge
                 const auto& plight   = scene->GetLightManager()->GetPointLight(plightId);
                 math_Vec3   plightPos;
                 if (scene->GetTransformManager()->HasTransform(entity)) {
-                    auto tid   = scene->GetTransformManager()->GetTransformId(entity);
+                    auto tid = scene->GetTransformManager()->GetTransformId(entity);
                     plightPos += scene->GetTransformManager()->GetWorldPosition(tid);
                 }
                 gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), m_icons.pointLight);
@@ -273,7 +284,7 @@ namespace pge
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("New scene", "CTRL+N")) {
-                    //m_scene.reset(new game_Scene(m_graphicsAdapter, m_graphicsDevice, m_resources));
+                    // m_scene.reset(new game_Scene(m_graphicsAdapter, m_graphicsDevice, m_resources));
                 }
                 if (ImGui::MenuItem("Save scene", "CTRL+S")) {
                     std::ofstream os("test.scene");
@@ -335,6 +346,8 @@ namespace pge
             return ImGui::ImageButton(texture, size);
         };
 
+        ImGui::Checkbox("Grid", &m_drawGrid);
+        ImGui::SameLine();
         static bool isPlaying = false;
         if (!isPlaying) {
             if (ButtonCenteredOnLine(m_icons.playButton)) {
@@ -399,7 +412,7 @@ namespace pge
 
         ImGui::Begin("Scene graph", nullptr, PANEL_WINDOW_FLAGS);
 
-        //ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
+        // ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
         ImGui::SameLine();
         ImGui::Text("%s Scene", ICON_FA_CARET_SQUARE_DOWN);
         ImGui::Indent();
@@ -413,16 +426,14 @@ namespace pge
             static game_EntityId editEntityId = game_EntityId_Invalid;
             bool                 isSelected   = entity.entity == m_selectedEntity;
 
-            //ImGui::Image(isSelected ? m_icons.sceneNodeSelected : m_icons.sceneNode, ImVec2(15, 15));
+            // ImGui::Image(isSelected ? m_icons.sceneNodeSelected : m_icons.sceneNode, ImVec2(15, 15));
 
-            //ImGui::Bullet();
+            // ImGui::Bullet();
             ImGui::Text("%s", ICON_FA_CARET_RIGHT);
             ImGui::SameLine();
 
             if (isSelected && editEntityId == entity.entity.id) {
-                std::stringstream ss;
-                ss << entity.entity.id;
-                if (ImGui::InputText(ss.str().c_str(), (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                if (ImGui::InputText("", (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
                     editEntityId = game_EntityId_Invalid;
                 }
@@ -483,8 +494,12 @@ namespace pge
     {
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
-            for (auto& compEditor : m_componentEditors) {
-                compEditor->UpdateAndDraw(m_selectedEntity);
+            if (m_scene->GetLightManager()->HasPointLight(m_selectedEntity)) {
+                // lightEditor->UpdateAndDraw(m_selectedEntity);
+            } else {
+                for (auto& compEditor : m_componentEditors) {
+                    compEditor->UpdateAndDraw(m_selectedEntity);
+                }
             }
         }
         ImGui::End();

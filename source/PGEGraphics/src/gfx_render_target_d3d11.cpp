@@ -61,7 +61,7 @@ namespace pge
             depthTextureDesc.SampleDesc           = textureDesc.SampleDesc;
             depthTextureDesc.Format               = DXGI_FORMAT_D24_UNORM_S8_UINT;
             depthTextureDesc.BindFlags            = D3D11_BIND_DEPTH_STENCIL;
-            depthTextureDesc.MipLevels = textureDesc.MipLevels;
+            depthTextureDesc.MipLevels            = textureDesc.MipLevels;
 
             ID3D11Texture2D* depthTexture;
             result = device->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture);
@@ -69,7 +69,7 @@ namespace pge
 
             D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
             dsvDesc.Format                        = depthTextureDesc.Format;
-            dsvDesc.ViewDimension                 = multisample ?  D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
+            dsvDesc.ViewDimension                 = multisample ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
             result                                = device->CreateDepthStencilView(depthTexture, &dsvDesc, &m_impl->m_dsv);
             depthTexture->Release();
             diag_Assert(SUCCEEDED(result));

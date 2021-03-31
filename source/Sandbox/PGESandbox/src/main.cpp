@@ -75,8 +75,7 @@ main()
         res_ResourceManager resources(&graphicsAdapter);
 
         // Set up editor
-        const float      resScale = 1.0f;
-        gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x * resScale, resolution.y * resScale, true, true);
+        gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x, resolution.y, true, true);
         gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
@@ -124,16 +123,6 @@ main()
             gfx_DebugDraw_SetView(scene.GetCamera()->GetViewMatrix());
             gfx_DebugDraw_SetProjection(scene.GetCamera()->GetProjectionMatrix());
 
-            const float thickness = 0.2f;
-            const float length    = 10000.0f;
-            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), thickness);
-            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), thickness);
-            gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, 0, length), math_Vec3(0, 0, 1), thickness);
-            gfx_DebugDraw_GridXY(math_Vec3(0, 0, -0.2f), length);
-
-            // static const gfx_Texture2D* checkersTex = resources.GetTexture("data/materials/checkers.png")->GetTexture();
-            // gfx_DebugDraw_Billboard(math_Vec3(0, 0, 5), math_Vec2(2, 2), checkersTex);
-            // gfx_DebugDraw_Billboard(math_Vec3(0, 0, 10), math_Vec2(2, 2), checkersTex);
 
             gfx_DebugDraw_Flush();
 

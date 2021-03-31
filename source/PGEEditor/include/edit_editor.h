@@ -52,8 +52,10 @@ namespace pge
         edit_RotationTool                                  m_rotator;
         std::vector<std::unique_ptr<edit_ComponentEditor>> m_componentEditors;
 
+
         edit_EditMode     m_editMode;
         game_Entity       m_selectedEntity;
+        bool              m_drawGrid;
         math_Vec2         m_gameWindowPos;
         math_Vec2         m_gameWindowSize;
         edit_CommandStack m_commandStack;
