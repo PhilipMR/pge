@@ -423,29 +423,13 @@ namespace pge
             positions[2] = positionTransformed + pointsBuffer[i].size * (viewRight - viewUp);
             positions[3] = positionTransformed + pointsBuffer[i].size * (viewRight + viewUp);
 
-            destination[vertexIndex].position = math_Vec4(positions[0], 1.f);
-            destination[vertexIndex].color    = math_Vec4(pointsBuffer[i].color, 1.f);
-            ++vertexIndex;
-
-            destination[vertexIndex].position = math_Vec4(positions[1], 1.f);
-            destination[vertexIndex].color    = math_Vec4(pointsBuffer[i].color, 1.f);
-            ++vertexIndex;
-
-            destination[vertexIndex].position = math_Vec4(positions[2], 1.f);
-            destination[vertexIndex].color    = math_Vec4(pointsBuffer[i].color, 1.f);
-            ++vertexIndex;
-
-            destination[vertexIndex].position = math_Vec4(positions[2], 1.f);
-            destination[vertexIndex].color    = math_Vec4(pointsBuffer[i].color, 1.f);
-            ++vertexIndex;
-
-            destination[vertexIndex].position = math_Vec4(positions[3], 1.f);
-            destination[vertexIndex].color    = math_Vec4(pointsBuffer[i].color, 1.f);
-            ++vertexIndex;
-
-            destination[vertexIndex].position = math_Vec4(positions[0], 1.f);
-            destination[vertexIndex].color    = math_Vec4(pointsBuffer[i].color, 1.f);
-            ++vertexIndex;
+            size_t indices[] = { 0, 1, 2, 2, 3, 0 };
+            for (size_t j = 0; j < 6; ++j) {
+                const size_t& index = indices[j];
+                destination[vertexIndex].position = math_Vec4(positions[index], 1.0f);
+                destination[vertexIndex].color = math_Vec4(pointsBuffer[i].color, 1.0f);
+                ++vertexIndex;
+            }
         }
         return vertexIndex;
     }
@@ -471,8 +455,16 @@ namespace pge
             const math_Vec3 lineVec = math_Normalize(endTransformed - beginTransformed);
             const math_Vec3 midLine = beginTransformed + 0.5f * (endTransformed - beginTransformed);
             math_Vec3       side    = math_Cross(lineVec, midLine);
-            if (math_LengthSquared(side) == 0)
-                continue;
+            if (math_FloatEqual(lineVec.z, 0) || math_LengthSquared(side) == 0) {
+                side = (math_Mat4x4(
+               // clang-format off
+                    0, -1, 0, 0,
+                    1, 0, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+                // clang-format on
+                ) * math_Vec4(lineVec, 1)).xyz;
+           }
             const math_Vec3 sideVec = math_Normalize(side);
             const float     lineHW  = linesBuffer[i].width * 0.5f;
 
@@ -482,30 +474,13 @@ namespace pge
             positions[2] = math_Vec4(endTransformed - sideVec * lineHW, 1.f);
             positions[3] = math_Vec4(endTransformed + sideVec * lineHW, 1.f);
 
-
-            destination[vertexIndex].position = positions[0];
-            destination[vertexIndex].color    = linesBuffer[i].color;
-            ++vertexIndex;
-
-            destination[vertexIndex].position = positions[1];
-            destination[vertexIndex].color    = linesBuffer[i].color;
-            ++vertexIndex;
-
-            destination[vertexIndex].position = positions[2];
-            destination[vertexIndex].color    = linesBuffer[i].color;
-            ++vertexIndex;
-
-            destination[vertexIndex].position = positions[2];
-            destination[vertexIndex].color    = linesBuffer[i].color;
-            ++vertexIndex;
-
-            destination[vertexIndex].position = positions[3];
-            destination[vertexIndex].color    = linesBuffer[i].color;
-            ++vertexIndex;
-
-            destination[vertexIndex].position = positions[0];
-            destination[vertexIndex].color    = linesBuffer[i].color;
-            ++vertexIndex;
+            size_t indices[] = { 0, 1, 2, 2, 3, 0 };
+            for (size_t j = 0; j < 6; ++j) {
+                const size_t& index = indices[j];
+                destination[vertexIndex].position = positions[index];
+                destination[vertexIndex].color = linesBuffer[i].color;
+                ++vertexIndex;
+            }
         }
         return vertexIndex;
     }

@@ -254,10 +254,24 @@ namespace pge
         float zf     = farClip;
         // clang-format off
         return math_Mat4x4(
-        xScale, 0 ,      0,           0,
-        0,      yScale , 0,           0,
-        0, 0,      -zf/(zf-zn), -zn*zf/(zf-zn),
-        0, 0,      -1,           0
+            xScale, 0 ,      0,           0,
+            0,      yScale , 0,           0,
+            0, 0,      -zf/(zf-zn), -zn*zf/(zf-zn),
+            0, 0,      -1,           0
+        );
+        // clang-format on
+    }
+
+    inline math_Mat4x4
+    math_OrthographicRH(float width, float height, float nearClip, float farClip)
+    {
+        // clang-format off
+        return
+        math_Mat4x4(
+            2.0f/width, 0,              0,                              -1,
+            0,          2.0f/height,    0,                              -1,
+            0,          0,              1.0f/(nearClip-farClip),        0,
+            0,          0,              nearClip/(nearClip-farClip),    1
         );
         // clang-format on
     }

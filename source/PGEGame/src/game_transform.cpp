@@ -142,7 +142,6 @@ namespace pge
     game_TransformManager::Rotate(const game_TransformId& id, const math_Vec3& axis, float degrees)
     {
         diag_Assert(id < m_entityMap.size());
-
         m_localData[id].rotation *= math_QuatFromAxisAngle(axis, degrees);
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
     }
