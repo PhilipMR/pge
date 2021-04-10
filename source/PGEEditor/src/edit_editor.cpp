@@ -1,5 +1,6 @@
 #include "../include/edit_editor.h"
 #include "../include/edit_mesh.h"
+#include "../include/edit_light.h"
 #include <game_scene.h>
 #include <gfx_render_target.h>
 #include <imgui/imgui.h>
@@ -477,7 +478,7 @@ namespace pge
             if (ImGui::Selectable("Create entity")) {
                 m_commandStack.Do(edit_CommandCreateEntity::Create(scene->GetEntityManager(), scene->GetEntityMetaDataManager()));
             }
-            if (ImGui::Selectable("Create light (directional)")) {
+            if (ImGui::Selectable("Create light (point)")) {
                 m_commandStack.Do(edit_CommandCreatePointLight::Create(scene->GetEntityManager(),
                                                                        scene->GetEntityMetaDataManager(),
                                                                        scene->GetTransformManager(),
@@ -495,7 +496,8 @@ namespace pge
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
             if (m_scene->GetLightManager()->HasPointLight(m_selectedEntity)) {
-                // lightEditor->UpdateAndDraw(m_selectedEntity);
+                edit_TransformEditor(m_scene->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
+                edit_LightEditor(m_scene->GetLightManager()).UpdateAndDraw(m_selectedEntity);
             } else {
                 for (auto& compEditor : m_componentEditors) {
                     compEditor->UpdateAndDraw(m_selectedEntity);

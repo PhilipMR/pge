@@ -21,6 +21,7 @@ VertexShader {
 	struct PixelIn
 	{
 		float4 positionNDC 	: SV_POSITION;
+		float3 viewPos 		    : VIEWPOS;
 		float3 normal 				: NORMAL;
 		float2 texcoord 			: TEXTURECOORD;
 	};
@@ -29,6 +30,7 @@ VertexShader {
 	{
 		PixelIn outp;
 		outp.positionNDC = mul(ProjMatrix, mul(ViewMatrix, mul(ModelMatrix, float4(vertex.position, 1.0f))));
+		outp.viewPos = mul(ViewMatrix, mul(ModelMatrix, float4(vertex.position, 1.0f)));
 		outp.normal = mul(ViewMatrix, mul(ModelMatrix, float4(vertex.normal, 0.0f)));
 		outp.texcoord = vertex.texcoord;
 		return outp;
@@ -43,10 +45,21 @@ PixelShader {
 	{
 	   float4 	MainColor;
 	};
+	
+	#define MAX_POINTLIGHTS 10
+	cbuffer CBLights : register(b1)
+	{
+			struct {
+			    float4  position;
+                float3 color;
+                float   radius;
+            } PointLights[MAX_POINTLIGHTS];
+	};
 
 	struct PixelIn
 	{
 		float4 positionNDC 	: SV_POSITION;
+		float3 viewPos 		    : VIEWPOS;
 		float3 normal 				: NORMAL;
 		float2 texcoord 			: TEXTURECOORD;
 	};
@@ -64,7 +77,21 @@ PixelShader {
 
 	float4 PSMain(PixelIn pixel) : SV_TARGET
 	{
-		float4 diffuseTex = tex2Dmultisample(pixel.texcoord);
-		return MainColor * diffuseTex;
+	    float3 lightColors = float3(0,0,0);
+	    for (int i = 0; i < MAX_POINTLIGHTS; ++i) {
+		    float3 lightDiff = PointLights[i].position.xyz - pixel.viewPos;
+			float3 lightDir = normalize(lightDiff);
+			float inner = dot(normalize(pixel.normal), lightDir);
+			// x = 1 if dist=0
+			// x = 0 if dist=radius 
+			// x = 1 - (dist/radius)
+			float radius = PointLights[i].radius;
+			float falloff =  max(PointLights[i].radius / length(lightDiff), 0);
+		    lightColors += PointLights[i].color * max(0,inner) * falloff;
+		}
+	
+		float4 diffuseTex = DiffuseMap.Sample(DiffuseSampler, pixel.texcoord); //tex2Dmultisample(pixel.texcoord);
+		float4 finalColor = MainColor * diffuseTex * float4(lightColors, 1);
+		return finalColor;
 	};
 }

@@ -30,8 +30,12 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (uMsg == WM_DESTROY)
         PostQuitMessage(0);
     if (uMsg == WM_SIZE && s_graphicsAdapter) {
-        s_graphicsAdapter->ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
-        s_graphicsDevice->SetViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
+        DWORD width  = LOWORD(lParam);
+        DWORD height = HIWORD(lParam);
+        if (width * height != 0) {
+            s_graphicsAdapter->ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
+            s_graphicsDevice->SetViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
+        }
     }
 
     pge::edit_Win32Events(hwnd, uMsg, wParam, lParam);
