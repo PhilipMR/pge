@@ -30,6 +30,7 @@ namespace pge
         diag_Assert(!HasPointLight(entity));
         game_PointLightId lid = m_numPointLights++;
         m_pointLightMap.insert(std::make_pair(entity, lid));
+        m_pointLights[lid] = light;
         m_pointLights[lid].entity = entity;
     }
 
@@ -67,30 +68,33 @@ namespace pge
         return m_pointLights[id];
     }
 
-    game_Entity
-    game_LightManager::GetEntity(const game_PointLightId& lid) const
+    const game_PointLight*
+    game_LightManager::GetPointLights(size_t* count) const
     {
-        diag_Assert(lid < m_numPointLights);
-        return m_pointLights[lid].entity;
+        *count = m_numPointLights;
+        return &m_pointLights[0];
+    }
+
+    void
+    game_LightManager::SetPointLight(const game_PointLightId& id, const game_PointLight& light)
+    {
+        diag_Assert(id < m_numPointLights);
+        m_pointLights[id] = light;
     }
 
     game_PointLightId
-    game_LightManager::HoverSelect(const game_TransformManager& tm,
-                                   const math_Vec2&             hoverPosNorm,
-                                   const math_Vec2&             rectSize,
-                                   const math_Mat4x4&           view,
-                                   const math_Mat4x4&           proj) const
+    game_LightManager::HoverSelect(const game_TransformManager& tm, const math_Vec2& hoverPosNorm, const math_Vec2& rectSize, const math_Mat4x4& view, const math_Mat4x4& proj) const
     {
         for (size_t i = 0; i < m_numPointLights; ++i) {
-            const game_PointLight& plight = m_pointLights[i];
+            const game_PointLight& plight    = m_pointLights[i];
             math_Vec3              worldPos;
             if (tm.HasTransform(plight.entity)) {
                 auto tid = tm.GetTransformId(plight.entity);
                 worldPos = tm.GetWorldPosition(tid);
             }
-            math_Vec4 viewPos   = view * math_Vec4(worldPos, 1);
-            math_Vec4 screenPos = proj * viewPos;
-            math_Vec2 screenPosXY(screenPos.x / screenPos.w, -screenPos.y / screenPos.w);
+            math_Vec4              viewPos   = view * math_Vec4(worldPos, 1);
+            math_Vec4              screenPos = proj * viewPos;
+            math_Vec2              screenPosXY(screenPos.x / screenPos.w, -screenPos.y / screenPos.w);
             // Map from [-1,1] to [0,1] to match hoverPosNorm
             screenPosXY += math_Vec2::One();
             screenPosXY /= 2;

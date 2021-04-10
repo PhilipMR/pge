@@ -34,9 +34,9 @@ namespace pge
         ~game_TransformManager();
 
         game_TransformId CreateTransform(const game_Entity& entity,
-                                         const math_Vec3&   position = math_Vec3(0, 0, 0),
+                                         const math_Vec3&   position = math_Vec3::Zero(),
                                          const math_Quat&   rotation = math_Quat(),
-                                         const math_Vec3&   scale    = math_Vec3(1, 1, 1));
+                                         const math_Vec3&   scale    = math_Vec3::One());
         void             CreateTransforms(const game_Entity* entities, size_t numEntities, game_TransformId* destBuf);
         void             DestroyTransform(const game_TransformId& id);
         void             GarbageCollect(const game_EntityManager& entityManager);

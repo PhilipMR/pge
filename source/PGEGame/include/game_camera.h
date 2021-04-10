@@ -8,7 +8,12 @@
 
 namespace pge
 {
-    class game_FPSCamera {
+    struct game_Camera {
+        virtual ~game_Camera()                          = default;
+        virtual math_Mat4x4 GetViewMatrix() const       = 0;
+        virtual math_Mat4x4 GetProjectionMatrix() const = 0;
+    };
+    class game_FPSCamera : public game_Camera {
         math_Mat4x4 m_projectionMatrix;
         math_Mat4x4 m_viewMatrix;
 
@@ -80,13 +85,13 @@ namespace pge
         }
 
         math_Mat4x4
-        GetViewMatrix() const
+        GetViewMatrix() const override
         {
             return m_viewMatrix;
         }
 
         math_Mat4x4
-        GetProjectionMatrix() const
+        GetProjectionMatrix() const override
         {
             return m_projectionMatrix;
         }

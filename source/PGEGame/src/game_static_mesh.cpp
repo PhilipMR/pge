@@ -123,21 +123,13 @@ namespace pge
     }
 
     void
-    game_StaticMeshManager::DrawStaticMeshes(const game_TransformManager& tm, const math_Mat4x4& view, const math_Mat4x4& proj)
+    game_StaticMeshManager::DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm)
     {
-        m_cbTransformsData.viewMatrix = view;
-        m_cbTransformsData.projMatrix = proj;
-
-        m_cbTransforms.BindVS(0);
         for (const auto& mesh : m_meshes) {
             if (mesh.mesh == nullptr || mesh.material == nullptr)
                 continue;
-            mesh.mesh->Bind();
-            mesh.material->Bind();
-
-            m_cbTransformsData.modelMatrix = tm.HasTransform(mesh.entity) ? tm.GetWorld(tm.GetTransformId(mesh.entity)) : math_Mat4x4();
-            m_cbTransforms.Update(&m_cbTransformsData, sizeof(CBTransforms));
-            m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh.mesh->GetNumTriangles() * 3);
+            math_Mat4x4 modelMatrix = tm.HasTransform(mesh.entity) ? tm.GetWorld(tm.GetTransformId(mesh.entity)) : math_Mat4x4();
+            renderer->DrawMesh(mesh.mesh, mesh.material, modelMatrix);
         }
     }
 

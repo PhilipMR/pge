@@ -97,13 +97,13 @@ namespace pge
         hoverPosNorm.y /= m_gameWindowSize.y;
 
         math_Vec2         billboardSize(2, 2);
-        game_PointLightId plightId = scene->GetLightManager()->HoverSelect(*scene->GetTransformManager(),
+        game_PointLightId plightId = scene->GetLightManager()->HoverSelect(*m_scene->GetTransformManager(),
                                                                            hoverPosNorm,
                                                                            billboardSize,
                                                                            scene->GetCamera()->GetViewMatrix(),
                                                                            scene->GetCamera()->GetProjectionMatrix());
         if (plightId != game_PointLightId_Invalid)
-            return scene->GetLightManager()->GetEntity(plightId);
+            return scene->GetLightManager()->GetPointLight(plightId).entity;
 
         return game_EntityId_Invalid;
     }

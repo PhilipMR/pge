@@ -6,6 +6,7 @@ namespace pge
         : m_transformManager(1000)
         , m_staticMeshManager(1000, graphicsAdapter, graphicsDevice, resources)
         , m_lightManager(100)
+        , m_renderer(graphicsAdapter, graphicsDevice)
     {}
 
     void
@@ -21,7 +22,9 @@ namespace pge
     void
     game_Scene::Draw()
     {
-        m_staticMeshManager.DrawStaticMeshes(m_transformManager, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+        m_renderer.SetCamera(&m_camera);
+        m_renderer.UpdateLights(m_lightManager, m_transformManager);
+        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager);
     }
 
     game_EntityManager*

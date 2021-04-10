@@ -6,6 +6,7 @@
 #include "game_static_mesh.h"
 #include "game_camera.h"
 #include "game_light.h"
+#include "game_renderer.h"
 
 namespace pge
 {
@@ -18,6 +19,7 @@ namespace pge
         game_StaticMeshManager     m_staticMeshManager;
         game_LightManager          m_lightManager;
         game_FPSCamera             m_camera;
+        game_Renderer              m_renderer;
 
     public:
         game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);

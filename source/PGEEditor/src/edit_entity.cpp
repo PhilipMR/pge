@@ -174,7 +174,6 @@ namespace pge
 
         game_PointLight plight;
         plight.radius   = 10.0f;
-        plight.strength = 1.0f;
         plight.color    = math_Vec3::One();
         m_lightManager->CreatePointLight(m_createdEntity, plight);
     }

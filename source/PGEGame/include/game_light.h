@@ -14,7 +14,6 @@ namespace pge
         game_Entity entity;
         math_Vec3   color;
         float       radius;
-        float       strength;
     };
 
     using game_PointLightId                               = unsigned;
@@ -28,13 +27,14 @@ namespace pge
 
     public:
         game_LightManager(size_t capacity);
-        void              GarbageCollect(const game_EntityManager& entityManager);
-        void              CreatePointLight(const game_Entity& entity, const game_PointLight& light);
-        void              DestroyPointLight(const game_PointLightId& id);
-        bool              HasPointLight(const game_Entity& entity) const;
-        game_PointLightId GetPointLightId(const game_Entity& entity) const;
-        game_PointLight   GetPointLight(const game_PointLightId& id) const;
-        game_Entity       GetEntity(const game_PointLightId& lid) const;
+        void                   GarbageCollect(const game_EntityManager& entityManager);
+        void                   CreatePointLight(const game_Entity& entity, const game_PointLight& light);
+        void                   DestroyPointLight(const game_PointLightId& id);
+        bool                   HasPointLight(const game_Entity& entity) const;
+        game_PointLightId      GetPointLightId(const game_Entity& entity) const;
+        game_PointLight        GetPointLight(const game_PointLightId& id) const;
+        const game_PointLight* GetPointLights(size_t* count) const;
+        void                   SetPointLight(const game_PointLightId& id, const game_PointLight& light);
 
         game_PointLightId HoverSelect(const game_TransformManager& tm,
                                       const math_Vec2&             hoverPosNorm,
