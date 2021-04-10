@@ -56,6 +56,7 @@ namespace pge
         edit_EditMode     m_editMode;
         game_Entity       m_selectedEntity;
         bool              m_drawGrid;
+        bool              m_drawGizmos;
         math_Vec2         m_gameWindowPos;
         math_Vec2         m_gameWindowSize;
         edit_CommandStack m_commandStack;

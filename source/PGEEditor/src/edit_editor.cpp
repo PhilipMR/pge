@@ -28,6 +28,7 @@ namespace pge
         , m_editMode(edit_EditMode::NONE)
         , m_selectedEntity(game_EntityId_Invalid)
         , m_drawGrid(true)
+        , m_drawGizmos(true)
         , m_gameWindowSize(1600, 900)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
@@ -126,33 +127,35 @@ namespace pge
             gfx_DebugDraw_GridXY(math_Vec3(0, 0, -thickness), length, cellSize, math_Vec3::One(), thickness);
         }
 
-        // Selected entity AABB
-        if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
-            auto            meshId = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
-            const res_Mesh* mesh   = scene->GetStaticMeshManager()->GetMesh(meshId);
-            if (mesh != nullptr) {
-                auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
-                auto world       = scene->GetTransformManager()->GetWorld(transformId);
-                auto aabb        = mesh->GetAABB();
-                aabb             = math_TransformAABB(aabb, world);
-                gfx_DebugDraw_Box(aabb.min, aabb.max);
-            }
-        }
-
-
-        // Light billboards
-        auto* mm = scene->GetEntityMetaDataManager();
-        for (auto it = mm->Begin(); it != mm->End(); ++it) {
-            const auto& entity = it->first;
-            if (scene->GetLightManager()->HasPointLight(entity)) {
-                const auto& plightId = scene->GetLightManager()->GetPointLightId(entity);
-                const auto& plight   = scene->GetLightManager()->GetPointLight(plightId);
-                math_Vec3   plightPos;
-                if (scene->GetTransformManager()->HasTransform(entity)) {
-                    auto tid = scene->GetTransformManager()->GetTransformId(entity);
-                    plightPos += scene->GetTransformManager()->GetWorldPosition(tid);
+        if (m_drawGizmos) {
+            // Selected entity AABB
+            if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
+                auto            meshId = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
+                const res_Mesh* mesh   = scene->GetStaticMeshManager()->GetMesh(meshId);
+                if (mesh != nullptr) {
+                    auto transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
+                    auto world       = scene->GetTransformManager()->GetWorld(transformId);
+                    auto aabb        = mesh->GetAABB();
+                    aabb             = math_TransformAABB(aabb, world);
+                    gfx_DebugDraw_Box(aabb.min, aabb.max);
                 }
-                gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), m_icons.pointLight);
+            }
+
+
+            // Light billboards
+            auto* mm = scene->GetEntityMetaDataManager();
+            for (auto it = mm->Begin(); it != mm->End(); ++it) {
+                const auto& entity = it->first;
+                if (scene->GetLightManager()->HasPointLight(entity)) {
+                    const auto& plightId = scene->GetLightManager()->GetPointLightId(entity);
+                    const auto& plight   = scene->GetLightManager()->GetPointLight(plightId);
+                    math_Vec3   plightPos;
+                    if (scene->GetTransformManager()->HasTransform(entity)) {
+                        auto tid = scene->GetTransformManager()->GetTransformId(entity);
+                        plightPos += scene->GetTransformManager()->GetWorldPosition(tid);
+                    }
+                    gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), m_icons.pointLight);
+                }
             }
         }
     }
@@ -348,6 +351,8 @@ namespace pge
         };
 
         ImGui::Checkbox("Grid", &m_drawGrid);
+        ImGui::SameLine();
+        ImGui::Checkbox("Gizmos", &m_drawGizmos);
         ImGui::SameLine();
         static bool isPlaying = false;
         if (!isPlaying) {
