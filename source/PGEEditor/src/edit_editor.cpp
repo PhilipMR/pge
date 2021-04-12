@@ -298,9 +298,7 @@ namespace pge
 
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("New scene", "CTRL+N")) {
-                    // m_scene.reset(new game_Scene(m_graphicsAdapter, m_graphicsDevice, m_resources));
-                }
+                if (ImGui::MenuItem("New scene", "CTRL+N")) {}
                 if (ImGui::MenuItem("Save scene", "CTRL+S")) {
                     std::ofstream os("test.scene");
                     os << *scene;

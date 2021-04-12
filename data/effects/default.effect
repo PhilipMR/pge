@@ -46,9 +46,14 @@ PixelShader {
 	   float4 	MainColor;
 	};
 	
+	#define MAX_DIRLIGHTS 10
 	#define MAX_POINTLIGHTS 10
 	cbuffer CBLights : register(b1)
 	{
+			struct {
+				float4 direction;
+				float4 color; // alpha = strength
+			} DirLights[MAX_DIRLIGHTS];
 			struct {
 			    float4  position;
                 float3 color;
@@ -78,14 +83,18 @@ PixelShader {
 	float4 PSMain(PixelIn pixel) : SV_TARGET
 	{
 	    float3 lightColors = float3(0,0,0);
-	    for (int i = 0; i < MAX_POINTLIGHTS; ++i) {
+	  
+		// Directional lights
+		for (int i = 0; i < MAX_DIRLIGHTS; ++i) {
+			float inner = dot(normalize(pixel.normal), -DirLights[i].direction.xyz);
+			lightColors += DirLights[i].color.rgb * DirLights[i].color.a * max(0, inner);
+		}
+	  
+		// Point lights
+		for (int i = 0; i < MAX_POINTLIGHTS; ++i) {
 		    float3 lightDiff = PointLights[i].position.xyz - pixel.viewPos;
 			float3 lightDir = normalize(lightDiff);
 			float inner = dot(normalize(pixel.normal), lightDir);
-			// x = 1 if dist=0
-			// x = 0 if dist=radius 
-			// x = 1 - (dist/radius)
-			float radius = PointLights[i].radius;
 			float falloff =  max(PointLights[i].radius / length(lightDiff), 0);
 		    lightColors += PointLights[i].color * max(0,inner) * falloff;
 		}

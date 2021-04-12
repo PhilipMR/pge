@@ -118,8 +118,11 @@ namespace pge
     void
     edit_CommandCreateEntity::Do()
     {
-        diag_AssertWithReason(m_createdEntity == game_EntityId_Invalid, "Same entity can't be created twice!");
-        m_createdEntity = m_entityManager->CreateEntity();
+        if (m_createdEntity == game_EntityId_Invalid) {
+            m_createdEntity = m_entityManager->CreateEntity();
+        } else {
+            m_entityManager->CreateEntity(m_createdEntity);
+        }
         game_EntityMetaData meta;
         meta.entity = m_createdEntity;
         std::stringstream ss;
@@ -133,7 +136,6 @@ namespace pge
     {
         diag_Assert(m_createdEntity != game_EntityId_Invalid);
         m_entityManager->DestroyEntity(m_createdEntity);
-        m_createdEntity = game_EntityId_Invalid;
     }
 
     std::unique_ptr<edit_Command>
