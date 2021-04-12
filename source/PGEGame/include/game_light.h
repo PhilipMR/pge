@@ -10,24 +10,48 @@
 
 namespace pge
 {
+    struct game_DirectionalLight {
+        game_Entity entity;
+        math_Vec3   color;
+        float       strength;
+        math_Vec3   direction;
+    };
+
     struct game_PointLight {
         game_Entity entity;
         math_Vec3   color;
         float       radius;
     };
 
+    using game_DirectionalLightId                                     = unsigned;
+    constexpr game_DirectionalLightId game_DirectionalLightId_Invalid = -1;
+
     using game_PointLightId                               = unsigned;
     constexpr game_PointLightId game_PointLightId_Invalid = -1;
 
     class game_TransformManager;
     class game_LightManager {
+        std::unordered_map<game_Entity, game_DirectionalLightId> m_dirLightMap;
+        std::unique_ptr<game_DirectionalLight[]>                 m_dirLights;
+        size_t                                                   m_numDirLights;
+
         std::unordered_map<game_Entity, game_PointLightId> m_pointLightMap;
         std::unique_ptr<game_PointLight[]>                 m_pointLights;
         size_t                                             m_numPointLights;
 
     public:
         game_LightManager(size_t capacity);
-        void                   GarbageCollect(const game_EntityManager& entityManager);
+        void GarbageCollect(const game_EntityManager& entityManager);
+
+
+        void                         CreateDirectionalLight(const game_Entity& entity, const game_DirectionalLight& light);
+        void                         DestroyDirectionalLight(const game_DirectionalLightId& id);
+        bool                         HasDirectionalLight(const game_Entity& entity) const;
+        game_DirectionalLightId      GetDirectionalLightId(const game_Entity& entity) const;
+        game_DirectionalLight        GetDirectionalLight(const game_DirectionalLightId& id) const;
+        const game_DirectionalLight* GetDirectionalLights(size_t* count) const;
+        void                         SetDirectionalLight(const game_DirectionalLightId& id, const game_DirectionalLight& light);
+
         void                   CreatePointLight(const game_Entity& entity, const game_PointLight& light);
         void                   DestroyPointLight(const game_PointLightId& id);
         bool                   HasPointLight(const game_Entity& entity) const;
@@ -36,11 +60,12 @@ namespace pge
         const game_PointLight* GetPointLights(size_t* count) const;
         void                   SetPointLight(const game_PointLightId& id, const game_PointLight& light);
 
-        game_PointLightId HoverSelect(const game_TransformManager& tm,
-                                      const math_Vec2&             hoverPosNorm,
-                                      const math_Vec2&             rectSize,
-                                      const math_Mat4x4&           view,
-                                      const math_Mat4x4&           proj) const;
+        game_Entity HoverSelect(const game_TransformManager& tm,
+                                const math_Vec2&             hoverPosNorm,
+                                const math_Vec2&             rectSize,
+                                const math_Mat4x4&           view,
+                                const math_Mat4x4&           proj,
+                                float*                       distanceOut) const;
 
         friend std::ostream& operator<<(std::ostream& os, const game_LightManager& lm);
         friend std::istream& operator>>(std::istream& is, game_LightManager& lm);

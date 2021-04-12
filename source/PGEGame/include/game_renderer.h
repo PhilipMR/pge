@@ -25,8 +25,13 @@ namespace pge
         } m_cbTransformData;
         gfx_ConstantBuffer m_cbTransform;
 
+        static const unsigned MAX_DIRLIGHTS   = 10;
         static const unsigned MAX_POINTLIGHTS = 10;
         struct CBLights {
+            struct {
+                math_Vec4 direction;
+                math_Vec4 color; // alpha = strength
+            } dirLights[MAX_DIRLIGHTS];
             struct {
                 math_Vec4 position;
                 math_Vec3 color;

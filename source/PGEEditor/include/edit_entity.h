@@ -21,19 +21,19 @@ namespace pge
     };
 
     class edit_CommandDeleteEntity : public edit_Command {
-        game_Entity         m_entity;
-        game_Scene*         m_scene;
+        game_Entity m_entity;
+        game_Scene* m_scene;
 
         bool                m_hasMetaData;
         game_EntityMetaData m_metaData;
 
-        bool                m_hasTransform;
-        math_Vec3           m_localPos;
-        math_Quat           m_localRot;
-        math_Vec3           m_localScale;
+        bool      m_hasTransform;
+        math_Vec3 m_localPos;
+        math_Quat m_localRot;
+        math_Vec3 m_localScale;
 
-        bool                m_hasPointLight;
-        game_PointLight     m_pointLight;
+        bool            m_hasPointLight;
+        game_PointLight m_pointLight;
 
         bool                m_hasMesh;
         const res_Material* m_meshMaterial;
@@ -58,6 +58,25 @@ namespace pge
         virtual void                         Do() override;
         virtual void                         Undo() override;
         static std::unique_ptr<edit_Command> Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager);
+    };
+
+    class edit_CommandCreateDirectionalLight : public edit_Command {
+        game_EntityManager*         m_entityManager;
+        game_EntityMetaDataManager* m_metaManager;
+        game_TransformManager*      m_transformManager;
+        game_LightManager*          m_lightManager;
+        game_Entity                 m_createdEntity;
+
+    public:
+        edit_CommandCreateDirectionalLight(game_EntityManager*         emanager,
+                                           game_EntityMetaDataManager* metaManager,
+                                           game_TransformManager*      tmanager,
+                                           game_LightManager*          lmanager);
+
+        virtual void Do() override;
+        virtual void Undo() override;
+        static std::unique_ptr<edit_Command>
+        Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager, game_TransformManager* tmanager, game_LightManager* lmanager);
     };
 
     class edit_CommandCreatePointLight : public edit_Command {

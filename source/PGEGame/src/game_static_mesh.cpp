@@ -133,8 +133,8 @@ namespace pge
         }
     }
 
-    game_StaticMeshId
-    game_StaticMeshManager::RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const
+    game_Entity
+    game_StaticMeshManager::RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj, float* distanceOut) const
     {
         float             closestDistance = std::numeric_limits<float>::max();
         game_StaticMeshId closestMesh     = game_StaticMeshId_Invalid;
@@ -149,7 +149,9 @@ namespace pge
                 }
             }
         }
-        return closestMesh;
+        if (distanceOut != nullptr)
+            *distanceOut = closestDistance;
+        return (closestMesh == game_StaticMeshId_Invalid) ? game_EntityId_Invalid : GetEntity(closestMesh);
     }
 
 

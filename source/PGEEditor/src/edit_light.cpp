@@ -12,15 +12,27 @@ namespace pge
     {
         if (!ImGui::CollapsingHeader("Light"))
             return;
-        game_PointLightId pid = m_lightManager->GetPointLightId(entity);
-        diag_Assert(pid != game_PointLightId_Invalid);
-        game_PointLight light = m_lightManager->GetPointLight(pid);
 
-        bool changed = 0;
-        changed |= ImGui::DragFloat("Radius", &light.radius);
-        changed |= ImGui::ColorPicker3("Color", &light.color[0]);
-        if (changed) {
-            m_lightManager->SetPointLight(pid, light);
+        diag_Assert(m_lightManager->HasDirectionalLight(entity) || m_lightManager->HasPointLight(entity));
+        if (m_lightManager->HasDirectionalLight(entity)) {
+            game_DirectionalLightId lid     = m_lightManager->GetDirectionalLightId(entity);
+            game_DirectionalLight   light   = m_lightManager->GetDirectionalLight(lid);
+            bool                    changed = 0;
+            changed |= ImGui::DragFloat3("Direction", &light.direction[0]);
+            changed |= ImGui::ColorPicker3("Color", &light.color[0]);
+            changed |= ImGui::DragFloat("Strength", &light.strength);
+            if (changed) {
+                m_lightManager->SetDirectionalLight(lid, light);
+            }
+        } else if (m_lightManager->HasPointLight(entity)) {
+            game_PointLightId lid     = m_lightManager->GetPointLightId(entity);
+            game_PointLight   light   = m_lightManager->GetPointLight(lid);
+            bool              changed = 0;
+            changed |= ImGui::DragFloat("Radius", &light.radius);
+            changed |= ImGui::ColorPicker3("Color", &light.color[0]);
+            if (changed) {
+                m_lightManager->SetPointLight(lid, light);
+            }
         }
     }
 } // namespace pge

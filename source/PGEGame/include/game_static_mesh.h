@@ -53,12 +53,12 @@ namespace pge
         void SetMesh(const game_StaticMeshId& id, const res_Mesh* mesh);
         void SetMaterial(const game_StaticMeshId& id, const res_Material* material);
 
-        game_Entity     GetEntity(const game_StaticMeshId& id) const;
-        const res_Mesh* GetMesh(const game_StaticMeshId& id) const;
+        game_Entity         GetEntity(const game_StaticMeshId& id) const;
+        const res_Mesh*     GetMesh(const game_StaticMeshId& id) const;
         const res_Material* GetMaterial(const game_StaticMeshId& id) const;
 
-        void              DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm);
-        game_StaticMeshId RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj) const;
+        void        DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm);
+        game_Entity RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj, float* distanceOut) const;
 
         friend std::ostream& operator<<(std::ostream& os, const game_StaticMeshManager& sm);
         friend std::istream& operator>>(std::istream& is, game_StaticMeshManager& sm);

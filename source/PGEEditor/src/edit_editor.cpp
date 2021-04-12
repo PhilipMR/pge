@@ -86,10 +86,11 @@ namespace pge
         const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
 
         // Static Mesh select
-        const math_Ray          ray         = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
-        const game_StaticMeshId hoveredMesh = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj);
-        if (hoveredMesh != game_StaticMeshId_Invalid)
-            return scene->GetStaticMeshManager()->GetEntity(hoveredMesh);
+        const math_Ray ray = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
+        float          meshSelectDistance;
+        game_Entity    meshSelectEntity
+            = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj, &meshSelectDistance);
+
 
         // Point Light select
         math_Vec2 hoverPosNorm(input_MousePosition());
@@ -98,16 +99,24 @@ namespace pge
         hoverPosNorm.x /= m_gameWindowSize.x;
         hoverPosNorm.y /= m_gameWindowSize.y;
 
-        math_Vec2         billboardSize(2, 2);
-        game_PointLightId plightId = scene->GetLightManager()->HoverSelect(*m_scene->GetTransformManager(),
-                                                                           hoverPosNorm,
-                                                                           billboardSize,
-                                                                           scene->GetCamera()->GetViewMatrix(),
-                                                                           scene->GetCamera()->GetProjectionMatrix());
-        if (plightId != game_PointLightId_Invalid)
-            return scene->GetLightManager()->GetPointLight(plightId).entity;
+        math_Vec2   billboardSize(2, 2);
+        float       lightSelectDistance;
+        game_Entity lightSelectEntity = scene->GetLightManager()->HoverSelect(*m_scene->GetTransformManager(),
+                                                                              hoverPosNorm,
+                                                                              billboardSize,
+                                                                              scene->GetCamera()->GetViewMatrix(),
+                                                                              scene->GetCamera()->GetProjectionMatrix(),
+                                                                              &lightSelectDistance);
 
-        return game_EntityId_Invalid;
+
+        // Choose the closest one
+        game_Entity whichOne[]     = {game_EntityId_Invalid,
+                                  meshSelectEntity,
+                                  lightSelectEntity,
+                                  meshSelectDistance <= lightSelectDistance ? meshSelectEntity : lightSelectEntity};
+        unsigned    selectMeshBit  = unsigned(meshSelectEntity != game_EntityId_Invalid);
+        unsigned    selectLightBit = unsigned(lightSelectEntity != game_EntityId_Invalid) << 1;
+        return whichOne[selectMeshBit | selectLightBit];
     }
 
     void
@@ -146,10 +155,12 @@ namespace pge
             auto* mm = scene->GetEntityMetaDataManager();
             for (auto it = mm->Begin(); it != mm->End(); ++it) {
                 const auto& entity = it->first;
-                if (scene->GetLightManager()->HasPointLight(entity)) {
-                    const auto& plightId = scene->GetLightManager()->GetPointLightId(entity);
-                    const auto& plight   = scene->GetLightManager()->GetPointLight(plightId);
-                    math_Vec3   plightPos;
+
+                bool isDirLight   = scene->GetLightManager()->HasDirectionalLight(entity);
+                bool isPointLight = scene->GetLightManager()->HasPointLight(entity);
+                diag_Assert(!(isDirLight && isPointLight));
+                if (isDirLight || isPointLight) {
+                    math_Vec3 plightPos;
                     if (scene->GetTransformManager()->HasTransform(entity)) {
                         auto tid = scene->GetTransformManager()->GetTransformId(entity);
                         plightPos += scene->GetTransformManager()->GetWorldPosition(tid);
@@ -483,6 +494,12 @@ namespace pge
             if (ImGui::Selectable("Create entity")) {
                 m_commandStack.Do(edit_CommandCreateEntity::Create(scene->GetEntityManager(), scene->GetEntityMetaDataManager()));
             }
+            if (ImGui::Selectable("Create light (directional)")) {
+                m_commandStack.Do(edit_CommandCreateDirectionalLight::Create(scene->GetEntityManager(),
+                                                                             scene->GetEntityMetaDataManager(),
+                                                                             scene->GetTransformManager(),
+                                                                             scene->GetLightManager()));
+            }
             if (ImGui::Selectable("Create light (point)")) {
                 m_commandStack.Do(edit_CommandCreatePointLight::Create(scene->GetEntityManager(),
                                                                        scene->GetEntityMetaDataManager(),
@@ -500,7 +517,7 @@ namespace pge
     {
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
-            if (m_scene->GetLightManager()->HasPointLight(m_selectedEntity)) {
+            if (m_scene->GetLightManager()->HasDirectionalLight(m_selectedEntity) || m_scene->GetLightManager()->HasPointLight(m_selectedEntity)) {
                 edit_TransformEditor(m_scene->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
                 edit_LightEditor(m_scene->GetLightManager()).UpdateAndDraw(m_selectedEntity);
             } else {
