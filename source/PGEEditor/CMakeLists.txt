@@ -9,6 +9,7 @@ add_library(pge_editor
     src/edit_entity.cpp
     src/edit_light.cpp
     src/edit_mesh.cpp
+    src/edit_script.cpp
     src/edit_transform.cpp
 )
 
