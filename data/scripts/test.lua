@@ -1,5 +1,7 @@
-if testIsQButtonDown() then 
-	testPrintNum(1)
-else 
-	testPrintNum(0)
+function onUpdate(dt)
+	if testIsQButtonDown() then 
+		testPrintNum(dt)
+	else 
+		testPrintNum(25)
+	end
 end

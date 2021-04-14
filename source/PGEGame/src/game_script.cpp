@@ -119,8 +119,13 @@ namespace pge
     {
         for (size_t i = 0; i < m_numScripts; ++i) {
             const ScriptComponent& script = m_scripts[i];
-            // ONLY DO UPDATE!!
-            luaL_dofile(m_apiImpl->luaState, script.path.c_str());
+
+            lua_State* L = m_apiImpl->luaState;
+            luaL_dofile(L, script.path.c_str());
+            lua_getglobal(L, "onUpdate");
+            double dt = 1.0 / 60.0;
+            lua_pushnumber(L, dt);
+            lua_call(L, 1, 0);
         }
     }
 } // namespace pge
