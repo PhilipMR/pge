@@ -6,6 +6,7 @@
 #include "game_static_mesh.h"
 #include "game_camera.h"
 #include "game_light.h"
+#include "game_script.h"
 #include "game_renderer.h"
 
 namespace pge
@@ -18,6 +19,7 @@ namespace pge
         game_TransformManager      m_transformManager;
         game_StaticMeshManager     m_staticMeshManager;
         game_LightManager          m_lightManager;
+        game_ScriptManager         m_scriptManager;
         game_FPSCamera             m_camera;
         game_Renderer              m_renderer;
 
@@ -31,12 +33,7 @@ namespace pge
         game_TransformManager*      GetTransformManager();
         game_StaticMeshManager*     GetStaticMeshManager();
         game_LightManager*          GetLightManager();
-
-        const game_EntityManager*         GetEntityManager() const;
-        const game_EntityMetaDataManager* GetEntityMetaDataManager() const;
-        const game_TransformManager*      GetTransformManager() const;
-        const game_StaticMeshManager*     GetStaticMeshManager() const;
-        const game_LightManager*          GetLightManager() const;
+        game_ScriptManager*         GetScriptManager();
 
         inline game_FPSCamera*
         GetCamera()

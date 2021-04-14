@@ -19,6 +19,7 @@
 #include <edit_events_win32.h>
 #include <edit_editor.h>
 #include <gfx_debug_draw.h>
+#include <game_script.h>
 
 static bool                           s_hoveringGameWindow = false;
 static pge::gfx_GraphicsAdapterD3D11* s_graphicsAdapter    = nullptr;
@@ -73,7 +74,6 @@ main()
         s_graphicsAdapter = &graphicsAdapter;
         s_graphicsDevice  = &graphicsDevice;
         ShowWindow(display.GetWindowHandle(), SW_SHOWMAXIMIZED);
-
 
         // Setup scene
         res_ResourceManager resources(&graphicsAdapter);

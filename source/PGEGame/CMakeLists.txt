@@ -8,11 +8,13 @@ add_library(pge_game
     src/game_light.cpp
     src/game_renderer.cpp
     src/game_scene.cpp
+    src/game_script.cpp
     src/game_static_mesh.cpp
     src/game_transform.cpp
 )
 
 target_include_directories(pge_game PRIVATE
+    ../External/lua
     ../PGEDiagnostics/include
     ../PGEMath/include
     ../PGEInput/include

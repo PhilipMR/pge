@@ -1,6 +1,7 @@
 #include "../include/edit_editor.h"
 #include "../include/edit_mesh.h"
 #include "../include/edit_light.h"
+#include "../include/edit_script.h"
 #include <game_scene.h>
 #include <gfx_render_target.h>
 #include <imgui/imgui.h>
@@ -34,6 +35,7 @@ namespace pge
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager(), resources)));
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_ScriptEditor(m_scene->GetScriptManager())));
 
         auto GetImTexture = [&](const char* path) {
             return (ImTextureID)resources->GetTexture(path)->GetTexture()->GetNativeTexture();

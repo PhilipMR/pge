@@ -3,9 +3,10 @@
 namespace pge
 {
     game_Scene::game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
-        : m_transformManager(1000)
-        , m_staticMeshManager(1000, graphicsAdapter, graphicsDevice, resources)
+        : m_transformManager(100)
+        , m_staticMeshManager(100, graphicsAdapter, graphicsDevice, resources)
         , m_lightManager(100)
+        , m_scriptManager(100)
         , m_renderer(graphicsAdapter, graphicsDevice)
     {}
 
@@ -17,11 +18,14 @@ namespace pge
         m_staticMeshManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);
         m_lightManager.GarbageCollect(m_entityManager);
+        m_scriptManager.GarbageCollect(m_entityManager);
     }
 
     void
     game_Scene::Draw()
     {
+        m_scriptManager.UpdateScripts();
+
         m_renderer.SetCamera(&m_camera);
         m_renderer.UpdateLights(m_lightManager, m_transformManager);
         m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager);
@@ -57,36 +61,11 @@ namespace pge
         return &m_lightManager;
     }
 
-    const game_EntityManager*
-    game_Scene::GetEntityManager() const
+    game_ScriptManager*
+    game_Scene::GetScriptManager()
     {
-        return &m_entityManager;
+        return &m_scriptManager;
     }
-
-    const game_EntityMetaDataManager*
-    game_Scene::GetEntityMetaDataManager() const
-    {
-        return &m_entityMetaManager;
-    }
-
-    const game_TransformManager*
-    game_Scene::GetTransformManager() const
-    {
-        return &m_transformManager;
-    }
-
-    const game_StaticMeshManager*
-    game_Scene::GetStaticMeshManager() const
-    {
-        return &m_staticMeshManager;
-    }
-
-    const game_LightManager*
-    game_Scene::GetLightManager() const
-    {
-        return &m_lightManager;
-    }
-
 
     constexpr unsigned SERIALIZE_VERSION = 1;
 
