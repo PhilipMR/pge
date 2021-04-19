@@ -15,9 +15,11 @@ namespace pge
         if (!ImGui::CollapsingHeader("Script"))
             return;
 
+        bool isNewScript = false;
         if (!m_scriptManager->HasScript(entity)) {
             if (ImGui::Button("Add script")) {
                 m_scriptManager->CreateScript(entity, "");
+                isNewScript = true;
             } else {
                 return;
             }
@@ -54,6 +56,25 @@ namespace pge
             if (curIdx != nextIdx) {
                 m_scriptManager->SetScript(sid, scriptPaths[nextIdx]);
             }
+        }
+
+
+        static char scriptContents[4096];
+        bool               needScriptLoad = isNewScript || nextIdx != curIdx;
+        if (needScriptLoad) {
+            std::string fileContents = os_ReadFile(scriptPaths[nextIdx]);
+            memset(scriptContents, 0, sizeof(scriptContents));
+            strcpy_s(scriptContents, fileContents.c_str());
+        }
+        ImGui::InputTextMultiline("##scriptcontent", scriptContents, sizeof(scriptContents));
+        if (ImGui::Button("Save")) {
+            std::ofstream file(scriptPaths[nextIdx]);
+            file.write(scriptContents, strlen(scriptContents));
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Remove script")) {
+            m_scriptManager->DestroyScript(sid);
         }
     }
 

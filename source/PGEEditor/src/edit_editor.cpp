@@ -130,7 +130,7 @@ namespace pge
         if (m_drawGrid) {
             const float     axisThickness = 0.1f;
             const float     thickness     = 0.025f;
-            const float     length        = 10000.0f;
+            const float     length        = 1000.0f;
             const math_Vec2 cellSize(5.0f, 5.0f);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(length, 0, 0), math_Vec3(1, 0, 0), axisThickness);
             gfx_DebugDraw_Line(math_Vec3(0, 0, 0), math_Vec3(0, length, 0), math_Vec3(0, 1, 0), axisThickness);
@@ -349,29 +349,19 @@ namespace pge
 
         ImGui::Begin("Game", nullptr, PANEL_WINDOW_FLAGS);
 
-        auto ButtonCenteredOnLine = [&](ImTextureID texture, float alignment = 0.5f) {
-            ImGuiStyle& style = ImGui::GetStyle();
-
-            const ImVec2 size(50, 20);
-            float        avail = ImGui::GetContentRegionAvail().x;
-            float        off   = (avail - size.x) * alignment;
-            if (off > 0.0f)
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
-
-            return ImGui::ImageButton(texture, size);
-        };
-
         ImGui::Checkbox("Grid", &m_drawGrid);
         ImGui::SameLine();
         ImGui::Checkbox("Gizmos", &m_drawGizmos);
         ImGui::SameLine();
         static bool isPlaying = false;
+        const ImVec2 size(50, 20);
+        ImGui::SetCursorPosX(ImGui::GetContentRegionAvailWidth());
         if (!isPlaying) {
-            if (ButtonCenteredOnLine(m_icons.playButton)) {
+            if (ImGui::Button(ICON_FA_PLAY, size)) {
                 isPlaying = true;
             }
         } else {
-            if (ButtonCenteredOnLine(m_icons.pauseButton)) {
+            if (ImGui::Button(ICON_FA_PAUSE, size)) {
                 isPlaying = false;
             }
         }
@@ -532,7 +522,51 @@ namespace pge
     void
     edit_Editor::DrawExplorer()
     {
-        ImGui::Begin("Explorer", nullptr, PANEL_WINDOW_FLAGS);
+        ImGui::Begin("Log", nullptr, PANEL_WINDOW_FLAGS);
+
+#undef ERROR
+        const std::uint8_t logDebugFlag   = 1 << diag_LogRecord::RecordType::DEBUG;
+        const std::uint8_t logWarningFlag = 1 << diag_LogRecord::RecordType::WARNING;
+        const std::uint8_t logErrorFlag   = 1 << diag_LogRecord::RecordType::ERROR;
+
+        static std::uint8_t logMask = logDebugFlag | logWarningFlag | logErrorFlag;
+
+        if (ImGui::Button("Clear")) {
+            diag_ClearLogRecords();
+        }
+        ImGui::SameLine();
+
+        bool showLogDebug = logMask & logDebugFlag;
+        if (ImGui::Checkbox("Debug", &showLogDebug)) {
+            logMask ^= logDebugFlag;
+        }
+        ImGui::SameLine();
+
+        bool showLogWarning = logMask & logWarningFlag;
+        if (ImGui::Checkbox("Warning", &showLogWarning)) {
+            logMask ^= logWarningFlag;
+        }
+        ImGui::SameLine();
+
+        bool showLogError = logMask & logErrorFlag;
+        if (ImGui::Checkbox("Error", &showLogError)) {
+            logMask ^= logErrorFlag;
+        }
+
+        ImGui::BeginChild("LogText");
+        auto records = diag_GetLogRecords();
+        for (const auto& record : records) {
+            if (logMask & (1 << record.type)) {
+                ImGui::Text(record.message.c_str());
+            }
+        }
+        static size_t lastNumRecs = 0;
+        if (lastNumRecs != records.size()) {
+            ImGui::SetScrollHereY(1.0f);
+            lastNumRecs = records.size();
+        }
+        ImGui::EndChild();
+
         ImGui::End();
     }
 } // namespace pge

@@ -10,6 +10,8 @@
 
 namespace pge
 {
+    std::vector<diag_LogRecord> s_records;
+
     static void
     LogMessage(const char* tag, const char* message)
     {
@@ -27,6 +29,16 @@ namespace pge
 #ifdef _WIN32
         OutputDebugString(formatted_message.c_str());
 #endif
+#undef ERROR
+        diag_LogRecord::RecordType recordType;
+        if (strcmp(tag, "DEBUG") == 0)
+            recordType = diag_LogRecord::RecordType::DEBUG;
+        else if (strcmp(tag, "WARNING") == 0)
+            recordType = diag_LogRecord::RecordType::WARNING;
+        else if (strcmp(tag, "ERROR") == 0)
+            recordType = diag_LogRecord::RecordType::ERROR;
+
+        s_records.push_back(diag_LogRecord(recordType, formatted_message));
     }
 
     static void
@@ -37,6 +49,23 @@ namespace pge
         auto         buffer     = std::unique_ptr<char[]>(new char[bufferSize]);
         vsnprintf(&buffer[0], bufferSize, format, list);
         LogMessage(tag, buffer.get());
+    }
+
+    diag_LogRecord::diag_LogRecord(RecordType type, const std::string& message)
+        : type(type)
+        , message(message)
+    {}
+
+    std::vector<diag_LogRecord>
+    diag_GetLogRecords()
+    {
+        return s_records;
+    }
+
+    void
+    diag_ClearLogRecords()
+    {
+        s_records.clear();
     }
 
     void

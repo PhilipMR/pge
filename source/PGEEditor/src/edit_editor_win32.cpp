@@ -127,13 +127,13 @@ namespace pge
         ImGui_ImplDX11_Init(graphicsD3D11->GetDevice(), graphicsD3D11->GetDeviceContext());
         ImGui::GetIO().IniFilename = nullptr;
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        ImGui::GetIO().Fonts->AddFontFromFileTTF("data/fonts/Roboto-Regular.ttf", 14);
+        ImGui::GetIO().Fonts->AddFontFromFileTTF("data/fonts/Roboto-Regular.ttf", 16);
 
         ImFontConfig config;
         config.MergeMode = true;
         config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
         static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        ImGui::GetIO().Fonts->AddFontFromFileTTF("data/fonts/fa-solid-900.ttf", 14, &config, icon_ranges);
+        ImGui::GetIO().Fonts->AddFontFromFileTTF("data/fonts/fa-solid-900.ttf", 16, &config, icon_ranges);
 
         s_isInitialized = true;
     }

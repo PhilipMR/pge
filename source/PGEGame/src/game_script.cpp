@@ -25,6 +25,14 @@ namespace pge
         return 1;
     }
 
+    static int f(lua_State* state)
+    {
+        return 0;
+    }
+
+    static const std::pair<const char*, lua_CFunction> SCRIPT_API_FUNCTIONS[]
+        = {{"testPrintNum", &TestFuncConstant}, {"testIsQButtonDown", &TestIsQButtonDown}};
+
     // ==================================================
     // game_ScriptManager
     // ==================================================
@@ -39,8 +47,9 @@ namespace pge
     {
         m_apiImpl->luaState = luaL_newstate();
         diag_Assert(m_apiImpl->luaState != nullptr);
-        lua_register(m_apiImpl->luaState, "testPrintNum", &TestFuncConstant);
-        lua_register(m_apiImpl->luaState, "testIsQButtonDown", &TestIsQButtonDown);
+        for (const auto& f : SCRIPT_API_FUNCTIONS) {
+            lua_register(m_apiImpl->luaState, f.first, f.second);
+        }
     }
 
     game_ScriptManager::~game_ScriptManager()
