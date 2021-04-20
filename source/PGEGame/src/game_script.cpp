@@ -6,6 +6,34 @@
 namespace pge
 {
     static int
+    ScriptAPI_is_action_pressed(lua_State* L)
+    {
+        return 0;
+    }
+
+    static int
+    ScriptAPI_is_action_released(lua_State* L)
+    {
+        return 0;
+    }
+
+    static int
+    ScriptAPI_is_action(lua_State* L)
+    {
+        return 0;
+    }
+
+    static int
+    ScriptAPI_get_axis(lua_State* L)
+    {
+        return 0;
+    }
+
+
+
+
+
+    static int
     TestFuncConstant(lua_State* state)
     {
         int n = lua_gettop(state);
@@ -25,13 +53,19 @@ namespace pge
         return 1;
     }
 
-    static int f(lua_State* state)
+    static int
+    Print(lua_State* state)
     {
+        int n = lua_gettop(state);
+        diag_Assert(n == 1);
+        diag_Assert(lua_isstring(state, 1));
+        const char* message = lua_tostring(state, 1);
+        diag_LogDebug(message);
         return 0;
     }
 
-    static const std::pair<const char*, lua_CFunction> SCRIPT_API_FUNCTIONS[]
-        = {{"testPrintNum", &TestFuncConstant}, {"testIsQButtonDown", &TestIsQButtonDown}};
+    static const luaL_Reg SCRIPT_API_FUNCTIONS[]
+        = {{"testPrintNum", TestFuncConstant}, {"testIsQButtonDown", TestIsQButtonDown}, {"print", Print}, {nullptr, nullptr}};
 
     // ==================================================
     // game_ScriptManager
@@ -47,9 +81,10 @@ namespace pge
     {
         m_apiImpl->luaState = luaL_newstate();
         diag_Assert(m_apiImpl->luaState != nullptr);
-        for (const auto& f : SCRIPT_API_FUNCTIONS) {
-            lua_register(m_apiImpl->luaState, f.first, f.second);
-        }
+        luaL_openlibs(m_apiImpl->luaState);
+        lua_getglobal(m_apiImpl->luaState, "_G");
+        luaL_setfuncs(m_apiImpl->luaState, SCRIPT_API_FUNCTIONS, 0);
+        lua_pop(m_apiImpl->luaState, 1);
     }
 
     game_ScriptManager::~game_ScriptManager()
@@ -124,17 +159,33 @@ namespace pge
     }
 
     void
+    LuaErrorReport(lua_State* state)
+    {
+        diag_LogErrorf("LUA Error: %s", lua_tostring(state, 1));
+        lua_pop(state, 1);
+    }
+
+    void
     game_ScriptManager::UpdateScripts()
     {
         for (size_t i = 0; i < m_numScripts; ++i) {
             const ScriptComponent& script = m_scripts[i];
 
-            lua_State* L = m_apiImpl->luaState;
+            lua_State* L = luaL_newstate(); // m_apiImpl->luaState;
+            luaL_openlibs(L);
+            lua_getglobal(L, "_G");
+            luaL_setfuncs(L, SCRIPT_API_FUNCTIONS, 0);
+            lua_pop(L, 1);
+
             luaL_dofile(L, script.path.c_str());
             lua_getglobal(L, "onUpdate");
             double dt = 1.0 / 60.0;
             lua_pushnumber(L, dt);
-            lua_call(L, 1, 0);
+            int error = lua_pcall(L, 1, 0, 0);
+            if (error != LUA_OK) {
+                LuaErrorReport(L);
+            }
+            lua_close(L);
         }
     }
 } // namespace pge

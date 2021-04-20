@@ -28,7 +28,7 @@ namespace pge
         wndClass.lpfnWndProc   = wndProc;
         wndClass.hInstance     = hInstance;
         wndClass.hbrBackground = (HBRUSH)COLOR_ACTIVEBORDER;
-        wndClass.hCursor       = LoadCursor(nullptr, IDC_ARROW);
+        wndClass.hCursor       = nullptr; //LoadCursor(nullptr, IDC_ARROW);
         wndClass.lpszClassName = "GameWindowClass";
         diag_VerifyWithReason(RegisterClass(&wndClass), "Could not register the game window class.");
 

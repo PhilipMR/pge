@@ -1,6 +1,7 @@
 #include "../include/edit_script.h"
 #include <ctime>
 #include <imgui/imgui.h>
+#include <imgui/TextEditor.h>
 
 namespace pge
 {
@@ -59,23 +60,25 @@ namespace pge
         }
 
 
-        static char scriptContents[4096];
-        bool               needScriptLoad = isNewScript || nextIdx != curIdx;
+        static ImGuiJako::TextEditor textEditor;
+        textEditor.SetLanguageDefinition(ImGuiJako::TextEditor::LanguageDefinition::Lua());
+        bool needScriptLoad = isNewScript || nextIdx != curIdx;
         if (needScriptLoad) {
             std::string fileContents = os_ReadFile(scriptPaths[nextIdx]);
-            memset(scriptContents, 0, sizeof(scriptContents));
-            strcpy_s(scriptContents, fileContents.c_str());
+            textEditor.SetText(fileContents);
         }
-        ImGui::InputTextMultiline("##scriptcontent", scriptContents, sizeof(scriptContents));
         if (ImGui::Button("Save")) {
             std::ofstream file(scriptPaths[nextIdx]);
-            file.write(scriptContents, strlen(scriptContents));
+            std::string   text = textEditor.GetText();
+            file.write(text.c_str(), text.size());
         }
 
         ImGui::SameLine();
         if (ImGui::Button("Remove script")) {
             m_scriptManager->DestroyScript(sid);
         }
+
+        textEditor.Render("Script text");
     }
 
     void

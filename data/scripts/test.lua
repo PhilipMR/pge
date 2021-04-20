@@ -1,7 +1,7 @@
 function onUpdate(dt)
-	if testIsQButtonDown() then 
-		testPrintNum(dt)
-	else 
-		testPrintNum(10)
+	if testIsQButtonDown() then
+		print("Down!")
 	end
 end
+
+

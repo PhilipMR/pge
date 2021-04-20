@@ -7,6 +7,7 @@ add_library(imgui
     imgui/imgui_tables.cpp
     imgui/imgui_widgets.cpp
     imgui/imgui_demo.cpp
+    imgui/TextEditor.cpp
     imgui/backends/imgui_impl_win32.cpp
     imgui/backends/imgui_impl_dx11.cpp
 )
