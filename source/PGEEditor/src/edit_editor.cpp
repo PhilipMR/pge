@@ -440,7 +440,10 @@ namespace pge
             ImGui::SameLine();
 
             if (isSelected && editEntityId == entity.entity.id) {
-                if (ImGui::InputText("", (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                std::stringstream textIdSs;
+                textIdSs << "##editname" << entity.entity.id;
+                std::string textIdStr = textIdSs.str();
+                if (ImGui::InputText(textIdStr.c_str(), (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
                     editEntityId = game_EntityId_Invalid;
                 }
