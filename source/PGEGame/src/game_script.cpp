@@ -56,7 +56,7 @@ namespace pge
     static int
     Print(lua_State* state)
     {
-        int n = lua_gettop(state);
+        int n = lua_gettop(state); 
         diag_Assert(n == 1);
         diag_Assert(lua_isstring(state, 1));
         const char* message = lua_tostring(state, 1);
@@ -65,7 +65,7 @@ namespace pge
     }
 
     static const luaL_Reg SCRIPT_API_FUNCTIONS[]
-        = {{"testPrintNum", TestFuncConstant}, {"testIsQButtonDown", TestIsQButtonDown}, {"print", Print}, {nullptr, nullptr}};
+        = {{"testPrintNum", TestFuncConstant}, {"testIsQButtonDown", TestIsQButtonDown}, {"print", Print}, {"bla.print", Print}, {nullptr, nullptr}};
 
     // ==================================================
     // game_ScriptManager

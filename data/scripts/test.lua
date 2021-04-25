@@ -1,6 +1,12 @@
+function subroutine()
+	bla.print("Doddn!")
+end
+
 function onUpdate(dt)
 	if testIsQButtonDown() then
-		print("Down!")
+		subroutine()
 	end
 end
+
+
 

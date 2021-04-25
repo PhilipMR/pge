@@ -77,7 +77,7 @@ namespace pge
         bool DrawGameView(const gfx_RenderTarget* target);
         void DrawEntityTree();
         void DrawInspector();
-        void DrawExplorer();
+        void DrawLog();
     };
 } // namespace pge
 

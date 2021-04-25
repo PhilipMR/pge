@@ -74,7 +74,7 @@ namespace pge
         DrawGizmos();
         DrawEntityTree();
         DrawInspector();
-        DrawExplorer();
+        DrawLog();
 
         edit_EndFrame();
         return ishovering;
@@ -523,7 +523,7 @@ namespace pge
     }
 
     void
-    edit_Editor::DrawExplorer()
+    edit_Editor::DrawLog()
     {
         ImGui::Begin("Log", nullptr, PANEL_WINDOW_FLAGS);
 
@@ -556,7 +556,7 @@ namespace pge
             logMask ^= logErrorFlag;
         }
 
-        ImGui::BeginChild("LogText");
+        ImGui::BeginChild("LogText", ImVec2(0, 0), true);
         auto records = diag_GetLogRecords();
         for (const auto& record : records) {
             if (logMask & (1 << record.type)) {
