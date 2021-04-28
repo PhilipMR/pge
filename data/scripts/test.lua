@@ -1,5 +1,5 @@
 function subroutine()
-	bla.print("Doddn!")
+	print("Hello, World!")
 end
 
 function onUpdate(dt)
@@ -7,6 +7,8 @@ function onUpdate(dt)
 		subroutine()
 	end
 end
+
+
 
 
 

@@ -9,6 +9,7 @@
 #include <gfx_debug_draw.h>
 #include <sstream>
 #include <imgui/IconFontAwesome5.h>
+#include <imgui/ImGuizmo.h>
 
 namespace pge
 {
@@ -138,7 +139,36 @@ namespace pge
             gfx_DebugDraw_GridXY(math_Vec3(0, 0, -thickness), length, cellSize, math_Vec3::One(), thickness);
         }
 
+        ImGuizmo::Enable(m_drawGizmos);
         if (m_drawGizmos) {
+            ImGuizmo::SetRect(m_gameWindowPos.x, m_gameWindowPos.y, m_gameWindowSize.x, m_gameWindowSize.y);
+
+            //            if (scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
+            //                auto                  transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
+            //                ImGuizmo::OPERATION   guizmoOp    = m_editMode == edit_EditMode::TRANSLATE ? ImGuizmo::TRANSLATE
+            //                                                    : m_editMode == edit_EditMode::ROTATE  ? ImGuizmo::ROTATE
+            //                                                                                           : ImGuizmo::SCALE;
+            //                static ImGuizmo::MODE guizmoMode  = ImGuizmo::LOCAL;
+            //                static bool           useSnap     = false;
+            //                static math_Vec3      snap;
+            //                ImGuizmo::SetRect(m_gameWindowPos.x, m_gameWindowPos.y, m_gameWindowSize.x, m_gameWindowSize.y);
+            //
+            //                math_Mat4x4        local = math_Transpose(scene->GetTransformManager()->GetLocal(transformId));
+            //                const math_Mat4x4& view  = math_Transpose(m_scene->GetCamera()->GetViewMatrix());
+            //                const math_Mat4x4& proj  = math_Transpose(m_scene->GetCamera()->GetProjectionMatrix());
+            //                if (ImGuizmo::Manipulate(&view[0][0], &proj[0][0], guizmoOp, guizmoMode, &local[0][0], nullptr, useSnap ? &snap.x :
+            //                nullptr)) {
+            //                    math_Vec3 trans;
+            //                    math_Quat rot;
+            //                    math_Vec3 scl;
+            //                    ImGuizmo::DecomposeMatrixToComponents(&local[0][0], &trans[0], &rot[0], &scl[0]);
+            //                    m_scene->GetTransformManager()->SetLocalPosition(transformId, trans);
+            //                    m_scene->GetTransformManager()->SetLocalRotation(transformId, rot);
+            //                    m_scene->GetTransformManager()->SetLocalScale(transformId, scl);
+            //                }
+            //            }
+
+
             // Selected entity AABB
             if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
                 auto            meshId = scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
@@ -189,14 +219,15 @@ namespace pge
             m_commandStack.Redo();
         }
 
+        const math_Mat4x4 view = scene->GetCamera()->GetViewMatrix();
+        const math_Mat4x4 proj = scene->GetCamera()->GetProjectionMatrix();
         switch (m_editMode) {
             case edit_EditMode::NONE: break;
             case edit_EditMode::TRANSLATE: {
                 if (m_selectedEntity == game_EntityId_Invalid)
                     break;
-                const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
-                m_translator.UpdateAndDraw(viewProj, input_MouseDelta());
-                if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
+                m_translator.UpdateAndDraw(view, proj, input_MouseDelta());
+                if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
                     m_editMode = edit_EditMode::NONE;
                     m_translator.CompleteTranslation(&m_commandStack);
                 }
@@ -209,9 +240,8 @@ namespace pge
             case edit_EditMode::SCALE: {
                 if (m_selectedEntity == game_EntityId_Invalid)
                     break;
-                const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
-                m_scaler.UpdateAndDraw(viewProj, input_MouseDelta());
-                if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
+                m_scaler.UpdateAndDraw(view, proj, input_MouseDelta());
+                if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
                     m_editMode = edit_EditMode::NONE;
                     m_scaler.CompleteScale(&m_commandStack);
                 }
@@ -224,9 +254,8 @@ namespace pge
             case edit_EditMode::ROTATE: {
                 if (m_selectedEntity == game_EntityId_Invalid)
                     break;
-                const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
-                m_rotator.UpdateAndDraw(viewProj, input_MouseDelta());
-                if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
+                m_rotator.UpdateAndDraw(view, proj, input_MouseDelta());
+                if (input_MouseButtonPressed(input_MouseButton::LEFT)  && !ImGuizmo::IsOver()) {
                     m_editMode = edit_EditMode::NONE;
                     m_rotator.CompleteRotation(&m_commandStack);
                 }
@@ -242,7 +271,7 @@ namespace pge
         }
 
         // Left mouse click to (de-)select entity
-        if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
+        if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
             game_Entity entity = SelectEntity();
             if (entity != m_selectedEntity) {
                 m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
@@ -353,7 +382,7 @@ namespace pge
         ImGui::SameLine();
         ImGui::Checkbox("Gizmos", &m_drawGizmos);
         ImGui::SameLine();
-        static bool isPlaying = false;
+        static bool  isPlaying = false;
         const ImVec2 size(50, 20);
         ImGui::SetCursorPosX(ImGui::GetContentRegionAvailWidth());
         if (!isPlaying) {

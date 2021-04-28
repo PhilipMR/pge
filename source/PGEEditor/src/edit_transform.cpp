@@ -1,8 +1,10 @@
- #include "../include/edit_transform.h"
+#include "../include/edit_transform.h"
 #include <imgui/imgui.h>
 #include <gfx_debug_draw.h>
 #include <input_keyboard.h>
 #include <input_mouse.h>
+
+#include <imgui/ImGuizmo.h>
 
 namespace pge
 {
@@ -73,13 +75,15 @@ namespace pge
     // ---------------------------------
     // edit_CommandRotate
     // ---------------------------------
-    edit_CommandSetRotation::edit_CommandSetRotation(const game_Entity& entity,const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm)
+    edit_CommandSetRotation::edit_CommandSetRotation(const game_Entity&     entity,
+                                                     const math_Quat&       initialRot,
+                                                     const math_Quat&       newRot,
+                                                     game_TransformManager* tm)
         : m_entity(entity)
         , m_initialRotation(initialRot)
         , m_rotation(newRot)
         , m_tmanager(tm)
-    {
-    }
+    {}
 
     void
     edit_CommandSetRotation::Do()
@@ -304,12 +308,22 @@ namespace pge
     }
 
     void
-    edit_TranslateTool::UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta)
+    edit_TranslateTool::UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta)
     {
-        if (m_hasBegun) {
+        game_TransformId          tid        = m_tmanager->GetTransformId(m_entity);
+        const ImGuizmo::OPERATION guizmoOp   = ImGuizmo::TRANSLATE;
+        const ImGuizmo::MODE      guizmoMode = ImGuizmo::WORLD;
+
+        math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
+        const math_Mat4x4 viewT  = math_Transpose(view);
+        const math_Mat4x4 projT  = math_Transpose(proj);
+        if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
+            math_Vec3 newPos(localT[3][0], localT[3][1], localT[3][2]);
+            m_tmanager->SetLocalPosition(tid, newPos);
+        } else if (m_hasBegun) {
             m_axis = GetActiveAxis(m_axis);
             DrawAxis(m_tmanager, m_entity, m_axis);
-            TranslateEntity(m_tmanager, m_entity, m_axis, viewProj, delta);
+            TranslateEntity(m_tmanager, m_entity, m_axis, proj * view, delta);
         }
     }
 
@@ -359,7 +373,7 @@ namespace pge
         auto local     = m_tmanager->GetLocal(tid);
         m_initialScale = math_Vec3(local[0][0], local[1][1], local[2][2]);
         m_entity       = entity;
-        m_axis         = edit_Axis::XYZ;
+        m_axis         = edit_Axis::NONE;
         m_hasBegun     = true;
     }
 
@@ -388,12 +402,26 @@ namespace pge
     }
 
     void
-    edit_ScalingTool::UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta)
+    edit_ScalingTool::UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta)
     {
-        if (m_hasBegun) {
+        game_TransformId          tid        = m_tmanager->GetTransformId(m_entity);
+        const ImGuizmo::OPERATION guizmoOp   = ImGuizmo::SCALE;
+        const ImGuizmo::MODE      guizmoMode = ImGuizmo::WORLD;
+
+        math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
+        const math_Mat4x4 viewT  = math_Transpose(view);
+        const math_Mat4x4 projT  = math_Transpose(proj);
+        if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
+            math_Vec3 newScl;
+            {
+                math_Vec3 t, r;
+                ImGuizmo::DecomposeMatrixToComponents(&localT[0][0], &t[0], &r[0], &newScl[0]);
+            }
+            m_tmanager->SetLocalScale(tid, newScl);
+        } else if (m_hasBegun) {
             m_axis = GetActiveAxis(m_axis);
             DrawAxis(m_tmanager, m_entity, m_axis);
-            ScaleEntity(m_tmanager, m_entity, m_axis, viewProj, delta);
+            ScaleEntity(m_tmanager, m_entity, m_axis, proj * view, delta);
         }
     }
 
@@ -410,7 +438,7 @@ namespace pge
         float     deltaMag = math_Length(delta);
         math_Vec2 deltaDir = math_Normalize(delta);
 
-        auto tid = tm->GetTransformId(entity);
+        auto tid      = tm->GetTransformId(entity);
         auto eulerRot = math_EulerAnglesFromQuaternion(tm->GetLocalRotation(tid));
 
         math_Vec3 axisVecs[3];
@@ -452,7 +480,7 @@ namespace pge
     {
         diag_Assert(m_hasBegun);
         m_hasBegun = false;
-        auto      tid   = m_tmanager->GetTransformId(m_entity);
+        auto tid   = m_tmanager->GetTransformId(m_entity);
         cstack->Add(edit_CommandSetRotation::Create(m_entity, m_initialRot, m_tmanager->GetLocalRotation(tid), m_tmanager));
     }
 
@@ -468,12 +496,27 @@ namespace pge
     }
 
     void
-    edit_RotationTool::UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta)
+    edit_RotationTool::UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta)
     {
-        if (m_hasBegun) {
+        game_TransformId          tid        = m_tmanager->GetTransformId(m_entity);
+        const ImGuizmo::OPERATION guizmoOp   = ImGuizmo::ROTATE;
+        const ImGuizmo::MODE      guizmoMode = ImGuizmo::WORLD;
+
+        math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
+        const math_Mat4x4 viewT  = math_Transpose(view);
+        const math_Mat4x4 projT  = math_Transpose(proj);
+        if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
+            math_Vec3 newRotEul;
+            {
+                math_Vec3 t, s;
+                ImGuizmo::DecomposeMatrixToComponents(&localT[0][0], &t[0], &newRotEul[0], &s[0]);
+                newRotEul *= math_PI / 180.0f;
+            }
+            m_tmanager->SetLocalRotation(tid, math_QuatFromEulerAngles(newRotEul));
+        } else if (m_hasBegun) {
             m_axis = GetActiveAxis(m_axis);
             DrawAxis(m_tmanager, m_entity, m_axis);
-            RotateEntity(m_tmanager, m_entity, m_axis, viewProj, delta);
+            RotateEntity(m_tmanager, m_entity, m_axis, proj * view, delta);
         }
     }
 } // namespace pge

@@ -5,6 +5,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui_internal.h>
 #include <imgui/IconFontAwesome5.h>
+#include <imgui/ImGuizmo.h>
 
 #include <os_display_win32.h>
 #include <gfx_graphics_adapter_d3d11.h>
@@ -154,6 +155,7 @@ namespace pge
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
         ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
     }
 

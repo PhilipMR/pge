@@ -81,7 +81,7 @@ namespace pge
         void BeginTranslation(const game_Entity& entity);
         void CompleteTranslation(edit_CommandStack* cstack);
         void CancelTranslation();
-        void UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta);
+        void UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta);
     };
 
     class edit_ScalingTool {
@@ -96,7 +96,7 @@ namespace pge
         void BeginScale(const game_Entity& entity);
         void CompleteScale(edit_CommandStack* cstack);
         void CancelScale();
-        void UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta);
+        void UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta);
     };
 
     class edit_RotationTool {
@@ -111,7 +111,7 @@ namespace pge
         void BeginRotation(const game_Entity& entity);
         void CompleteRotation(edit_CommandStack* cstack);
         void CancelRotation();
-        void UpdateAndDraw(const math_Mat4x4& viewProj, const math_Vec2& delta);
+        void UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta);
     };
 
 } // namespace pge
