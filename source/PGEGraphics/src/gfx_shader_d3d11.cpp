@@ -1,6 +1,6 @@
 #include "../include/gfx_shader.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <d3dcompiler.h>
 
 namespace pge
@@ -22,14 +22,14 @@ namespace pge
 #endif
         ID3DBlob *shaderBlob, *errorBlob;
         HRESULT   result = D3DCompile(source, sourceSize, nullptr, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
-        diag_AssertWithReason(SUCCEEDED(result), reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+        core_AssertWithReason(SUCCEEDED(result), reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 
         auto          graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
         ID3D11Device* device               = graphicsAdapterD3D11->GetDevice();
 
         ID3D11VertexShader* shader;
         result = device->CreateVertexShader(reinterpret_cast<char*>(shaderBlob->GetBufferPointer()), shaderBlob->GetBufferSize(), nullptr, &shader);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
         shaderBlob->Release();
 
         m_impl->m_deviceContext = graphicsAdapterD3D11->GetDeviceContext();
@@ -70,7 +70,7 @@ namespace pge
 #endif
         ID3DBlob *shaderBlob, *errorBlob;
         HRESULT   result = D3DCompile(source, sourceSize, nullptr, nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
-        diag_AssertWithReason(SUCCEEDED(result), reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+        core_AssertWithReason(SUCCEEDED(result), reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 
         auto          graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
         ID3D11Device* device               = graphicsAdapterD3D11->GetDevice();
@@ -80,7 +80,7 @@ namespace pge
                                            shaderBlob->GetBufferSize(),
                                            nullptr,
                                            &m_impl->m_shader);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
         shaderBlob->Release();
     }
 
@@ -119,7 +119,7 @@ namespace pge
 #endif
         ID3DBlob *shaderBlob, *errorBlob;
         HRESULT   result = D3DCompile(source, sourceSize, nullptr, nullptr, nullptr, "GSMain", "gs_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
-        diag_AssertWithReason(SUCCEEDED(result), reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+        core_AssertWithReason(SUCCEEDED(result), reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 
         auto          graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
         ID3D11Device* device               = graphicsAdapterD3D11->GetDevice();
@@ -129,7 +129,7 @@ namespace pge
                                            shaderBlob->GetBufferSize(),
                                            nullptr,
                                            &m_impl->m_shader);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
         shaderBlob->Release();
     }
 

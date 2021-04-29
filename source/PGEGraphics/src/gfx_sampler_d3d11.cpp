@@ -1,6 +1,6 @@
 #include "../include/gfx_sampler.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -24,7 +24,7 @@ namespace pge
         samplerDesc.MinLOD             = 0.0f;
         samplerDesc.MaxLOD             = D3D11_FLOAT32_MAX;
         HRESULT result                 = graphicsAdapterD3D11->GetDevice()->CreateSamplerState(&samplerDesc, &m_impl->m_samplerState);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
     }
 
     gfx_Sampler::~gfx_Sampler()

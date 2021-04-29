@@ -15,8 +15,7 @@ add_library(pge_editor
 
 target_include_directories(pge_editor PRIVATE 
     ../External/imgui
-    ../PGEDiagnostics/include
-    ../PGEOS/include
+    ../PGECore/include
     ../PGEMath/include
     ../PGEGraphics/include
     ../PGEResource/include

@@ -1,7 +1,7 @@
 #include "../include/res_effect.h"
 #include <fstream>
 #include <string>
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -55,7 +55,7 @@ namespace pge
         ReadMode      readMode = ReadMode::SCAN_STRUCTURE;
         std::string   line;
         std::ifstream file(path);
-        diag_Assert(file.is_open());
+        core_Assert(file.is_open());
         while (std::getline(file, line)) {
             switch (readMode) {
                 case ReadMode::SCAN_STRUCTURE: {
@@ -69,7 +69,7 @@ namespace pge
                     } else if (strcmp(structure, "PixelShader") == 0) {
                         readMode = ReadMode::PIXEL_SHADER;
                     } else {
-                        diag_CrashAndBurn("Unhandled effect structure type.");
+                        core_CrashAndBurn("Unhandled effect structure type.");
                     }
                 } break;
 
@@ -104,7 +104,7 @@ namespace pge
                     }
                 } break;
 
-                default: diag_CrashAndBurn("Unmapped ReadMode.");
+                default: core_CrashAndBurn("Unmapped ReadMode.");
             }
         }
     }
@@ -114,7 +114,7 @@ namespace pge
         std::string vsSource;
         std::string psSource;
         ReadEffectFile(path, &m_properties[0], &m_numProperties, &vsSource, &psSource);
-        diag_Assert(m_numProperties < MaxProperties);
+        core_Assert(m_numProperties < MaxProperties);
         m_vertexShader = std::make_unique<gfx_VertexShader>(graphicsAdapter, vsSource.c_str(), vsSource.size());
         m_pixelShader  = std::make_unique<gfx_PixelShader>(graphicsAdapter, psSource.c_str(), psSource.size());
     }
@@ -128,7 +128,7 @@ namespace pge
     {
         m_vertexShader = std::make_unique<gfx_VertexShader>(graphicsAdapter, vsSource, strlen(vsSource));
         m_pixelShader  = std::make_unique<gfx_PixelShader>(graphicsAdapter, psSource, strlen(psSource));
-        diag_Assert(numProperties < MaxProperties);
+        core_Assert(numProperties < MaxProperties);
         for (size_t i = 0; i < numProperties; ++i)
             m_properties[i] = properties[i];
     }
@@ -154,7 +154,7 @@ namespace pge
                 break;
             offset += m_properties->Size();
         }
-        diag_Assert(offset < PropertiesCBSize());
+        core_Assert(offset < PropertiesCBSize());
         return offset;
     }
 

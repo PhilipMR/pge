@@ -1,7 +1,7 @@
 #ifndef PGE_RESOURCE_RES_MESH_H
 #define PGE_RESOURCE_RES_MESH_H
 
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <gfx_buffer.h>
 #include <gfx_vertex_layout.h>
 #include <fstream>
@@ -30,7 +30,7 @@ namespace pge
             case res_SerializedVertexAttribute::NORMAL: return gfx_VertexAttribute("NORMAL", gfx_VertexAttributeType::FLOAT3);
             case res_SerializedVertexAttribute::TEXTURECOORD: return gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2);
             case res_SerializedVertexAttribute::COLOR: return gfx_VertexAttribute("COLOR", gfx_VertexAttributeType::FLOAT3);
-            default: diag_CrashAndBurn("Unmapped res_SerializedVertexAttribute.");
+            default: core_CrashAndBurn("Unmapped res_SerializedVertexAttribute.");
         }
         return gfx_VertexAttribute("", gfx_VertexAttributeType::UNASSIGNED);
     }

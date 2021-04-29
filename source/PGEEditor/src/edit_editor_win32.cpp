@@ -7,9 +7,9 @@
 #include <imgui/IconFontAwesome5.h>
 #include <imgui/ImGuizmo.h>
 
-#include <os_display_win32.h>
+#include <core_display_win32.h>
 #include <gfx_graphics_adapter_d3d11.h>
-#include <diag_assert.h>
+#include <core_assert.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -109,15 +109,15 @@ namespace pge
     }
 
     void
-    edit_Initialize(os_Display* display, gfx_GraphicsAdapter* graphics)
+    edit_Initialize(core_Display* display, gfx_GraphicsAdapter* graphics)
     {
-        diag_Assert(!s_isInitialized);
+        core_Assert(!s_isInitialized);
 
-        os_DisplayWin32* displayWin32 = reinterpret_cast<os_DisplayWin32*>(display);
-        diag_Assert(displayWin32 != nullptr);
+        core_DisplayWin32* displayWin32 = reinterpret_cast<core_DisplayWin32*>(display);
+        core_Assert(displayWin32 != nullptr);
 
         gfx_GraphicsAdapterD3D11* graphicsD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphics);
-        diag_Assert(graphicsD3D11 != nullptr);
+        core_Assert(graphicsD3D11 != nullptr);
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -142,7 +142,7 @@ namespace pge
     void
     edit_Shutdown()
     {
-        diag_Assert(s_isInitialized);
+        core_Assert(s_isInitialized);
         ImGui_ImplDX11_Shutdown();
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext();
@@ -151,7 +151,7 @@ namespace pge
     void
     edit_BeginFrame()
     {
-        diag_Assert(s_isInitialized);
+        core_Assert(s_isInitialized);
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
@@ -162,7 +162,7 @@ namespace pge
     void
     edit_EndFrame()
     {
-        diag_Assert(s_isInitialized);
+        core_Assert(s_isInitialized);
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     }

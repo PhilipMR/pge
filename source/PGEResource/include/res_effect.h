@@ -2,7 +2,7 @@
 #define PGE_RESOURCE_RES_EFFECT_H
 
 #include <gfx_shader.h>
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <memory>
 #include <unordered_map>
 
@@ -26,7 +26,7 @@ namespace pge
             case res_EffectPropertyType::FLOAT3: return sizeof(float) * 3;
             case res_EffectPropertyType::FLOAT4: return sizeof(float) * 4;
             case res_EffectPropertyType::TEXTURE2D: return 0; // Not stored in constant buffer.
-            default: diag_CrashAndBurn("No mapping for res_EffectPropertyType.");
+            default: core_CrashAndBurn("No mapping for res_EffectPropertyType.");
         }
         return 0;
     }
@@ -44,7 +44,7 @@ namespace pge
             return res_EffectPropertyType::FLOAT4;
         else if (strcmp(string, "Texture2D") == 0)
             return res_EffectPropertyType::TEXTURE2D;
-        diag_CrashAndBurn("Unhandled res_EffectPropertyType string.");
+        core_CrashAndBurn("Unhandled res_EffectPropertyType string.");
         return res_EffectPropertyType::FLOAT;
     }
 

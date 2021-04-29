@@ -1,6 +1,6 @@
 #include "../include/game_script.h"
 #include <lua/lua.hpp>
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <input_keyboard.h>
 
 namespace pge
@@ -37,10 +37,10 @@ namespace pge
     TestFuncConstant(lua_State* state)
     {
         int n = lua_gettop(state);
-        diag_Assert(n == 1);
-        diag_Assert(lua_isnumber(state, 1));
+        core_Assert(n == 1);
+        core_Assert(lua_isnumber(state, 1));
         lua_Number num = lua_tonumber(state, 1);
-        diag_LogDebugf("testPrintNum: %f", num);
+        core_LogDebugf("testPrintNum: %f", num);
         return 0;
     }
 
@@ -48,7 +48,7 @@ namespace pge
     TestIsQButtonDown(lua_State* state)
     {
         int n = lua_gettop(state);
-        diag_Assert(n == 0);
+        core_Assert(n == 0);
         lua_pushboolean(state, input_KeyboardDown(input_KeyboardKey::Q));
         return 1;
     }
@@ -57,10 +57,10 @@ namespace pge
     Print(lua_State* state)
     {
         int n = lua_gettop(state); 
-        diag_Assert(n == 1);
-        diag_Assert(lua_isstring(state, 1));
+        core_Assert(n == 1);
+        core_Assert(lua_isstring(state, 1));
         const char* message = lua_tostring(state, 1);
-        diag_LogDebug(message);
+        core_LogDebug(message);
         return 0;
     }
 
@@ -80,7 +80,7 @@ namespace pge
         , m_numScripts(0)
     {
         m_apiImpl->luaState = luaL_newstate();
-        diag_Assert(m_apiImpl->luaState != nullptr);
+        core_Assert(m_apiImpl->luaState != nullptr);
         luaL_openlibs(m_apiImpl->luaState);
         lua_getglobal(m_apiImpl->luaState, "_G");
         luaL_setfuncs(m_apiImpl->luaState, SCRIPT_API_FUNCTIONS, 0);
@@ -109,7 +109,7 @@ namespace pge
     void
     game_ScriptManager::CreateScript(const game_Entity& entity, const char* path)
     {
-        diag_Assert(!HasScript(entity));
+        core_Assert(!HasScript(entity));
         game_ScriptId lid = m_numScripts++;
         m_entityMap.insert(std::make_pair(entity, lid));
         m_scripts[lid].entity = entity;
@@ -125,28 +125,28 @@ namespace pge
     game_ScriptId
     game_ScriptManager::GetScriptId(const game_Entity& entity) const
     {
-        diag_Assert(HasScript(entity));
+        core_Assert(HasScript(entity));
         return m_entityMap.at(entity);
     }
 
     const char*
     game_ScriptManager::GetScriptPath(const game_ScriptId& id) const
     {
-        diag_Assert(id < m_numScripts);
+        core_Assert(id < m_numScripts);
         return m_scripts[id].path.c_str();
     }
 
     void
     game_ScriptManager::SetScript(const game_ScriptId& id, const char* path)
     {
-        diag_Assert(id < m_numScripts);
+        core_Assert(id < m_numScripts);
         m_scripts[id].path = path;
     }
 
     void
     game_ScriptManager::DestroyScript(const game_ScriptId& id)
     {
-        diag_Assert(id < m_numScripts);
+        core_Assert(id < m_numScripts);
         game_Entity   entity = m_scripts[id].entity;
         game_ScriptId lastId = m_numScripts - 1;
         m_entityMap.erase(m_entityMap.find(entity));
@@ -161,7 +161,7 @@ namespace pge
     void
     LuaErrorReport(lua_State* state)
     {
-        diag_LogErrorf("LUA Error: %s", lua_tostring(state, 1));
+        core_LogErrorf("LUA Error: %s", lua_tostring(state, 1));
         lua_pop(state, 1);
     }
 

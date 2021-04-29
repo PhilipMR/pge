@@ -1,5 +1,5 @@
 #include "../include/res_material.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <fstream>
 #include <string>
 
@@ -28,10 +28,10 @@ namespace pge
         std::ifstream file(path);
         std::getline(file, line);
         char effectPath[128];
-        diag_Verify(sscanf(line.c_str(), "Effect = %127s", effectPath) == 1);
+        core_Verify(sscanf(line.c_str(), "Effect = %127s", effectPath) == 1);
 
         m_effect = effectCache->Load(effectPath);
-        diag_Assert(m_effect != nullptr);
+        core_Assert(m_effect != nullptr);
         if (m_effect->PropertiesCBSize() > 0)
             m_cbProperties = std::make_unique<gfx_ConstantBuffer>(graphicsAdapter, nullptr, m_effect->PropertiesCBSize(), gfx_BufferUsage::DYNAMIC);
         m_cbData = std::unique_ptr<char[]>(new char[m_effect->PropertiesCBSize()]);

@@ -15,7 +15,6 @@ add_library(pge_graphics
 )
 
 target_include_directories(pge_graphics PRIVATE 
-    ../PGEOS/include
+    ../PGECore/include
     ../PGEMath/include
-    ../PGEDiagnostics/include
 )

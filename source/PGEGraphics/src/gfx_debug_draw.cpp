@@ -383,7 +383,7 @@ namespace pge
     void
     gfx_DebugDraw_Billboard(const math_Vec3& position, const math_Vec2& size, const gfx_Texture2D* texture, const math_Vec3& color)
     {
-        diag_Assert(s_billboardCount < s_billboardCapacity);
+        core_Assert(s_billboardCount < s_billboardCapacity);
         DebugBillboard billboard;
         billboard.position               = position;
         billboard.size                   = size;

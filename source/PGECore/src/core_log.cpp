@@ -1,4 +1,4 @@
-#include "../include/diag_log.h"
+#include "../include/core_log.h"
 #include <chrono>
 #include <sstream>
 #include <iomanip>
@@ -10,7 +10,7 @@
 
 namespace pge
 {
-    std::vector<diag_LogRecord> s_records;
+    std::vector<core_LogRecord> s_records;
 
     static void
     LogMessage(const char* tag, const char* message)
@@ -30,15 +30,15 @@ namespace pge
         OutputDebugString(formatted_message.c_str());
 #endif
 #undef ERROR
-        diag_LogRecord::RecordType recordType;
+        core_LogRecord::RecordType recordType;
         if (strcmp(tag, "DEBUG") == 0)
-            recordType = diag_LogRecord::RecordType::DEBUG;
+            recordType = core_LogRecord::RecordType::DEBUG;
         else if (strcmp(tag, "WARNING") == 0)
-            recordType = diag_LogRecord::RecordType::WARNING;
+            recordType = core_LogRecord::RecordType::WARNING;
         else if (strcmp(tag, "ERROR") == 0)
-            recordType = diag_LogRecord::RecordType::ERROR;
+            recordType = core_LogRecord::RecordType::ERROR;
 
-        s_records.push_back(diag_LogRecord(recordType, formatted_message));
+        s_records.push_back(core_LogRecord(recordType, formatted_message));
     }
 
     static void
@@ -51,31 +51,31 @@ namespace pge
         LogMessage(tag, buffer.get());
     }
 
-    diag_LogRecord::diag_LogRecord(RecordType type, const std::string& message)
+    core_LogRecord::core_LogRecord(RecordType type, const std::string& message)
         : type(type)
         , message(message)
     {}
 
-    std::vector<diag_LogRecord>
-    diag_GetLogRecords()
+    std::vector<core_LogRecord>
+    core_GetLogRecords()
     {
         return s_records;
     }
 
     void
-    diag_ClearLogRecords()
+    core_ClearLogRecords()
     {
         s_records.clear();
     }
 
     void
-    diag_LogDebug(const char* msg)
+    core_LogDebug(const char* msg)
     {
         LogMessage("DEBUG", msg);
     }
 
     void
-    diag_LogDebugf(const char* fmt, ...)
+    core_LogDebugf(const char* fmt, ...)
     {
         va_list list;
         va_start(list, fmt);
@@ -84,13 +84,13 @@ namespace pge
     }
 
     void
-    diag_LogWarning(const char* msg)
+    core_LogWarning(const char* msg)
     {
         LogMessage("WARNING", msg);
     }
 
     void
-    diag_LogWarningf(const char* fmt, ...)
+    core_LogWarningf(const char* fmt, ...)
     {
         va_list list;
         va_start(list, fmt);
@@ -99,13 +99,13 @@ namespace pge
     }
 
     void
-    diag_LogError(const char* msg)
+    core_LogError(const char* msg)
     {
         LogMessage("ERROR", msg);
     }
 
     void
-    diag_LogErrorf(const char* fmt, ...)
+    core_LogErrorf(const char* fmt, ...)
     {
         va_list list;
         va_start(list, fmt);

@@ -192,7 +192,7 @@ namespace pge
                 *numVecsOut = 3;
             } break;
             default: {
-                diag_AssertWithReason(false, "Unhandled axis!");
+                core_AssertWithReason(false, "Unhandled axis!");
             } break;
         }
     }
@@ -256,7 +256,7 @@ namespace pge
         for (size_t i = 0; i < numAxisVecs; ++i) {
             math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
             auto      taxlen = math_Length(taxis);
-            // diag_LogDebugf("taxlen = %f", taxlen);
+            // core_LogDebugf("taxlen = %f", taxlen);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             pos += stepSize * axisVecs[i];
@@ -283,7 +283,7 @@ namespace pge
         for (size_t i = 0; i < numAxisVecs; ++i) {
             math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
             auto      taxlen = math_Length(taxis);
-            // diag_LogDebugf("taxlen = %f", taxlen);
+            // core_LogDebugf("taxlen = %f", taxlen);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             scl += stepSize * axisVecs[i];
@@ -310,7 +310,7 @@ namespace pge
         for (size_t i = 0; i < numAxisVecs; ++i) {
             math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
             auto      taxlen = math_Length(taxis);
-            // diag_LogDebugf("taxlen = %f", taxlen);
+            // core_LogDebugf("taxlen = %f", taxlen);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
 
@@ -331,7 +331,7 @@ namespace pge
     void
     edit_TransformGizmo::Begin(const Mode& mode, const game_Entity& entity)
     {
-        diag_Assert(!m_hasBegun);
+        core_Assert(!m_hasBegun);
         m_mode     = mode;
         m_entity   = entity;
         m_hasBegun = true;
@@ -360,8 +360,8 @@ namespace pge
     void
     edit_TransformGizmo::Complete()
     {
-        diag_Assert(m_hasBegun);
-        diag_Assert(m_mode != MODE_NONE);
+        core_Assert(m_hasBegun);
+        core_Assert(m_mode != MODE_NONE);
         auto tid = m_tmanager->GetTransformId(m_entity);
         switch (m_mode) {
             case MODE_TRANSLATE: {

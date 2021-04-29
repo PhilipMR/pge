@@ -13,7 +13,7 @@ namespace pge
         if (!ImGui::CollapsingHeader("Light"))
             return;
 
-        diag_Assert(m_lightManager->HasDirectionalLight(entity) || m_lightManager->HasPointLight(entity));
+        core_Assert(m_lightManager->HasDirectionalLight(entity) || m_lightManager->HasPointLight(entity));
         if (m_lightManager->HasDirectionalLight(entity)) {
             game_DirectionalLightId lid     = m_lightManager->GetDirectionalLightId(entity);
             game_DirectionalLight   light   = m_lightManager->GetDirectionalLight(lid);

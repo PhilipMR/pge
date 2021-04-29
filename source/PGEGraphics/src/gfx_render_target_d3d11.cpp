@@ -1,6 +1,6 @@
 #include "../include/gfx_render_target.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <d3d11.h>
 #include <comdef.h>
 
@@ -39,7 +39,7 @@ namespace pge
         textureDesc.MiscFlags          = 0;
 
         HRESULT result = device->CreateTexture2D(&textureDesc, nullptr, &m_impl->m_texture);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
 
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
         srvDesc.Format                          = textureDesc.Format;
@@ -47,10 +47,10 @@ namespace pge
         srvDesc.Texture2D.MipLevels             = -1;
         srvDesc.Texture2D.MostDetailedMip       = 0;
         result                                  = device->CreateShaderResourceView(m_impl->m_texture, &srvDesc, &m_impl->m_srv);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
 
         result = device->CreateRenderTargetView(m_impl->m_texture, nullptr, &m_impl->m_rtv);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
 
         if (hasDepth) {
             // Create depth stencil view.
@@ -65,14 +65,14 @@ namespace pge
 
             ID3D11Texture2D* depthTexture;
             result = device->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture);
-            diag_Assert(SUCCEEDED(result));
+            core_Assert(SUCCEEDED(result));
 
             D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
             dsvDesc.Format                        = depthTextureDesc.Format;
             dsvDesc.ViewDimension                 = multisample ? D3D11_DSV_DIMENSION_TEXTURE2DMS : D3D11_DSV_DIMENSION_TEXTURE2D;
             result                                = device->CreateDepthStencilView(depthTexture, &dsvDesc, &m_impl->m_dsv);
             depthTexture->Release();
-            diag_Assert(SUCCEEDED(result));
+            core_Assert(SUCCEEDED(result));
         } else {
             m_impl->m_dsv = nullptr;
         }

@@ -62,7 +62,7 @@ namespace pge
     void
     game_Renderer::DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix)
     {
-        diag_Assert(mesh != nullptr && material != nullptr);
+        core_Assert(mesh != nullptr && material != nullptr);
 
         m_cbTransformData.viewMatrix  = m_camera->GetViewMatrix();
         m_cbTransformData.projMatrix  = m_camera->GetProjectionMatrix();

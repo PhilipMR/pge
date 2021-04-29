@@ -2,7 +2,7 @@
 #define PGE_GRAPHICS_GFX_VERTEX_LAYOUT_H
 
 #include <memory>
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -23,7 +23,7 @@ namespace pge
             case gfx_VertexAttributeType::FLOAT2: return sizeof(float) * 2;
             case gfx_VertexAttributeType::FLOAT3: return sizeof(float) * 3;
             case gfx_VertexAttributeType::FLOAT4: return sizeof(float) * 4;
-            default: diag_CrashAndBurn("No mapping for gfx_VertexAttributeType.");
+            default: core_CrashAndBurn("No mapping for gfx_VertexAttributeType.");
         }
         return 0;
     }

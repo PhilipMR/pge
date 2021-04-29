@@ -1,5 +1,5 @@
 #include "../include/res_mesh.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -16,7 +16,7 @@ namespace pge
      : m_path(path)
     {
         std::ifstream input(path, std::ios::binary);
-        diag_Assert(input.is_open());
+        core_Assert(input.is_open());
         input.read((char*)&m_version, sizeof(m_version));
         input.read((char*)&m_attributeFlags, sizeof(m_attributeFlags));
         input.read((char*)&m_numVertices, sizeof(m_numVertices));
@@ -194,7 +194,7 @@ namespace pge
         m_vertexStride = stride;
 
         // Determine the mesh's local AABB
-        diag_AssertWithReason(strcmp(attributes[0].Name(), "POSITION") == 0, "The position has to be the first attribute!");
+        core_AssertWithReason(strcmp(attributes[0].Name(), "POSITION") == 0, "The position has to be the first attribute!");
         size_t numVertices = vertexDataSize / m_vertexStride;
         m_aabb             = math_CreateAABB(reinterpret_cast<const char*>(vertexData), numVertices, m_vertexStride, 0);
     }

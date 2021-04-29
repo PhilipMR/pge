@@ -9,7 +9,7 @@
 #    include <crtdbg.h>
 #endif
 
-#include <os_display_win32.h>
+#include <core_display_win32.h>
 #include <gfx_graphics_adapter_d3d11.h>
 #include <gfx_graphics_device.h>
 #include <gfx_render_target.h>
@@ -20,6 +20,8 @@
 #include <edit_editor.h>
 #include <gfx_debug_draw.h>
 #include <game_script.h>
+#include <input_keyboard.h>
+#include <input_mouse.h>
 
 static bool                           s_hoveringGameWindow = false;
 static pge::gfx_GraphicsAdapterD3D11* s_graphicsAdapter    = nullptr;
@@ -68,7 +70,7 @@ main()
         const math_Vec2 resolution(1920, 1080);
 
         // Create graphics context
-        os_DisplayWin32          display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
+        core_DisplayWin32          display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
         gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
         gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
         s_graphicsAdapter = &graphicsAdapter;

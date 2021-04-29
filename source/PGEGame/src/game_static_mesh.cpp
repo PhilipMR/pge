@@ -1,5 +1,5 @@
 #include "../include/game_static_mesh.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <math_mat4x4.h>
 
 namespace pge
@@ -18,8 +18,8 @@ namespace pge
     game_StaticMeshId
     game_StaticMeshManager::CreateStaticMesh(const game_Entity& entity)
     {
-        diag_Assert(!HasStaticMesh(entity));
-        diag_Assert(m_meshes.size() < m_meshes.capacity());
+        core_Assert(!HasStaticMesh(entity));
+        core_Assert(m_meshes.size() < m_meshes.capacity());
 
         StaticMeshEntity meshEntity;
         meshEntity.entity   = entity;
@@ -43,7 +43,7 @@ namespace pge
     void
     game_StaticMeshManager::DestroyStaticMesh(const game_StaticMeshId& id)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
 
         const game_StaticMeshId& delId  = id;
         const game_Entity        delEnt = m_meshes[delId].entity;
@@ -83,42 +83,42 @@ namespace pge
     game_StaticMeshId
     game_StaticMeshManager::GetStaticMeshId(const game_Entity& entity) const
     {
-        diag_Assert(HasStaticMesh(entity));
+        core_Assert(HasStaticMesh(entity));
         return m_entityMap.find(entity)->second;
     }
 
     void
     game_StaticMeshManager::SetMesh(const game_StaticMeshId& id, const res_Mesh* mesh)
     {
-        diag_Assert(id < m_meshes.size());
+        core_Assert(id < m_meshes.size());
         m_meshes[id].mesh = mesh;
     }
 
     void
     game_StaticMeshManager::SetMaterial(const game_StaticMeshId& id, const res_Material* material)
     {
-        diag_Assert(id < m_meshes.size());
+        core_Assert(id < m_meshes.size());
         m_meshes[id].material = material;
     }
 
     game_Entity
     game_StaticMeshManager::GetEntity(const game_StaticMeshId& id) const
     {
-        diag_Assert(id < m_meshes.size());
+        core_Assert(id < m_meshes.size());
         return m_meshes[id].entity;
     }
 
     const res_Mesh*
     game_StaticMeshManager::GetMesh(const game_StaticMeshId& id) const
     {
-        diag_Assert(id < m_meshes.size());
+        core_Assert(id < m_meshes.size());
         return m_meshes[id].mesh;
     }
 
     const res_Material*
     game_StaticMeshManager::GetMaterial(const game_StaticMeshId& id) const
     {
-        diag_Assert(id < m_meshes.size());
+        core_Assert(id < m_meshes.size());
         return m_meshes[id].material;
     }
 
@@ -201,14 +201,14 @@ namespace pge
             char     meshPath[128];
             unsigned meshPathLen;
             is.read((char*)&meshPathLen, sizeof(meshPathLen));
-            diag_Assert(meshPathLen < 127);
+            core_Assert(meshPathLen < 127);
             is.read(meshPath, meshPathLen);
             meshPath[meshPathLen] = 0;
 
             char     matPath[128];
             unsigned matPathLen;
             is.read((char*)&matPathLen, sizeof(matPathLen));
-            diag_Assert(matPathLen < 127);
+            core_Assert(matPathLen < 127);
             is.read(matPath, matPathLen);
             matPath[matPathLen] = 0;
 

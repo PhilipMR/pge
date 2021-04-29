@@ -1,16 +1,16 @@
-#ifndef PGE_OS_OS_DISPLAY_H
-#define PGE_OS_OS_DISPLAY_H
+#ifndef PGE_CORE_CORE_DISPLAY_H
+#define PGE_CORE_CORE_DISPLAY_H
 
 #include <memory>
 
 namespace pge
 {
-    class os_Display {
+    class core_Display {
     protected:
-        struct os_DisplayImpl;
-        std::unique_ptr<os_DisplayImpl> m_impl;
-        os_Display();
-        ~os_Display();
+        struct core_DisplayImpl;
+        std::unique_ptr<core_DisplayImpl> m_impl;
+        core_Display();
+        ~core_Display();
 
     public:
         void HandleEvents();

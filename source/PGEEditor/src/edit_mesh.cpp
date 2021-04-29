@@ -22,8 +22,8 @@ namespace pge
         else
             m_lastFileSync = tm;
 
-        m_meshItems = os_ListItemsWithExtension("data", "mesh", true);
-        m_matItems  = os_ListItemsWithExtension("data", "mat", true);
+        m_meshItems = core_FSItemsWithExtension("data", "mesh", true);
+        m_matItems  = core_FSItemsWithExtension("data", "mat", true);
     }
 
     void
@@ -69,7 +69,7 @@ namespace pge
                 }
             }
         }
-        diag_AssertWithReason(curMeshIdx >= 0, "The mesh that was assigned to the entity has been relocated or renamed.");
+        core_AssertWithReason(curMeshIdx >= 0, "The mesh that was assigned to the entity has been relocated or renamed.");
         if (mesh == nullptr) {
             m_meshManager->SetMesh(mid, m_resources->GetMesh(meshPaths[curMeshIdx]));
         }
@@ -96,7 +96,7 @@ namespace pge
                 }
             }
         }
-        diag_AssertWithReason(curMatIdx >= 0, "The material that was assigned to the entity has been relocated or renamed.");
+        core_AssertWithReason(curMatIdx >= 0, "The material that was assigned to the entity has been relocated or renamed.");
         if (mat == nullptr) {
             m_meshManager->SetMaterial(mid, m_resources->GetMaterial(matPaths[curMatIdx]));
         }

@@ -66,7 +66,7 @@ namespace pge
     {
         math_Vec4 in(pixel.x / windowSize.x * 2.0f - 1.0f, pixel.y / windowSize.y * 2.0f - 1.0f, pixel.z * -2.0f, 1.0f);
         math_Vec4 out = viewProjInv * in;
-        diag_Assert(out.w != 0.0f);
+        core_Assert(out.w != 0.0f);
         return out.xyz / out.w;
     }
 
@@ -74,7 +74,7 @@ namespace pge
     math_Raycast_RayFromPixel(const math_Vec2& pixel, const math_Vec2& windowSize, const math_Mat4x4& viewProj)
     {
         math_Mat4x4 viewProjInv;
-        diag_Verify(math_Invert(viewProj, &viewProjInv));
+        core_Verify(math_Invert(viewProj, &viewProjInv));
         math_Vec3 origin = math_Raycast_Unproject(math_Vec3(pixel.x, windowSize.y - pixel.y, 0.0f), windowSize, viewProjInv);
         math_Vec3 tmp    = math_Raycast_Unproject(math_Vec3(pixel.x, windowSize.y - pixel.y, 1.0f), windowSize, viewProjInv);
         math_Vec3 dir    = math_Normalize(origin - tmp);

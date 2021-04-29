@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <Windows.h>
+#include <os_file.h>
 
 void
 ExtractMesh(const aiMesh* mesh, const char* targetPath)
@@ -36,10 +37,7 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
 
     std::stringstream ss;
     CreateDirectory(targetPath, nullptr);
-    ss << targetPath << "\\meshes";
-    CreateDirectory(ss.str().c_str(), nullptr);
-    ss << "\\" << mesh->mName.C_Str() << ".mesh";
-
+    ss << targetPath << "\\" << mesh->mName.C_Str() << ".mesh";
 
     std::vector<math_Vec2> texcoords;
     texcoords.reserve(mesh->mNumVertices);
@@ -63,7 +61,22 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
 
 void
 ExtractMaterial(const aiMaterial* material, const char* targetPath)
-{}
+{
+    aiString texPath;
+    if(material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
+        std::string fname = pge::os_GetFilename(texPath.C_Str());
+
+//        std::stringstream ss;
+//        ss << targetPath;
+//        ss << fname.c_str();
+//        std::filesystem::path destPath{ ss.str().c_str() };
+//        if (!std::filesystem::exists(destPath)) {
+//            std::filesystem::copy()
+//        }
+        // if file at targetPath exists, ignore
+        // else copy to targetPath
+    }
+}
 
 void
 ExtractSkeleton(const aiNode* rootNode, const char* targetPath)
@@ -79,10 +92,10 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     unsigned importFlags = 0;
     //    importFlags |= aiProcess_CalcTangentSpace;
     importFlags |= aiProcess_Triangulate;
-    //importFlags |= aiProcess_ConvertToLeftHanded;
-    //importFlags &= ~aiProcess_FlipWindingOrder;
-    //    importFlags |= aiProcess_JoinIdenticalVertices;
-    //    importFlags |= aiProcess_SortByPType;
+    // importFlags |= aiProcess_ConvertToLeftHanded;
+    // importFlags &= ~aiProcess_FlipWindingOrder;
+    //     importFlags |= aiProcess_JoinIdenticalVertices;
+    //     importFlags |= aiProcess_SortByPType;
     const aiScene* scene = aiImportFile(sourcePath, importFlags);
     if (scene == nullptr) {
         printf("Could not open the scene at path: %s", sourcePath);
@@ -104,11 +117,11 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 
     for (unsigned i = 0; i < scene->mNumMeshes; ++i) {
         ExtractMesh(scene->mMeshes[i], targetPath);
-        printf("Done extracting mesh %d: %s\n", i+1, scene->mMeshes[i]->mName.C_Str());
+        printf("Done extracting mesh %d: %s\n", i + 1, scene->mMeshes[i]->mName.C_Str());
     }
     for (unsigned i = 0; i < scene->mNumMaterials; ++i) {
         ExtractMaterial(scene->mMaterials[i], targetPath);
-        printf("Done extracting material %d: %s\n", i+1, scene->mMaterials[i]->GetName().C_Str());
+        printf("Done extracting material %d: %s\n", i + 1, scene->mMaterials[i]->GetName().C_Str());
     }
     if (SceneHasSkeleton(scene)) {
         ExtractSkeleton(scene->mRootNode, targetPath);
@@ -116,7 +129,7 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     }
     for (unsigned i = 0; i < scene->mNumAnimations; ++i) {
         ExtractAnimation(scene->mAnimations[i], targetPath);
-        printf("Done extracting animation %d: %s\n", i+1, scene->mAnimations[i]->mName.C_Str());
+        printf("Done extracting animation %d: %s\n", i + 1, scene->mAnimations[i]->mName.C_Str());
     }
 
     aiReleaseImport(scene);
@@ -125,6 +138,14 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 int
 main()
 {
-    ConvertModel(R"(C:\Users\phili\Desktop\cube.fbx)", R"(C:\Users\phili\Desktop\cube)");
+    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
+    const char* outPath = R"(C:\Users\phili\Desktop\Dungeon Pack Export)";
+    auto        models  = pge::os_ListItemsWithExtension(inPath, "fbx", false);
+    for (const auto& modelItem : models) {
+        if (modelItem.type != pge::os_ListItemType::FILE)
+            continue;
+        const char* modelPath = modelItem.path.c_str();
+        ConvertModel(modelPath, outPath);
+    }
     return 0;
 }

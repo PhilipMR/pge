@@ -20,7 +20,7 @@ namespace pge
         game_StaticMeshManager     m_staticMeshManager;
         game_LightManager          m_lightManager;
         game_ScriptManager         m_scriptManager;
-        game_FPSCamera             m_camera;
+        game_Camera                m_camera;
         game_Renderer              m_renderer;
 
     public:
@@ -35,13 +35,13 @@ namespace pge
         game_LightManager*          GetLightManager();
         game_ScriptManager*         GetScriptManager();
 
-        inline game_FPSCamera*
+        inline game_Camera*
         GetCamera()
         {
             return &m_camera;
         }
 
-        inline const game_FPSCamera*
+        inline const game_Camera*
         GetCamera() const
         {
             return &m_camera;

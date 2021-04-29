@@ -5,7 +5,7 @@
 #include <game_static_mesh.h>
 #include <res_resource_manager.h>
 #include <time.h>
-#include <os_file.h>
+#include <core_fileutils.h>
 
 namespace pge
 {
@@ -13,8 +13,8 @@ namespace pge
         game_StaticMeshManager*  m_meshManager;
         res_ResourceManager*     m_resources;
         time_t                   m_lastFileSync;
-        std::vector<os_ListItem> m_meshItems;
-        std::vector<os_ListItem> m_matItems;
+        std::vector<core_FSItem> m_meshItems;
+        std::vector<core_FSItem> m_matItems;
 
     public:
         edit_MeshEditor(game_StaticMeshManager* sm, res_ResourceManager* resources);

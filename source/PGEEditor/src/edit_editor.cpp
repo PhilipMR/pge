@@ -6,6 +6,7 @@
 #include <gfx_render_target.h>
 #include <imgui/imgui.h>
 #include <input_mouse.h>
+#include <input_keyboard.h>
 #include <gfx_debug_draw.h>
 #include <sstream>
 #include <imgui/IconFontAwesome5.h>
@@ -162,7 +163,7 @@ namespace pge
 
                 bool isDirLight   = scene->GetLightManager()->HasDirectionalLight(entity);
                 bool isPointLight = scene->GetLightManager()->HasPointLight(entity);
-                diag_Assert(!(isDirLight && isPointLight));
+                core_Assert(!(isDirLight && isPointLight));
                 if (isDirLight || isPointLight) {
                     math_Vec3 plightPos;
                     if (scene->GetTransformManager()->HasTransform(entity)) {
@@ -435,14 +436,14 @@ namespace pge
         ImGui::Begin("Log", nullptr, PANEL_WINDOW_FLAGS);
 
 #undef ERROR
-        const std::uint8_t logDebugFlag   = 1 << diag_LogRecord::RecordType::DEBUG;
-        const std::uint8_t logWarningFlag = 1 << diag_LogRecord::RecordType::WARNING;
-        const std::uint8_t logErrorFlag   = 1 << diag_LogRecord::RecordType::ERROR;
+        const std::uint8_t logDebugFlag   = 1 << core_LogRecord::RecordType::DEBUG;
+        const std::uint8_t logWarningFlag = 1 << core_LogRecord::RecordType::WARNING;
+        const std::uint8_t logErrorFlag   = 1 << core_LogRecord::RecordType::ERROR;
 
         static std::uint8_t logMask = logDebugFlag | logWarningFlag | logErrorFlag;
 
         if (ImGui::Button("Clear")) {
-            diag_ClearLogRecords();
+            core_ClearLogRecords();
         }
         ImGui::SameLine();
 
@@ -464,7 +465,7 @@ namespace pge
         }
 
         ImGui::BeginChild("LogText", ImVec2(0, 0), true);
-        auto records = diag_GetLogRecords();
+        auto records = core_GetLogRecords();
         for (const auto& record : records) {
             if (logMask & (1 << record.type)) {
                 ImGui::Text(record.message.c_str());

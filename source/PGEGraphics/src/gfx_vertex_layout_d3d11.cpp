@@ -1,6 +1,6 @@
 #include "../include/gfx_vertex_layout.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <d3dcompiler.h>
 #include <comdef.h>
 #include <vector>
@@ -93,7 +93,7 @@ namespace pge
         ID3DBlob* errorBlob;
         HRESULT   result
             = D3DCompile(source.c_str(), source.size(), nullptr, nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
-        diag_AssertWithReason(SUCCEEDED(result), reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
+        core_AssertWithReason(SUCCEEDED(result), reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
 
         return shaderBlob;
     }
@@ -125,7 +125,7 @@ namespace pge
         ID3DBlob* shaderBlob = CreateDummyShaderBlobD3D11(&inputs[0], inputs.size());
         HRESULT   result
             = device->CreateInputLayout(&inputs[0], inputs.size(), shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &m_impl->m_layout);
-        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
+        core_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
         shaderBlob->Release();
     }
 

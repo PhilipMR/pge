@@ -11,12 +11,11 @@ add_definitions(-DNOMINMAX)
 target_include_directories(pge_sandbox PRIVATE 
     ../../External/imgui
     ../../External/lua
-    ../../PGEOS/include
+    ../../PGECore/include
     ../../PGEInput/include
     ../../PGEGraphics/include
     ../../PGEMath/include
     ../../PGEResource/include
-    ../../PGEDiagnostics/include
     ../../PGEGame/include
     ../../PGEEditor/include
 )
@@ -26,11 +25,10 @@ target_link_libraries(pge_sandbox PRIVATE
     d3dcompiler.lib
     imgui
     lua
-    pge_os
+    pge_core
     pge_input
     pge_graphics
     pge_resource
-    pge_diagnostics
     pge_game
     pge_editor
 )

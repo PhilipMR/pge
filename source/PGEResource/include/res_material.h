@@ -33,8 +33,8 @@ namespace pge
         void
         SetProperty(size_t offset, const T& value)
         {
-            diag_Assert(m_effect->PropertiesCBSize() > 0);
-            diag_Assert(offset + sizeof(value) <= m_effect->PropertiesCBSize());
+            core_Assert(m_effect->PropertiesCBSize() > 0);
+            core_Assert(offset + sizeof(value) <= m_effect->PropertiesCBSize());
             memcpy(m_cbData.get() + offset, &value, sizeof(T));
             m_cbProperties->Update(m_cbData.get(), m_effect->PropertiesCBSize());
         }
@@ -44,7 +44,7 @@ namespace pge
         SetProperty(const char* name, const T& value)
         {
             static_assert(!std::is_same<gfx_Texture2D, T>(), "When passing resources, only pointers are allowed (i.e. gfx_Texture2D*).");
-            diag_AssertWithReason(m_effect->GetPropertySize(name) == sizeof(T), "The property expected a different value type.");
+            core_AssertWithReason(m_effect->GetPropertySize(name) == sizeof(T), "The property expected a different value type.");
             SetProperty(m_effect->GetPropertyOffset(name), value);
         }
 

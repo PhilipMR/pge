@@ -2,6 +2,8 @@
 #include <ctime>
 #include <imgui/imgui.h>
 #include <imgui/TextEditor.h>
+#include <core_assert.h>
+#include <fstream>
 
 namespace pge
 {
@@ -46,7 +48,7 @@ namespace pge
                 }
             }
         }
-        diag_AssertWithReason(curIdx >= 0, "The script that was assigned to the entity has been relocated or renamed.");
+        core_AssertWithReason(curIdx >= 0, "The script that was assigned to the entity has been relocated or renamed.");
         if (curScriptPath.empty()) {
             m_scriptManager->SetScript(sid, scriptPaths[curIdx]);
         }
@@ -64,7 +66,7 @@ namespace pge
         textEditor.SetLanguageDefinition(ImGuiJako::TextEditor::LanguageDefinition::Lua());
         bool needScriptLoad = isNewScript || nextIdx != curIdx;
         if (needScriptLoad) {
-            std::string fileContents = os_ReadFile(scriptPaths[nextIdx]);
+            std::string fileContents = core_ReadFile(scriptPaths[nextIdx]);
             textEditor.SetText(fileContents);
         }
         if (ImGui::Button("Save")) {
@@ -92,6 +94,6 @@ namespace pge
             return;
         else
             m_lastFileSync = tm;
-        m_scriptItems = os_ListItemsWithExtension("data", "lua", true);
+        m_scriptItems = core_FSItemsWithExtension("data", "lua", true);
     }
 } // namespace pge

@@ -1,22 +1,22 @@
-#include "../include/os_display_win32.h"
-#include <diag_assert.h>
+#include "../include/core_display_win32.h"
+#include "../include/core_assert.h"
 
 namespace pge
 {
-    struct os_Display::os_DisplayImpl {
+    struct core_Display::core_DisplayImpl {
         HWND m_hwnd;
         int  m_width;
         int  m_height;
         bool m_closeRequested;
     };
 
-    os_Display::os_Display()
-        : m_impl(new os_DisplayImpl)
+    core_Display::core_Display()
+        : m_impl(new core_DisplayImpl)
     {}
 
-    os_Display::~os_Display() = default;
+    core_Display::~core_Display() = default;
 
-    os_DisplayWin32::os_DisplayWin32(const char* title, int width, int height, WNDPROC wndProc)
+    core_DisplayWin32::core_DisplayWin32(const char* title, int width, int height, WNDPROC wndProc)
     {
         m_impl->m_width          = width;
         m_impl->m_height         = height;
@@ -30,7 +30,7 @@ namespace pge
         wndClass.hbrBackground = (HBRUSH)COLOR_ACTIVEBORDER;
         wndClass.hCursor       = nullptr; //LoadCursor(nullptr, IDC_ARROW);
         wndClass.lpszClassName = "GameWindowClass";
-        diag_VerifyWithReason(RegisterClass(&wndClass), "Could not register the game window class.");
+        core_VerifyWithReason(RegisterClass(&wndClass), "Could not register the game window class.");
 
         const DWORD wstyle = (WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME)) | WS_VISIBLE;
         RECT        wrect  = {0};
@@ -48,17 +48,17 @@ namespace pge
                                       nullptr,
                                       hInstance,
                                       nullptr);
-        diag_AssertWithReason(m_impl->m_hwnd != nullptr, "Could not create the game window");
+        core_AssertWithReason(m_impl->m_hwnd != nullptr, "Could not create the game window");
     }
 
     HWND
-    os_DisplayWin32::GetWindowHandle()
+    core_DisplayWin32::GetWindowHandle()
     {
         return m_impl->m_hwnd;
     }
 
     void
-    os_Display::HandleEvents()
+    core_Display::HandleEvents()
     {
         MSG msg = {0};
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -70,19 +70,19 @@ namespace pge
     }
 
     int
-    os_Display::GetWidth() const
+    core_Display::GetWidth() const
     {
         return m_impl->m_width;
     }
 
     int
-    os_Display::GetHeight() const
+    core_Display::GetHeight() const
     {
         return m_impl->m_height;
     }
 
     bool
-    os_Display::IsCloseRequested() const
+    core_Display::IsCloseRequested() const
     {
         return m_impl->m_closeRequested;
     }

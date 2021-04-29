@@ -1,5 +1,5 @@
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <comdef.h>
 
 namespace pge
@@ -28,11 +28,11 @@ namespace pge
         // Create back buffer RTV.
         ID3D11Texture2D* backBuffer;
         HRESULT          result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
+        core_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
 
         result = device->CreateRenderTargetView(backBuffer, nullptr, rtvOut);
         backBuffer->Release();
-        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
+        core_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
 
         // Create depth stencil view.
         D3D11_TEXTURE2D_DESC depthTextureDesc = {};
@@ -46,14 +46,14 @@ namespace pge
 
         ID3D11Texture2D* depthTexture;
         result = device->CreateTexture2D(&depthTextureDesc, nullptr, &depthTexture);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
 
         D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
         depthStencilDesc.Format                        = depthTextureDesc.Format;
         depthStencilDesc.ViewDimension                 = D3D11_DSV_DIMENSION_TEXTURE2DMS;
         result                                         = device->CreateDepthStencilView(depthTexture, &depthStencilDesc, dsvOut);
         depthTexture->Release();
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
     }
 
 
@@ -99,7 +99,7 @@ namespace pge
                                                        &m_impl->m_device,
                                                        &m_impl->m_featureLevel,
                                                        &m_impl->m_deviceContext);
-        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
+        core_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
 
         CreateBackBuffers(m_impl->m_swapChain, m_impl->m_device, width, height, &m_impl->m_mainRtv, &m_impl->m_mainDsv);
         m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_mainRtv, m_impl->m_mainDsv);
@@ -126,7 +126,7 @@ namespace pge
         rasterizerDesc.AntialiasedLineEnable = false;
 
         result = m_impl->m_device->CreateRasterizerState(&rasterizerDesc, &m_impl->m_rasterizerState);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
         m_impl->m_deviceContext->RSSetState(m_impl->m_rasterizerState);
 
 
@@ -146,7 +146,7 @@ namespace pge
         blendDesc.IndependentBlendEnable = false;
         blendDesc.RenderTarget[0]        = rtBlendDesc;
         result                           = m_impl->m_device->CreateBlendState(&blendDesc, &m_impl->m_blendState);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
         m_impl->m_deviceContext->OMSetBlendState(m_impl->m_blendState, nullptr, 0xFFFFFFFF);
     }
 

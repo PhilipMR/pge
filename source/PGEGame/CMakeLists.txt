@@ -15,7 +15,7 @@ add_library(pge_game
 
 target_include_directories(pge_game PRIVATE
     ../External/lua
-    ../PGEDiagnostics/include
+    ../PGECore/include
     ../PGEMath/include
     ../PGEInput/include
     ../PGEGraphics/include

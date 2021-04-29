@@ -1,6 +1,6 @@
 #include "../include/gfx_graphics_device.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -32,7 +32,7 @@ namespace pge
             case gfx_PrimitiveType::LINELIST: return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
             case gfx_PrimitiveType::TRIANGLELIST: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
             case gfx_PrimitiveType::TRIANGLESTRIP: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-            default: diag_CrashAndBurn("Unhandled case for gfx_PrimitiveType."); break;
+            default: core_CrashAndBurn("Unhandled case for gfx_PrimitiveType."); break;
         }
         return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
     }

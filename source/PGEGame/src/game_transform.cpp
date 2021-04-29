@@ -1,5 +1,5 @@
 #include "../include/game_transform.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <iostream>
 
 namespace pge
@@ -17,7 +17,7 @@ namespace pge
     {
         if (m_buffer != nullptr)
             free(m_buffer);
-        diag_Assert(capacity > 0);
+        core_Assert(capacity > 0);
         m_capacity        = capacity;
         size_t bufferSize = TRANSFORM_ELEMENT_SIZE * m_capacity;
 
@@ -47,8 +47,8 @@ namespace pge
     game_TransformId
     game_TransformManager::CreateTransform(const game_Entity& entity, const math_Vec3& position, const math_Quat& rotation, const math_Vec3& scale)
     {
-        diag_Assert(!HasTransform(entity));
-        diag_Assert(m_entityMap.size() < m_capacity);
+        core_Assert(!HasTransform(entity));
+        core_Assert(m_entityMap.size() < m_capacity);
         game_TransformId tid = m_entityMap.size();
 
         m_entity[tid]          = entity.id;
@@ -79,7 +79,7 @@ namespace pge
     void
     game_TransformManager::DestroyTransform(const game_TransformId& id)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
 
         const game_TransformId& delId  = id;
         const game_Entity       delEnt = m_entity[delId];
@@ -124,14 +124,14 @@ namespace pge
     game_TransformId
     game_TransformManager::GetTransformId(const game_Entity& entity) const
     {
-        diag_Assert(HasTransform(entity));
+        core_Assert(HasTransform(entity));
         return m_entityMap.at(entity);
     }
 
     void
     game_TransformManager::Translate(const game_TransformId& id, const math_Vec3& translation)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         m_localData[id].position += translation;
         for (size_t i = 0; i < 3; ++i)
             m_local[id][i][3] = m_localData[id].position[i];
@@ -141,7 +141,7 @@ namespace pge
     void
     game_TransformManager::Rotate(const game_TransformId& id, const math_Vec3& axis, float degrees)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         m_localData[id].rotation *= math_QuatFromAxisAngle(axis, degrees);
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
     }
@@ -149,7 +149,7 @@ namespace pge
     void
     game_TransformManager::Scale(const game_TransformId& id, const math_Vec3& scale)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         for (size_t i = 0; i < 3; ++i)
             m_localData[id].scale[i] *= scale[i];
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
@@ -158,7 +158,7 @@ namespace pge
     void
     game_TransformManager::SetLocalPosition(const game_TransformId& id, const math_Vec3& position)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         m_localData[id].position = position;
         for (size_t i = 0; i < 3; ++i)
             m_local[id][i][3] = m_localData[id].position[i];
@@ -168,7 +168,7 @@ namespace pge
     void
     game_TransformManager::SetLocalRotation(const game_TransformId& id, const math_Quat& rotation)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         m_localData[id].rotation = rotation;
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
     }
@@ -176,7 +176,7 @@ namespace pge
     void
     game_TransformManager::SetLocalScale(const game_TransformId& id, const math_Vec3& scale)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         m_localData[id].scale = scale;
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
     }
@@ -184,35 +184,35 @@ namespace pge
     math_Vec3
     game_TransformManager::GetLocalPosition(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         return m_localData[id].position;
     }
 
     math_Quat
     game_TransformManager::GetLocalRotation(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         return m_localData[id].rotation;
     }
 
     math_Vec3
     game_TransformManager::GetLocalScale(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         return m_localData[id].scale;
     }
 
     math_Mat4x4
     game_TransformManager::GetLocal(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         return m_local[id];
     }
 
     math_Vec3
     game_TransformManager::GetWorldPosition(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         game_TransformId pid = m_parent[id];
         math_Vec3        parPos;
         if (pid != game_TransformId_Invalid) {
@@ -224,7 +224,7 @@ namespace pge
     math_Quat
     game_TransformManager::GetWorldRotation(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         game_TransformId pid = m_parent[id];
         math_Quat        parRot;
         if (pid != game_TransformId_Invalid) {
@@ -236,7 +236,7 @@ namespace pge
     math_Vec3
     game_TransformManager::GetWorldScale(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         game_TransformId pid = m_parent[id];
         math_Vec3        parScale;
         if (pid != game_TransformId_Invalid) {
@@ -251,7 +251,7 @@ namespace pge
     math_Mat4x4
     game_TransformManager::GetWorld(const game_TransformId& id) const
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         return m_world[id];
     }
 
@@ -325,7 +325,7 @@ namespace pge
     void
     game_TransformManager::SetLocal(const game_TransformId& id, const math_Mat4x4& matrix)
     {
-        diag_Assert(id < m_entityMap.size());
+        core_Assert(id < m_entityMap.size());
         m_local[id]                  = matrix;
         game_TransformId parentId    = m_parent[id];
         math_Mat4x4      parentWorld = parentId == game_TransformId_Invalid ? math_Mat4x4() : m_world[parentId];

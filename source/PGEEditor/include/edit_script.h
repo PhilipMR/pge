@@ -3,14 +3,14 @@
 
 #include "edit_component.h"
 #include <game_script.h>
-#include <os_file.h>
+#include <core_fileutils.h>
 
 namespace pge
 {
     class edit_ScriptEditor : public edit_ComponentEditor {
         game_ScriptManager*      m_scriptManager;
         time_t                   m_lastFileSync;
-        std::vector<os_ListItem> m_scriptItems;
+        std::vector<core_FSItem> m_scriptItems;
 
     public:
         edit_ScriptEditor(game_ScriptManager* sm);

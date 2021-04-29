@@ -3,7 +3,7 @@
 
 #include "math_vec4.h"
 #include "math_constants.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -43,7 +43,7 @@ namespace pge
                 case 1: return x;
                 case 2: return y;
                 case 3: return z;
-                default: diag_CrashAndBurn("Quaternion subscript was out of range.");
+                default: core_CrashAndBurn("Quaternion subscript was out of range.");
             }
             return 0.0f;
         }
@@ -57,7 +57,7 @@ namespace pge
                 case 2: return y;
                 case 3: return z;
             }
-            diag_CrashAndBurn("Quaternion subscript was out of range.");
+            core_CrashAndBurn("Quaternion subscript was out of range.");
             return x;
         }
     };
@@ -137,7 +137,7 @@ namespace pge
     constexpr math_Quat
     operator/(const math_Quat& quat, float scalar)
     {
-        diag_Assert(scalar != static_cast<float>(0));
+        core_Assert(scalar != static_cast<float>(0));
         return (1.0f / scalar) * quat;
     }
 
@@ -172,7 +172,7 @@ namespace pge
     constexpr math_Quat&
     operator/=(math_Quat& quat, float scalar)
     {
-        diag_Assert(scalar != static_cast<float>(0));
+        core_Assert(scalar != static_cast<float>(0));
         quat = quat / scalar;
         return quat;
     }
@@ -206,7 +206,7 @@ namespace pge
     math_Normalize(const math_Quat& quat)
     {
         float len = math_Length(quat);
-        diag_Assert(len != 0.0f);
+        core_Assert(len != 0.0f);
         return math_Quat(quat.w / len, quat.xyz / len);
     }
 

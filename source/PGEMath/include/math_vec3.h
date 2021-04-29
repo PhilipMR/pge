@@ -2,7 +2,7 @@
 #define PGE_MATH_MATH_VEC3_H
 
 #include "math_constants.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <cmath>
 
 namespace pge
@@ -169,7 +169,7 @@ namespace pge
     math_Normalize(const math_Vec3& vec)
     {
         float len = math_Length(vec);
-        diag_Assert(len > 0);
+        core_Assert(len > 0);
         float invLen = 1.0f / len;
         return vec * invLen;
     }

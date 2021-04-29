@@ -1,6 +1,6 @@
 #include "../include/gfx_buffer.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <comdef.h>
 
 namespace pge
@@ -11,7 +11,7 @@ namespace pge
         switch (usage) {
             case gfx_BufferUsage::STATIC: return D3D11_USAGE_DEFAULT;
             case gfx_BufferUsage::DYNAMIC: return D3D11_USAGE_DYNAMIC;
-            default: diag_CrashAndBurn("Encountered unmapped BufferUsage->D3D11_USAGE.");
+            default: core_CrashAndBurn("Encountered unmapped BufferUsage->D3D11_USAGE.");
         }
         return D3D11_USAGE_DEFAULT;
     }
@@ -34,7 +34,7 @@ namespace pge
 
         ID3D11Buffer* buffer;
         HRESULT       result = device->CreateBuffer(&bufferDesc, bufferDataPtr, &buffer);
-        diag_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
+        core_AssertWithReason(SUCCEEDED(result), _com_error(result).ErrorMessage());
         return buffer;
     }
 
@@ -56,12 +56,12 @@ namespace pge
             case gfx_BufferUsage::DYNAMIC: {
                 D3D11_MAPPED_SUBRESOURCE subData;
                 HRESULT                  result = context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &subData);
-                diag_AssertWithReason(SUCCEEDED(result), "Failed to map to dynamic buffer.");
+                core_AssertWithReason(SUCCEEDED(result), "Failed to map to dynamic buffer.");
                 memcpy((void*)((char*)subData.pData + offset), data, size);
                 context->Unmap(buffer, 0);
             } break;
             default: {
-                diag_CrashAndBurn("Unhandled gfx_BufferUsage case");
+                core_CrashAndBurn("Unhandled gfx_BufferUsage case");
             } break;
         }
     }
@@ -95,7 +95,7 @@ namespace pge
     void
     gfx_ConstantBuffer::Update(const void* data, size_t size)
     {
-        diag_Assert(size == m_impl->m_size);
+        core_Assert(size == m_impl->m_size);
         UpdateBufferD3D11(m_impl->m_deviceContext, m_impl->m_buffer, data, size, 0, m_impl->m_usage);
     }
 

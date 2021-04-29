@@ -1,7 +1,7 @@
 #include "../include/res_texture2d.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -12,7 +12,7 @@ namespace pge
         assert(file != nullptr);
         const int      desiredChannels = 4;
         unsigned char* textureData     = stbi_load_from_file(file, &m_width, &m_height, nullptr, desiredChannels);
-        diag_Assert(textureData != nullptr);
+        core_Assert(textureData != nullptr);
         fclose(file);
 
         m_texture = std::make_unique<gfx_Texture2D>(graphicsAdapter, gfx_PixelFormat::R8G8B8A8_UNORM, m_width, m_height, textureData);

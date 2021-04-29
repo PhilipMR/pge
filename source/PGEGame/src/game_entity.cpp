@@ -1,5 +1,5 @@
 #include "../include/game_entity.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <iostream>
 
 namespace pge
@@ -63,7 +63,7 @@ namespace pge
         } else {
             m_generation.push_back(0);
             idx = m_generation.size() - 1;
-            diag_Assert(idx < (1 << EntityIndexBits));
+            core_Assert(idx < (1 << EntityIndexBits));
         }
         return game_Entity(idx, m_generation[idx]);
     }
@@ -119,7 +119,7 @@ namespace pge
         em.m_freeIndices.clear();
         unsigned numEntities = 0;
         is.read((char*)&numEntities, sizeof(numEntities));
-        diag_Assert(numEntities > 0);
+        core_Assert(numEntities > 0);
         em.m_generation.resize(numEntities);
         for (size_t i = 0; i < numEntities; ++i) {
             game_EntityId entityId = 0;
@@ -136,14 +136,14 @@ namespace pge
     void
     game_EntityMetaDataManager::CreateMetaData(const game_Entity& entity, const game_EntityMetaData& data)
     {
-        diag_Assert(!HasMetaData(entity));
+        core_Assert(!HasMetaData(entity));
         m_entityMap.insert(std::make_pair(entity, data));
     }
 
     void
     game_EntityMetaDataManager::DestroyMetaData(const game_Entity& entity)
     {
-        diag_Assert(HasMetaData(entity));
+        core_Assert(HasMetaData(entity));
         m_entityMap.erase(entity);
     }
 
@@ -177,14 +177,14 @@ namespace pge
     game_EntityMetaData
     game_EntityMetaDataManager::GetMetaData(const game_Entity& entity) const
     {
-        diag_Assert(HasMetaData(entity));
+        core_Assert(HasMetaData(entity));
         return m_entityMap.find(entity)->second;
     }
 
     void
     game_EntityMetaDataManager::SetMetaData(const game_Entity& entity, const game_EntityMetaData& data)
     {
-        diag_Assert(HasMetaData(entity));
+        core_Assert(HasMetaData(entity));
         m_entityMap.find(entity)->second = data;
     }
 

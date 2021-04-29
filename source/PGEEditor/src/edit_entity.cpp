@@ -43,7 +43,7 @@ namespace pge
     void
     edit_CommandDeleteEntity::Do()
     {
-        diag_Assert(m_scene->GetEntityManager()->IsEntityAlive(m_entity));
+        core_Assert(m_scene->GetEntityManager()->IsEntityAlive(m_entity));
 
         m_hasMetaData = m_scene->GetEntityMetaDataManager()->HasMetaData(m_entity);
         if (m_hasMetaData) {
@@ -81,7 +81,7 @@ namespace pge
     void
     edit_CommandDeleteEntity::Undo()
     {
-        diag_Assert(!m_scene->GetEntityManager()->IsEntityAlive(m_entity));
+        core_Assert(!m_scene->GetEntityManager()->IsEntityAlive(m_entity));
         m_scene->GetEntityManager()->CreateEntity(m_entity);
         if (m_hasMetaData) {
             m_scene->GetEntityMetaDataManager()->CreateMetaData(m_entity, m_metaData);
@@ -134,7 +134,7 @@ namespace pge
     void
     edit_CommandCreateEntity::Undo()
     {
-        diag_Assert(m_createdEntity != game_EntityId_Invalid);
+        core_Assert(m_createdEntity != game_EntityId_Invalid);
         m_entityManager->DestroyEntity(m_createdEntity);
     }
 
@@ -162,7 +162,7 @@ namespace pge
     void
     edit_CommandCreateDirectionalLight::Do()
     {
-        diag_AssertWithReason(m_createdEntity == game_EntityId_Invalid, "Same entity can't be created twice!");
+        core_AssertWithReason(m_createdEntity == game_EntityId_Invalid, "Same entity can't be created twice!");
 
         m_createdEntity = m_entityManager->CreateEntity();
         game_EntityMetaData meta;
@@ -184,7 +184,7 @@ namespace pge
     void
     edit_CommandCreateDirectionalLight::Undo()
     {
-        diag_Assert(m_createdEntity != game_EntityId_Invalid);
+        core_Assert(m_createdEntity != game_EntityId_Invalid);
         m_entityManager->DestroyEntity(m_createdEntity);
         m_createdEntity = game_EntityId_Invalid;
     }
@@ -216,7 +216,7 @@ namespace pge
     void
     edit_CommandCreatePointLight::Do()
     {
-        diag_AssertWithReason(m_createdEntity == game_EntityId_Invalid, "Same entity can't be created twice!");
+        core_AssertWithReason(m_createdEntity == game_EntityId_Invalid, "Same entity can't be created twice!");
 
         m_createdEntity = m_entityManager->CreateEntity();
         game_EntityMetaData meta;
@@ -237,7 +237,7 @@ namespace pge
     void
     edit_CommandCreatePointLight::Undo()
     {
-        diag_Assert(m_createdEntity != game_EntityId_Invalid);
+        core_Assert(m_createdEntity != game_EntityId_Invalid);
         m_entityManager->DestroyEntity(m_createdEntity);
         m_createdEntity = game_EntityId_Invalid;
     }

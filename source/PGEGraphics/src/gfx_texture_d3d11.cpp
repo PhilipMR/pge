@@ -1,6 +1,6 @@
 #include "../include/gfx_texture.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
-#include <diag_assert.h>
+#include <core_assert.h>
 
 namespace pge
 {
@@ -9,7 +9,7 @@ namespace pge
     {
         switch (format) {
             case gfx_PixelFormat::R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
-            default: diag_CrashAndBurn("No mapping for gfx_PixelFormat.");
+            default: core_CrashAndBurn("No mapping for gfx_PixelFormat.");
         }
         return DXGI_FORMAT_UNKNOWN;
     }
@@ -19,7 +19,7 @@ namespace pge
     {
         switch (format) {
             case gfx_PixelFormat::R8G8B8A8_UNORM: return 4;
-            default: diag_CrashAndBurn("No mapping for gfx_PixelFormat.");
+            default: core_CrashAndBurn("No mapping for gfx_PixelFormat.");
         }
         return 0;
     }
@@ -55,7 +55,7 @@ namespace pge
         UINT bytesInTotal = height * bytesInRow;
 
         HRESULT result = device->CreateTexture2D(&textureDesc, nullptr, &m_impl->m_texture);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
 
         D3D11_BOX destBox = {};
         destBox.right     = width;
@@ -71,7 +71,7 @@ namespace pge
 
         result = device->CreateShaderResourceView(m_impl->m_texture, &srvDesc, &m_impl->m_srv);
         deviceContext->GenerateMips(m_impl->m_srv);
-        diag_Assert(SUCCEEDED(result));
+        core_Assert(SUCCEEDED(result));
     }
 
     gfx_Texture2D::~gfx_Texture2D()

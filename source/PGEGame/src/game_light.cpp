@@ -1,6 +1,6 @@
 #include "../include/game_light.h"
 #include <math_rect.h>
-#include <diag_assert.h>
+#include <core_assert.h>
 #include <iostream>
 
 namespace pge
@@ -39,7 +39,7 @@ namespace pge
     void
     game_LightManager::CreateDirectionalLight(const game_Entity& entity, const game_DirectionalLight& light)
     {
-        diag_Assert(!HasDirectionalLight(entity));
+        core_Assert(!HasDirectionalLight(entity));
         game_DirectionalLightId lid = m_numDirLights++;
         m_dirLightMap.insert(std::make_pair(entity, lid));
         m_dirLights[lid]        = light;
@@ -49,7 +49,7 @@ namespace pge
     void
     game_LightManager::DestroyDirectionalLight(const game_DirectionalLightId& id)
     {
-        diag_Assert(id < m_numDirLights);
+        core_Assert(id < m_numDirLights);
         game_Entity       entity = m_dirLights[id].entity;
         game_PointLightId lastId = m_numDirLights - 1;
         m_dirLightMap.erase(m_dirLightMap.find(entity));
@@ -76,7 +76,7 @@ namespace pge
     game_DirectionalLight
     game_LightManager::GetDirectionalLight(const game_DirectionalLightId& id) const
     {
-        diag_Assert(id < m_numDirLights);
+        core_Assert(id < m_numDirLights);
         return m_dirLights[id];
     }
 
@@ -90,7 +90,7 @@ namespace pge
     void
     game_LightManager::SetDirectionalLight(const game_DirectionalLightId& id, const game_DirectionalLight& light)
     {
-        diag_Assert(id < m_numDirLights);
+        core_Assert(id < m_numDirLights);
         m_dirLights[id] = light;
     }
 
@@ -98,7 +98,7 @@ namespace pge
     void
     game_LightManager::CreatePointLight(const game_Entity& entity, const game_PointLight& light)
     {
-        diag_Assert(!HasPointLight(entity));
+        core_Assert(!HasPointLight(entity));
         game_PointLightId lid = m_numPointLights++;
         m_pointLightMap.insert(std::make_pair(entity, lid));
         m_pointLights[lid]        = light;
@@ -108,7 +108,7 @@ namespace pge
     void
     game_LightManager::DestroyPointLight(const game_PointLightId& id)
     {
-        diag_Assert(id < m_numPointLights);
+        core_Assert(id < m_numPointLights);
         game_Entity       entity = m_pointLights[id].entity;
         game_PointLightId lastId = m_numPointLights - 1;
         m_pointLightMap.erase(m_pointLightMap.find(entity));
@@ -135,7 +135,7 @@ namespace pge
     game_PointLight
     game_LightManager::GetPointLight(const game_PointLightId& id) const
     {
-        diag_Assert(id < m_numPointLights);
+        core_Assert(id < m_numPointLights);
         return m_pointLights[id];
     }
 
@@ -149,7 +149,7 @@ namespace pge
     void
     game_LightManager::SetPointLight(const game_PointLightId& id, const game_PointLight& light)
     {
-        diag_Assert(id < m_numPointLights);
+        core_Assert(id < m_numPointLights);
         m_pointLights[id] = light;
     }
 

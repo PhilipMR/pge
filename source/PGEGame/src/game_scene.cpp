@@ -13,7 +13,7 @@ namespace pge
     void
     game_Scene::Update()
     {
-        m_camera.UpdateFPS(.1f);
+        game_Camera_UpdateFPS(&m_camera, .1f);
         m_entityMetaManager.GarbageCollect(m_entityManager);
         m_staticMeshManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);

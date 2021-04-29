@@ -12,14 +12,14 @@
 
 namespace pge
 {
-    class os_Display;
+    class core_Display;
     class gfx_GraphicsAdapter;
     class gfx_GraphicsDevice;
     class gfx_RenderTarget;
     class res_ResourceManager;
     class game_Scene;
 
-    void edit_Initialize(os_Display* display, gfx_GraphicsAdapter* graphics);
+    void edit_Initialize(core_Display* display, gfx_GraphicsAdapter* graphics);
     void edit_Shutdown();
 
     class game_Scene;
