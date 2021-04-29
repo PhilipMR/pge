@@ -24,10 +24,7 @@ namespace pge
         , m_graphicsDevice(graphicsDevice)
         , m_resources(resources)
         , m_scene(std::make_unique<game_Scene>(m_graphicsAdapter, m_graphicsDevice, m_resources))
-        , m_translator(m_scene->GetTransformManager())
-        , m_scaler(m_scene->GetTransformManager())
-        , m_rotator(m_scene->GetTransformManager())
-        , m_editMode(edit_EditMode::NONE)
+        , m_transformGizmo(m_scene->GetTransformManager(), &m_commandStack)
         , m_selectedEntity(game_EntityId_Invalid)
         , m_drawGrid(true)
         , m_drawGizmos(true)
@@ -123,7 +120,7 @@ namespace pge
     }
 
     void
-    edit_Editor::DrawGizmos() const
+    edit_Editor::DrawGizmos()
     {
         auto* scene     = m_scene.get();
         auto* resources = m_resources;
@@ -142,32 +139,7 @@ namespace pge
         ImGuizmo::Enable(m_drawGizmos);
         if (m_drawGizmos) {
             ImGuizmo::SetRect(m_gameWindowPos.x, m_gameWindowPos.y, m_gameWindowSize.x, m_gameWindowSize.y);
-
-            //            if (scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
-            //                auto                  transformId = scene->GetTransformManager()->GetTransformId(m_selectedEntity);
-            //                ImGuizmo::OPERATION   guizmoOp    = m_editMode == edit_EditMode::TRANSLATE ? ImGuizmo::TRANSLATE
-            //                                                    : m_editMode == edit_EditMode::ROTATE  ? ImGuizmo::ROTATE
-            //                                                                                           : ImGuizmo::SCALE;
-            //                static ImGuizmo::MODE guizmoMode  = ImGuizmo::LOCAL;
-            //                static bool           useSnap     = false;
-            //                static math_Vec3      snap;
-            //                ImGuizmo::SetRect(m_gameWindowPos.x, m_gameWindowPos.y, m_gameWindowSize.x, m_gameWindowSize.y);
-            //
-            //                math_Mat4x4        local = math_Transpose(scene->GetTransformManager()->GetLocal(transformId));
-            //                const math_Mat4x4& view  = math_Transpose(m_scene->GetCamera()->GetViewMatrix());
-            //                const math_Mat4x4& proj  = math_Transpose(m_scene->GetCamera()->GetProjectionMatrix());
-            //                if (ImGuizmo::Manipulate(&view[0][0], &proj[0][0], guizmoOp, guizmoMode, &local[0][0], nullptr, useSnap ? &snap.x :
-            //                nullptr)) {
-            //                    math_Vec3 trans;
-            //                    math_Quat rot;
-            //                    math_Vec3 scl;
-            //                    ImGuizmo::DecomposeMatrixToComponents(&local[0][0], &trans[0], &rot[0], &scl[0]);
-            //                    m_scene->GetTransformManager()->SetLocalPosition(transformId, trans);
-            //                    m_scene->GetTransformManager()->SetLocalRotation(transformId, rot);
-            //                    m_scene->GetTransformManager()->SetLocalScale(transformId, scl);
-            //                }
-            //            }
-
+            m_transformGizmo.TransformEntity(m_selectedEntity, m_scene->GetCamera()->GetViewMatrix(), m_scene->GetCamera()->GetProjectionMatrix());
 
             // Selected entity AABB
             if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
@@ -219,105 +191,11 @@ namespace pge
             m_commandStack.Redo();
         }
 
-        const math_Mat4x4 view = scene->GetCamera()->GetViewMatrix();
-        const math_Mat4x4 proj = scene->GetCamera()->GetProjectionMatrix();
-        switch (m_editMode) {
-            case edit_EditMode::NONE: break;
-            case edit_EditMode::TRANSLATE: {
-                if (m_selectedEntity == game_EntityId_Invalid)
-                    break;
-                m_translator.UpdateAndDraw(view, proj, input_MouseDelta());
-                if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
-                    m_editMode = edit_EditMode::NONE;
-                    m_translator.CompleteTranslation(&m_commandStack);
-                }
-                if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
-                    m_editMode = edit_EditMode::NONE;
-                    m_translator.CancelTranslation();
-                }
-            } break;
-
-            case edit_EditMode::SCALE: {
-                if (m_selectedEntity == game_EntityId_Invalid)
-                    break;
-                m_scaler.UpdateAndDraw(view, proj, input_MouseDelta());
-                if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
-                    m_editMode = edit_EditMode::NONE;
-                    m_scaler.CompleteScale(&m_commandStack);
-                }
-                if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
-                    m_editMode = edit_EditMode::NONE;
-                    m_scaler.CancelScale();
-                }
-            } break;
-
-            case edit_EditMode::ROTATE: {
-                if (m_selectedEntity == game_EntityId_Invalid)
-                    break;
-                m_rotator.UpdateAndDraw(view, proj, input_MouseDelta());
-                if (input_MouseButtonPressed(input_MouseButton::LEFT)  && !ImGuizmo::IsOver()) {
-                    m_editMode = edit_EditMode::NONE;
-                    m_rotator.CompleteRotation(&m_commandStack);
-                }
-                if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
-                    m_editMode = edit_EditMode::NONE;
-                    m_rotator.CancelRotation();
-                }
-            } break;
-
-            default: {
-                diag_AssertWithReason(false, "Unhandled edit mode!");
-            } break;
-        }
-
         // Left mouse click to (de-)select entity
         if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
             game_Entity entity = SelectEntity();
             if (entity != m_selectedEntity) {
                 m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
-                if (entity == game_EntityId_Invalid) {
-                    m_editMode = edit_EditMode::NONE;
-                }
-                m_translator.CancelTranslation();
-                m_scaler.CancelScale();
-                m_rotator.CancelRotation();
-            }
-        }
-
-        // Handle mode switch on selected entity
-        if (m_selectedEntity.id != game_EntityId_Invalid) {
-            if (!scene->GetTransformManager()->HasTransform(m_selectedEntity))
-                return;
-            // Transition to translate-mode (and axis select)
-            if (m_editMode != edit_EditMode::TRANSLATE) {
-                if (input_KeyboardPressed(input_KeyboardKey::G)) {
-                    m_translator.CancelTranslation();
-                    m_scaler.CancelScale();
-                    m_rotator.CancelRotation();
-
-                    m_editMode = edit_EditMode::TRANSLATE;
-                    m_translator.BeginTranslation(m_selectedEntity);
-                }
-            }
-            if (m_editMode != edit_EditMode::SCALE) {
-                if (input_KeyboardPressed(input_KeyboardKey::S) && !input_MouseButtonDown(input_MouseButton::RIGHT)) {
-                    m_translator.CancelTranslation();
-                    m_scaler.CancelScale();
-                    m_rotator.CancelRotation();
-
-                    m_editMode = edit_EditMode::SCALE;
-                    m_scaler.BeginScale(m_selectedEntity);
-                }
-            }
-            if (m_editMode != edit_EditMode::ROTATE) {
-                if (input_KeyboardPressed(input_KeyboardKey::R)) {
-                    m_translator.CancelTranslation();
-                    m_scaler.CancelScale();
-                    m_rotator.CancelRotation();
-
-                    m_editMode = edit_EditMode::ROTATE;
-                    m_rotator.BeginRotation(m_selectedEntity);
-                }
             }
         }
     }

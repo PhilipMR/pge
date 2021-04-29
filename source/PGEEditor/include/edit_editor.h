@@ -24,14 +24,6 @@ namespace pge
 
     class game_Scene;
 
-    enum class edit_EditMode
-    {
-        NONE,
-        TRANSLATE,
-        SCALE,
-        ROTATE
-    };
-
 
     class edit_Editor {
         struct {
@@ -47,13 +39,9 @@ namespace pge
         res_ResourceManager* m_resources;
 
         std::unique_ptr<game_Scene>                        m_scene;
-        edit_TranslateTool                                 m_translator;
-        edit_ScalingTool                                   m_scaler;
-        edit_RotationTool                                  m_rotator;
+        edit_TransformGizmo                                m_transformGizmo;
         std::vector<std::unique_ptr<edit_ComponentEditor>> m_componentEditors;
 
-
-        edit_EditMode     m_editMode;
         game_Entity       m_selectedEntity;
         bool              m_drawGrid;
         bool              m_drawGizmos;
@@ -70,7 +58,7 @@ namespace pge
 
     private:
         game_Entity SelectEntity() const;
-        void        DrawGizmos() const;
+        void        DrawGizmos();
 
         void HandleEvents();
         void DrawMenuBar();

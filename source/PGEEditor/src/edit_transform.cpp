@@ -264,73 +264,7 @@ namespace pge
         tm->SetLocalPosition(tid, pos);
     }
 
-    edit_TranslateTool::edit_TranslateTool(game_TransformManager* tm)
-        : m_tmanager(tm)
-        , m_entity(game_EntityId_Invalid)
-        , m_axis(edit_Axis::NONE)
-        , m_initialPosition()
-        , m_hasBegun(false)
-    {}
 
-    void
-    edit_TranslateTool::BeginTranslation(const game_Entity& entity)
-    {
-        diag_Assert(!m_hasBegun);
-        auto tid          = m_tmanager->GetTransformId(entity);
-        m_initialPosition = m_tmanager->GetLocalPosition(tid);
-        m_entity          = entity;
-        m_axis            = edit_Axis::NONE;
-        m_hasBegun        = true;
-    }
-
-
-    void
-    edit_TranslateTool::CompleteTranslation(edit_CommandStack* cstack)
-    {
-        diag_Assert(m_hasBegun);
-        m_hasBegun = false;
-
-        auto      tid    = m_tmanager->GetTransformId(m_entity);
-        math_Vec3 curPos = m_tmanager->GetLocalPosition(tid);
-        math_Vec3 trans  = curPos - m_initialPosition;
-        cstack->Add(edit_CommandTranslate::Create(m_entity, trans, m_tmanager));
-    }
-
-    void
-    edit_TranslateTool::CancelTranslation()
-    {
-        if (!m_hasBegun)
-            return;
-        m_hasBegun = false;
-
-        auto tid = m_tmanager->GetTransformId(m_entity);
-        m_tmanager->SetLocalPosition(tid, m_initialPosition);
-    }
-
-    void
-    edit_TranslateTool::UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta)
-    {
-        game_TransformId          tid        = m_tmanager->GetTransformId(m_entity);
-        const ImGuizmo::OPERATION guizmoOp   = ImGuizmo::TRANSLATE;
-        const ImGuizmo::MODE      guizmoMode = ImGuizmo::WORLD;
-
-        math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
-        const math_Mat4x4 viewT  = math_Transpose(view);
-        const math_Mat4x4 projT  = math_Transpose(proj);
-        if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
-            math_Vec3 newPos(localT[3][0], localT[3][1], localT[3][2]);
-            m_tmanager->SetLocalPosition(tid, newPos);
-        } else if (m_hasBegun) {
-            m_axis = GetActiveAxis(m_axis);
-            DrawAxis(m_tmanager, m_entity, m_axis);
-            TranslateEntity(m_tmanager, m_entity, m_axis, proj * view, delta);
-        }
-    }
-
-
-    // ---------------------------------
-    // edit_ScalingTool
-    // ---------------------------------
     static void
     ScaleEntity(game_TransformManager* tm, const game_Entity& entity, const edit_Axis& axis, const math_Mat4x4& viewProj, math_Vec2 delta)
     {
@@ -357,78 +291,7 @@ namespace pge
         tm->SetLocalScale(tid, scl);
     }
 
-    edit_ScalingTool::edit_ScalingTool(game_TransformManager* tm)
-        : m_tmanager(tm)
-        , m_entity(game_EntityId_Invalid)
-        , m_axis(edit_Axis::NONE)
-        , m_initialScale()
-        , m_hasBegun(false)
-    {}
 
-    void
-    edit_ScalingTool::BeginScale(const game_Entity& entity)
-    {
-        diag_Assert(!m_hasBegun);
-        auto tid       = m_tmanager->GetTransformId(entity);
-        auto local     = m_tmanager->GetLocal(tid);
-        m_initialScale = math_Vec3(local[0][0], local[1][1], local[2][2]);
-        m_entity       = entity;
-        m_axis         = edit_Axis::NONE;
-        m_hasBegun     = true;
-    }
-
-    void
-    edit_ScalingTool::CompleteScale(edit_CommandStack* cstack)
-    {
-        diag_Assert(m_hasBegun);
-        m_hasBegun = false;
-
-        auto      tid   = m_tmanager->GetTransformId(m_entity);
-        auto      world = m_tmanager->GetWorld(tid);
-        math_Vec3 curScl(world[0][0], world[1][1], world[2][2]);
-        math_Vec3 scale(curScl.x / m_initialScale.x, curScl.y / m_initialScale.y, curScl.z / m_initialScale.z);
-        cstack->Add(edit_CommandScale::Create(m_entity, scale, m_tmanager));
-    }
-
-    void
-    edit_ScalingTool::CancelScale()
-    {
-        if (!m_hasBegun)
-            return;
-        m_hasBegun = false;
-
-        auto tid = m_tmanager->GetTransformId(m_entity);
-        m_tmanager->SetLocalScale(tid, m_initialScale);
-    }
-
-    void
-    edit_ScalingTool::UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta)
-    {
-        game_TransformId          tid        = m_tmanager->GetTransformId(m_entity);
-        const ImGuizmo::OPERATION guizmoOp   = ImGuizmo::SCALE;
-        const ImGuizmo::MODE      guizmoMode = ImGuizmo::WORLD;
-
-        math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
-        const math_Mat4x4 viewT  = math_Transpose(view);
-        const math_Mat4x4 projT  = math_Transpose(proj);
-        if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
-            math_Vec3 newScl;
-            {
-                math_Vec3 t, r;
-                ImGuizmo::DecomposeMatrixToComponents(&localT[0][0], &t[0], &r[0], &newScl[0]);
-            }
-            m_tmanager->SetLocalScale(tid, newScl);
-        } else if (m_hasBegun) {
-            m_axis = GetActiveAxis(m_axis);
-            DrawAxis(m_tmanager, m_entity, m_axis);
-            ScaleEntity(m_tmanager, m_entity, m_axis, proj * view, delta);
-        }
-    }
-
-
-    // ---------------------------------
-    // edit_RotationTool
-    // ---------------------------------
     static void
     RotateEntity(game_TransformManager* tm, const game_Entity& entity, const edit_Axis& axis, const math_Mat4x4& viewProj, math_Vec2 delta)
     {
@@ -456,67 +319,156 @@ namespace pge
         tm->SetLocalRotation(tid, math_QuatFromEulerAngles(eulerRot));
     }
 
-    edit_RotationTool::edit_RotationTool(game_TransformManager* tm)
-        : m_tmanager(tm)
-        , m_entity(game_EntityId_Invalid)
+    edit_TransformGizmo::edit_TransformGizmo(game_TransformManager* tm, edit_CommandStack* cstack)
+        : m_mode(MODE_NONE)
+        , m_tmanager(tm)
+        , m_cstack(cstack)
         , m_axis(edit_Axis::NONE)
-        , m_initialRot()
         , m_hasBegun(false)
+        , m_entity(game_EntityId_Invalid)
     {}
 
     void
-    edit_RotationTool::BeginRotation(const game_Entity& entity)
+    edit_TransformGizmo::Begin(const Mode& mode, const game_Entity& entity)
     {
         diag_Assert(!m_hasBegun);
-        auto tid     = m_tmanager->GetTransformId(entity);
-        m_initialRot = m_tmanager->GetLocalRotation(tid);
-        m_entity     = entity;
-        m_axis       = edit_Axis::NONE;
-        m_hasBegun   = true;
+        m_mode     = mode;
+        m_entity   = entity;
+        m_hasBegun = true;
+
+        auto tid           = m_tmanager->GetTransformId(m_entity);
+        m_initial.position = m_tmanager->GetLocalPosition(tid);
+        m_initial.scale    = m_tmanager->GetLocalScale(tid);
+        m_initial.rotation = m_tmanager->GetLocalRotation(tid);
     }
 
     void
-    edit_RotationTool::CompleteRotation(edit_CommandStack* cstack)
-    {
-        diag_Assert(m_hasBegun);
-        m_hasBegun = false;
-        auto tid   = m_tmanager->GetTransformId(m_entity);
-        cstack->Add(edit_CommandSetRotation::Create(m_entity, m_initialRot, m_tmanager->GetLocalRotation(tid), m_tmanager));
-    }
-
-    void
-    edit_RotationTool::CancelRotation()
+    edit_TransformGizmo::Cancel()
     {
         if (!m_hasBegun)
             return;
         m_hasBegun = false;
+        m_mode     = MODE_NONE;
 
         auto tid = m_tmanager->GetTransformId(m_entity);
-        m_tmanager->SetLocalRotation(tid, m_initialRot);
+        m_tmanager->SetLocalPosition(tid, m_initial.position);
+        m_tmanager->SetLocalScale(tid, m_initial.scale);
+        m_tmanager->SetLocalRotation(tid, m_initial.rotation);
+    }
+
+
+    void
+    edit_TransformGizmo::Complete()
+    {
+        diag_Assert(m_hasBegun);
+        diag_Assert(m_mode != MODE_NONE);
+        auto tid = m_tmanager->GetTransformId(m_entity);
+        switch (m_mode) {
+            case MODE_TRANSLATE: {
+                m_cstack->Add(edit_CommandTranslate::Create(m_entity, m_tmanager->GetLocalPosition(tid) - m_initial.position, m_tmanager));
+            } break;
+            case MODE_SCALE: {
+                math_Vec3 localScl = m_tmanager->GetLocalScale(tid);
+                math_Vec3 scl;
+                for (size_t i = 0; i < 3; ++i)
+                    scl[i] = m_initial.scale[i] / localScl[i];
+                m_cstack->Add(edit_CommandScale::Create(m_entity, scl, m_tmanager));
+            }; break;
+            case MODE_ROTATE: {
+                m_cstack->Add(edit_CommandSetRotation::Create(m_entity, m_initial.rotation, m_tmanager->GetLocalRotation(tid), m_tmanager));
+            } break;
+        }
+
+        m_hasBegun = false;
+        m_mode     = MODE_NONE;
     }
 
     void
-    edit_RotationTool::UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta)
+    edit_TransformGizmo::TransformEntity(const game_Entity& entity, const math_Mat4x4& view, const math_Mat4x4& proj)
     {
-        game_TransformId          tid        = m_tmanager->GetTransformId(m_entity);
-        const ImGuizmo::OPERATION guizmoOp   = ImGuizmo::ROTATE;
-        const ImGuizmo::MODE      guizmoMode = ImGuizmo::WORLD;
-
-        math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
-        const math_Mat4x4 viewT  = math_Transpose(view);
-        const math_Mat4x4 projT  = math_Transpose(proj);
-        if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
-            math_Vec3 newRotEul;
-            {
-                math_Vec3 t, s;
-                ImGuizmo::DecomposeMatrixToComponents(&localT[0][0], &t[0], &newRotEul[0], &s[0]);
-                newRotEul *= math_PI / 180.0f;
+        if (entity == game_EntityId_Invalid || !m_tmanager->HasTransform(entity)) {
+            if (m_hasBegun) {
+                Complete();
             }
-            m_tmanager->SetLocalRotation(tid, math_QuatFromEulerAngles(newRotEul));
-        } else if (m_hasBegun) {
-            m_axis = GetActiveAxis(m_axis);
-            DrawAxis(m_tmanager, m_entity, m_axis);
-            RotateEntity(m_tmanager, m_entity, m_axis, proj * view, delta);
+            return;
+        }
+
+        // Handle mode transition
+        if (m_mode != MODE_TRANSLATE) {
+            if (input_KeyboardPressed(input_KeyboardKey::G)) {
+                Cancel();
+                Begin(MODE_TRANSLATE, entity);
+                m_axis = edit_Axis::NONE;
+            }
+        }
+        if (m_mode != MODE_SCALE) {
+            if (input_KeyboardPressed(input_KeyboardKey::S) && !input_MouseButtonDown(input_MouseButton::RIGHT)) {
+                Cancel();
+                Begin(MODE_SCALE, entity);
+                m_axis = edit_Axis::NONE;
+            }
+        }
+        if (m_mode != MODE_ROTATE) {
+            if (input_KeyboardPressed(input_KeyboardKey::R)) {
+                Cancel();
+                Begin(MODE_ROTATE, entity);
+                m_axis = edit_Axis::NONE;
+            }
+        }
+
+
+        // Update and draw gizmo
+        if (m_mode != MODE_NONE) {
+            game_TransformId          tid = m_tmanager->GetTransformId(entity);
+            const ImGuizmo::OPERATION guizmoOp
+                = (m_mode == MODE_TRANSLATE) ? (ImGuizmo::TRANSLATE) : (m_mode == MODE_ROTATE ? (ImGuizmo::ROTATE) : (ImGuizmo::SCALE));
+            const ImGuizmo::MODE guizmoMode = ImGuizmo::WORLD;
+
+            math_Mat4x4       localT          = math_Transpose(m_tmanager->GetLocal(tid));
+            const math_Mat4x4 viewT           = math_Transpose(view);
+            const math_Mat4x4 projT           = math_Transpose(proj);
+            static bool       wasManipulating = false;
+            if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
+                wasManipulating = true;
+                math_Vec3 newRotEul, newPos, newScale;
+                ImGuizmo::DecomposeMatrixToComponents(&localT[0][0], &newPos[0], &newRotEul[0], &newScale[0]);
+                newRotEul *= math_PI / 180.0f;
+
+                m_tmanager->SetLocalPosition(tid, newPos);
+                m_tmanager->SetLocalRotation(tid, math_QuatFromEulerAngles(newRotEul));
+                m_tmanager->SetLocalScale(tid, newScale);
+            } else {
+                if (wasManipulating) {
+                    edit_TransformGizmo::Mode mode = m_mode;
+                    Complete();
+                    Begin(mode, entity);
+                    wasManipulating = false;
+                }
+                if (m_hasBegun) {
+                    m_axis = GetActiveAxis(m_axis);
+                    DrawAxis(m_tmanager, entity, m_axis);
+                    const math_Mat4x4 viewProj = proj * view;
+                    const math_Vec2   delta    = input_MouseDelta();
+                    switch (m_mode) {
+                        case MODE_TRANSLATE: {
+                            TranslateEntity(m_tmanager, entity, m_axis, viewProj, delta);
+                        } break;
+                        case MODE_ROTATE: {
+                            RotateEntity(m_tmanager, entity, m_axis, viewProj, delta);
+                        } break;
+                        case MODE_SCALE: {
+                            ScaleEntity(m_tmanager, entity, m_axis, viewProj, delta);
+                        } break;
+                    }
+                }
+            }
+
+            if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
+                Complete();
+            }
+            if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
+                Cancel();
+            }
         }
     }
 } // namespace pge

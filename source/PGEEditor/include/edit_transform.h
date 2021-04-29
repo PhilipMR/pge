@@ -57,7 +57,8 @@ namespace pge
         virtual void Do() override;
         virtual void Undo() override;
 
-        static std::unique_ptr<edit_Command> Create(const game_Entity& entity, const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm);
+        static std::unique_ptr<edit_Command>
+        Create(const game_Entity& entity, const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm);
     };
 
 
@@ -69,50 +70,35 @@ namespace pge
         virtual void UpdateAndDraw(const game_Entity& entity) override;
     };
 
-    class edit_TranslateTool {
+    class edit_TransformGizmo {
+        enum Mode
+        {
+            MODE_NONE,
+            MODE_TRANSLATE,
+            MODE_ROTATE,
+            MODE_SCALE
+        } m_mode;
         game_TransformManager* m_tmanager;
-        game_Entity            m_entity;
+        edit_CommandStack*     m_cstack;
         edit_Axis              m_axis;
-        math_Vec3              m_initialPosition;
         bool                   m_hasBegun;
 
-    public:
-        edit_TranslateTool(game_TransformManager* tm);
-        void BeginTranslation(const game_Entity& entity);
-        void CompleteTranslation(edit_CommandStack* cstack);
-        void CancelTranslation();
-        void UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta);
-    };
+        struct {
+            math_Vec3 position;
+            math_Vec3 scale;
+            math_Quat rotation;
+        } m_initial;
+        game_Entity m_entity;
 
-    class edit_ScalingTool {
-        game_TransformManager* m_tmanager;
-        game_Entity            m_entity;
-        edit_Axis              m_axis;
-        math_Vec3              m_initialScale;
-        bool                   m_hasBegun;
+        void Begin(const Mode& mode, const game_Entity& entity);
+        void Cancel();
+        void Complete();
 
     public:
-        edit_ScalingTool(game_TransformManager* tm);
-        void BeginScale(const game_Entity& entity);
-        void CompleteScale(edit_CommandStack* cstack);
-        void CancelScale();
-        void UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta);
+        edit_TransformGizmo(game_TransformManager* tm, edit_CommandStack* cstack);
+        void TransformEntity(const game_Entity& entity, const math_Mat4x4& view, const math_Mat4x4& proj);
     };
 
-    class edit_RotationTool {
-        game_TransformManager* m_tmanager;
-        game_Entity            m_entity;
-        edit_Axis              m_axis;
-        math_Quat              m_initialRot;
-        bool                   m_hasBegun;
-
-    public:
-        edit_RotationTool(game_TransformManager* tm);
-        void BeginRotation(const game_Entity& entity);
-        void CompleteRotation(edit_CommandStack* cstack);
-        void CancelRotation();
-        void UpdateAndDraw(const math_Mat4x4& view, const math_Mat4x4& proj, const math_Vec2& delta);
-    };
 
 } // namespace pge
 
