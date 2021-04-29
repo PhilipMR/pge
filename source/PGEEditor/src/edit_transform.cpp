@@ -371,7 +371,7 @@ namespace pge
                 math_Vec3 localScl = m_tmanager->GetLocalScale(tid);
                 math_Vec3 scl;
                 for (size_t i = 0; i < 3; ++i)
-                    scl[i] = m_initial.scale[i] / localScl[i];
+                    scl[i] = localScl[i] / m_initial.scale[i];
                 m_cstack->Add(edit_CommandScale::Create(m_entity, scl, m_tmanager));
             }; break;
             case MODE_ROTATE: {
