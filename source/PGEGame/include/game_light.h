@@ -13,14 +13,14 @@ namespace pge
     struct game_DirectionalLight {
         game_Entity entity;
         math_Vec3   color;
-        float       strength;
+        float       strength{};
         math_Vec3   direction;
     };
 
     struct game_PointLight {
         game_Entity entity;
         math_Vec3   color;
-        float       radius;
+        float       radius{};
     };
 
     using game_DirectionalLightId                                     = unsigned;
@@ -40,7 +40,7 @@ namespace pge
         size_t                                             m_numPointLights;
 
     public:
-        game_LightManager(size_t capacity);
+        explicit game_LightManager(size_t capacity);
         void GarbageCollect(const game_EntityManager& entityManager);
 
 

@@ -60,7 +60,7 @@ namespace pge
     void
     core_Display::HandleEvents()
     {
-        MSG msg = {0};
+        MSG msg = {nullptr};
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);

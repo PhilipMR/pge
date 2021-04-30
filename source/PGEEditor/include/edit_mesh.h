@@ -2,13 +2,12 @@
 #define PGE_EDITOR_EDIT_MESH_H
 
 #include "edit_component.h"
-#include <game_static_mesh.h>
-#include <res_resource_manager.h>
-#include <time.h>
 #include <core_fileutils.h>
 
 namespace pge
 {
+    class game_StaticMeshManager;
+    class res_ResourceManager;
     class edit_MeshEditor : public edit_ComponentEditor {
         game_StaticMeshManager*  m_meshManager;
         res_ResourceManager*     m_resources;

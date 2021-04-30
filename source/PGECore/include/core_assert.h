@@ -7,7 +7,7 @@ namespace pge
 {
 #ifndef core_CrashAndBurn
 #    define core_CrashAndBurn(reason)                                                                   \
-        pge::core_LogErrorf("CRASHED: in file %s at line %d, because: %s", __FILE__, __LINE__, reason); \
+        pge::core_LogErrorf("CRASHED: in file %s at line %d: %s", __FILE__, __LINE__, reason); \
         __debugbreak();
 #endif
 
@@ -22,7 +22,7 @@ namespace pge
             }
 #        define core_AssertWithReason(expr, reason)                                                                             \
             if (!(expr)) {                                                                                                      \
-                pge::core_LogErrorf("ASSERT FAILED: %s in file %s at line %d, because: %s", #expr, __FILE__, __LINE__, reason); \
+                pge::core_LogErrorf("ASSERT FAILED: %s in file %s at line %d: %s", #expr, __FILE__, __LINE__, reason); \
                 __debugbreak();                                                                                                 \
             } else {                                                                                                            \
             }
@@ -43,7 +43,7 @@ namespace pge
             }
 #        define core_VerifyWithReason(expr, reason)                                                                             \
             if (!(expr)) {                                                                                                      \
-                pge::core_LogErrorf("VERIFY FAILED: %s in file %s at line %d, because: %s", #expr, __FILE__, __LINE__, reason); \
+                pge::core_LogErrorf("VERIFY FAILED: %s in file %s at line %d: %s", #expr, __FILE__, __LINE__, reason); \
                 __debugbreak();                                                                                                 \
             } else {                                                                                                            \
             }

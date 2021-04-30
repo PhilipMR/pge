@@ -26,10 +26,10 @@ namespace pge
                            float            lineWidth = 0.075f,
                            bool             depthTest = true);
     void gfx_DebugDraw_GridXY(const math_Vec3& origin,
-                              const float      lineLength,
+                              float            lineLength,
                               const math_Vec2& cellSize  = math_Vec2(5.f, 5.f),
                               const math_Vec3& color     = math_Vec3(1.f, 1.f, 1.f),
-                              const float      lineWidth = 0.1f,
+                              float            lineWidth = 0.1f,
                               bool             depthTest = true);
     void gfx_DebugDraw_Billboard(const math_Vec3&     position,
                                  const math_Vec2&     size,

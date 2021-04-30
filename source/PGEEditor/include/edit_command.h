@@ -3,8 +3,6 @@
 
 #include <vector>
 #include <memory>
-#include <game_entity.h>
-#include <game_transform.h>
 
 namespace pge
 {

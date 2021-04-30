@@ -2,15 +2,14 @@
 #include "../include/edit_mesh.h"
 #include "../include/edit_light.h"
 #include "../include/edit_script.h"
-#include <game_scene.h>
-#include <gfx_render_target.h>
-#include <imgui/imgui.h>
 #include <input_mouse.h>
 #include <input_keyboard.h>
+#include <gfx_render_target.h>
 #include <gfx_debug_draw.h>
-#include <sstream>
+#include <game_scene.h>
 #include <imgui/IconFontAwesome5.h>
 #include <imgui/ImGuizmo.h>
+#include <sstream>
 
 namespace pge
 {
@@ -58,7 +57,7 @@ namespace pge
     game_Scene&
     edit_Editor::GetScene()
     {
-        return *m_scene.get();
+        return *m_scene;
     }
 
 
@@ -179,8 +178,6 @@ namespace pge
     void
     edit_Editor::HandleEvents()
     {
-        auto* scene = m_scene.get();
-
         if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Z)) {
             if (input_KeyboardDown(input_KeyboardKey::SHIFT)) {
                 m_commandStack.Redo();
@@ -468,7 +465,7 @@ namespace pge
         auto records = core_GetLogRecords();
         for (const auto& record : records) {
             if (logMask & (1 << record.type)) {
-                ImGui::Text(record.message.c_str());
+                ImGui::Text("%s", record.message.c_str());
             }
         }
         static size_t lastNumRecs = 0;

@@ -240,12 +240,12 @@ namespace pge
         const float pitch = euler.y;
         const float yaw   = euler.z;
 
-        double cy = cosf(yaw * 0.5);
-        double sy = sinf(yaw * 0.5);
-        double cp = cosf(pitch * 0.5);
-        double sp = sinf(pitch * 0.5);
-        double cr = cosf(roll * 0.5);
-        double sr = sinf(roll * 0.5);
+        const float cy = cosf(yaw * 0.5f);
+        const float sy = sinf(yaw * 0.5f);
+        const float cp = cosf(pitch * 0.5f);
+        const float sp = sinf(pitch * 0.5f);
+        const float cr = cosf(roll * 0.5f);
+        const float sr = sinf(roll * 0.5f);
 
         math_Quat q;
         q.w = cr * cp * cy + sr * sp * sy;
@@ -265,21 +265,21 @@ namespace pge
         const math_Quat& q = quat;
 
         // roll (x-axis rotation)
-        double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-        double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-        angles.roll      = std::atan2(sinr_cosp, cosr_cosp);
+        float sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+        float cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        angles.roll      = std::atan2f(sinr_cosp, cosr_cosp);
 
         // pitch (y-axis rotation)
-        double sinp = 2 * (q.w * q.y - q.z * q.x);
+        float sinp = 2 * (q.w * q.y - q.z * q.x);
         if (std::abs(sinp) >= 1)
             angles.pitch = std::copysign(math_PI / 2, sinp); // use 90 degrees if out of range
         else
-            angles.pitch = std::asin(sinp);
+            angles.pitch = std::asinf(sinp);
 
         // yaw (z-axis rotation)
-        double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-        double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-        angles.yaw       = std::atan2(siny_cosp, cosy_cosp);
+        float siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+        float cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        angles.yaw       = std::atan2f(siny_cosp, cosy_cosp);
 
         return math_Vec3(angles.roll, angles.pitch, angles.yaw);
     }

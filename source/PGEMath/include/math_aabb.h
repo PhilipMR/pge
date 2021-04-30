@@ -14,8 +14,12 @@ namespace pge
             math_Vec3 bounds[2];
         };
 
-        math_AABB() {}
-        math_AABB(const math_Vec3& min, const math_Vec3& max)
+        constexpr math_AABB()
+            : min(math_Vec3::Zero())
+            , max(math_Vec3::Zero())
+        {}
+
+        constexpr math_AABB(const math_Vec3& min, const math_Vec3& max)
             : min(min)
             , max(max)
         {}
@@ -32,7 +36,7 @@ namespace pge
         math_Vec3 min(floatMax, floatMax, floatMax);
         math_Vec3 max(floatMin, floatMin, floatMin);
         for (size_t i = 0; i < numPositions; ++i) {
-            const float* pos = reinterpret_cast<const float*>(vtxPtr + i * stride + offset);
+            const auto* pos = reinterpret_cast<const float*>(vtxPtr + i * stride + offset);
             for (size_t j = 0; j < 3; ++j) {
                 if (pos[j] < min[j])
                     min[j] = pos[j];

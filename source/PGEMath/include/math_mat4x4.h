@@ -224,7 +224,6 @@ namespace pge
             forward.x,  forward.y, forward.z, -math_Dot(eye, forward),
             0,          0,         0,          1
         );
-
     }
 
     inline math_Mat4x4

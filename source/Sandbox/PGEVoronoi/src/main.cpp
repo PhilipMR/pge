@@ -1,4 +1,4 @@
-#include <os_display_win32.h>
+#include <core_display_win32.h>
 #include <gfx_graphics_adapter_d3d11.h>
 #include <gfx_graphics_device.h>
 #include <gfx_render_target.h>
@@ -105,7 +105,7 @@ GenerateVoronoiMap(float width, float height, int n)
                 }
 
                 orthoLine.to = -orthoLine.to;
-                intersect = linesIntersect(orthoLine, mapBorders[k]);
+                intersect    = linesIntersect(orthoLine, mapBorders[k]);
                 if (intersect.first) {
                     polygon.push_back(intersect.second);
                 }
@@ -131,7 +131,7 @@ main()
     const math_Vec2 resolution(1600, 900);
     const float     aspect = resolution.x / resolution.y;
 
-    os_DisplayWin32          display("PGE Voronoi", resolution.x, resolution.y, WindowProc);
+    core_DisplayWin32        display("PGE Voronoi", resolution.x, resolution.y, WindowProc);
     gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
     gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
 

@@ -1,8 +1,8 @@
 #include "../include/edit_script.h"
-#include <ctime>
+#include <core_assert.h>
 #include <imgui/imgui.h>
 #include <imgui/TextEditor.h>
-#include <core_assert.h>
+#include <ctime>
 #include <fstream>
 
 namespace pge
@@ -31,8 +31,8 @@ namespace pge
 
         std::vector<const char*> scriptPaths;
         scriptPaths.reserve(m_scriptItems.size());
-        for (size_t i = 0; i < m_scriptItems.size(); ++i) {
-            scriptPaths.push_back(m_scriptItems[i].path.c_str());
+        for (const auto& m_scriptItem : m_scriptItems) {
+            scriptPaths.push_back(m_scriptItem.path.c_str());
         }
 
         // Get active script index

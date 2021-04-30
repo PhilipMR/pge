@@ -17,19 +17,12 @@ namespace pge
     std::string
     core_GetFilenameFromPath(const char* path)
     {
-        size_t len           = strlen(path);
+        size_t len     = strlen(path);
         size_t lastSep = len;
-        while (path[--lastSep] != '\\') {
+        while (path[lastSep] != '\\' && path[--lastSep] != '/') {
             core_Assert(lastSep >= 0);
         }
-
-        size_t      nameBeg = lastSep + 1;
-        size_t      nameLen = len - nameBeg;
-        std::string name;
-        for (size_t i = 0; i < nameLen; ++i) {
-            name += path[nameBeg + i];
-        }
-        return name;
+        return std::string(&path[lastSep + 1]);
     }
 
     std::string
@@ -40,13 +33,7 @@ namespace pge
         while (path[--lastDot] != '.') {
             core_Assert(lastDot >= 0);
         }
-        size_t      extBeg = lastDot + 1;
-        size_t      extLen = len - extBeg;
-        std::string ext;
-        for (size_t i = 0; i < extLen; ++i) {
-            ext += path[extBeg + i];
-        }
-        return ext;
+        return std::string(&path[lastDot + 1]);
     }
 
     std::vector<core_FSItem>
@@ -86,4 +73,4 @@ namespace pge
         }
         return result;
     }
-}
+} // namespace pge

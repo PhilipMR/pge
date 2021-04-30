@@ -8,7 +8,7 @@
 namespace pge
 {
     struct math_Ray {
-        constexpr math_Ray() {}
+        constexpr math_Ray() = default;
         constexpr math_Ray(const math_Vec3& origin, const math_Vec3& direction)
             : origin(origin)
             , direction(direction)

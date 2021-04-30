@@ -1,4 +1,7 @@
 #include "../include/edit_editor.h"
+#include <core_assert.h>
+#include <core_display_win32.h>
+#include <gfx_graphics_adapter_d3d11.h>
 
 #include <imgui/backends/imgui_impl_dx11.h>
 #include <imgui/backends/imgui_impl_win32.h>
@@ -6,11 +9,6 @@
 #include <imgui/imgui_internal.h>
 #include <imgui/IconFontAwesome5.h>
 #include <imgui/ImGuizmo.h>
-
-#include <core_display_win32.h>
-#include <gfx_graphics_adapter_d3d11.h>
-#include <core_assert.h>
-
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace pge
@@ -113,10 +111,10 @@ namespace pge
     {
         core_Assert(!s_isInitialized);
 
-        core_DisplayWin32* displayWin32 = reinterpret_cast<core_DisplayWin32*>(display);
+        auto* displayWin32 = reinterpret_cast<core_DisplayWin32*>(display);
         core_Assert(displayWin32 != nullptr);
 
-        gfx_GraphicsAdapterD3D11* graphicsD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphics);
+        auto* graphicsD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphics);
         core_Assert(graphicsD3D11 != nullptr);
 
         IMGUI_CHECKVERSION();
@@ -156,7 +154,7 @@ namespace pge
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
-        ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode);
+        ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
     }
 
     void

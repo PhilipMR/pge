@@ -15,7 +15,7 @@ namespace pge
         FLOAT4
     };
 
-    inline size_t
+    constexpr size_t
     gfx_VertexAttributeType_GetSize(const gfx_VertexAttributeType& type)
     {
         switch (type) {

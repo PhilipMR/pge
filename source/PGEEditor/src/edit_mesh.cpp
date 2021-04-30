@@ -1,5 +1,8 @@
 #include "../include/edit_mesh.h"
+#include <game_transform.h>
+#include <game_static_mesh.h>
 #include <imgui/imgui.h>
+#include <ctime>
 
 namespace pge
 {
@@ -44,14 +47,14 @@ namespace pge
 
         std::vector<const char*> meshPaths;
         meshPaths.reserve(m_meshItems.size());
-        for (size_t i = 0; i < m_meshItems.size(); ++i) {
-            meshPaths.push_back(m_meshItems[i].path.c_str());
+        for (const auto& m_meshItem : m_meshItems) {
+            meshPaths.push_back(m_meshItem.path.c_str());
         }
 
         std::vector<const char*> matPaths;
         matPaths.reserve(m_matItems.size());
-        for (size_t i = 0; i < m_matItems.size(); ++i) {
-            matPaths.push_back(m_matItems[i].path.c_str());
+        for (const auto& m_matItem : m_matItems) {
+            matPaths.push_back(m_matItem.path.c_str());
         }
 
 

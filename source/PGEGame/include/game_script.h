@@ -24,7 +24,7 @@ namespace pge
         size_t                                         m_numScripts;
 
     public:
-        game_ScriptManager(size_t capacity);
+        explicit game_ScriptManager(size_t capacity);
         ~game_ScriptManager();
         void GarbageCollect(const game_EntityManager& entityManager);
 

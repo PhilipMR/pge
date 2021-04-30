@@ -30,7 +30,7 @@ namespace pge
         game_TransformManager& operator=(const game_TransformManager& rhs) = delete;
 
     public:
-        game_TransformManager(size_t capacity);
+        explicit game_TransformManager(size_t capacity);
         ~game_TransformManager();
 
         game_TransformId CreateTransform(const game_Entity& entity,

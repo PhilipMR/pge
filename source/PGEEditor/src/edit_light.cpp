@@ -17,7 +17,7 @@ namespace pge
         if (m_lightManager->HasDirectionalLight(entity)) {
             game_DirectionalLightId lid     = m_lightManager->GetDirectionalLightId(entity);
             game_DirectionalLight   light   = m_lightManager->GetDirectionalLight(lid);
-            bool                    changed = 0;
+            bool                    changed = false;
             changed |= ImGui::DragFloat3("Direction", &light.direction[0]);
             changed |= ImGui::ColorPicker3("Color", &light.color[0]);
             changed |= ImGui::DragFloat("Strength", &light.strength);
@@ -27,7 +27,7 @@ namespace pge
         } else if (m_lightManager->HasPointLight(entity)) {
             game_PointLightId lid     = m_lightManager->GetPointLightId(entity);
             game_PointLight   light   = m_lightManager->GetPointLight(lid);
-            bool              changed = 0;
+            bool              changed = false;
             changed |= ImGui::DragFloat("Radius", &light.radius);
             changed |= ImGui::ColorPicker3("Color", &light.color[0]);
             if (changed) {
