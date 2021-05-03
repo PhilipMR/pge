@@ -21,20 +21,17 @@ namespace pge
     math_FloatEqual(float a, float b)
     {
         constexpr float epsilon = 0.0001f;
-        float diff = a - b;
-        if (diff < 0)
-            diff = -diff;
-        return diff < epsilon;
+        const float diff = a - b;
+        return (diff < 0 && (-diff < epsilon)) ||
+               (diff >= 0 && diff < epsilon);
     }
 
     constexpr float
     math_Clamp(float value, float min, float max)
     {
-        if (value <= min)
-            return min;
-        if (value >= max)
-            return max;
-        return value;
+        return (value <= min) * min +
+               (value > min && value >= max) * max +
+               (value > min && value < max) * value;
     }
 } // namespace pge
 

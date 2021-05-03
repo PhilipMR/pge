@@ -2,7 +2,7 @@
 #define PGE_EDITOR_EDIT_MESH_H
 
 #include "edit_component.h"
-#include <core_fileutils.h>
+#include <core_file_utils.h>
 
 namespace pge
 {

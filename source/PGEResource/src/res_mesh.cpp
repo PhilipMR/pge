@@ -156,7 +156,7 @@ namespace pge
     res_SerializedMesh::GetAABB() const
     {
         size_t vertexStride = m_vertexDataSize / m_numVertices;
-        return math_CreateAABB(m_vertexData.get(), m_numVertices, vertexStride, 0);
+        return math_AABB(m_vertexData.get(), m_numVertices, vertexStride, 0);
     }
 
 
@@ -196,7 +196,7 @@ namespace pge
         // Determine the mesh's local AABB
         core_AssertWithReason(strcmp(attributes[0].Name(), "POSITION") == 0, "The position has to be the first attribute!");
         size_t numVertices = vertexDataSize / m_vertexStride;
-        m_aabb             = math_CreateAABB(reinterpret_cast<const char*>(vertexData), numVertices, m_vertexStride, 0);
+        m_aabb             = math_AABB(reinterpret_cast<const char*>(vertexData), numVertices, m_vertexStride, 0);
     }
 
     res_Mesh::res_Mesh(res_Mesh&& other) noexcept

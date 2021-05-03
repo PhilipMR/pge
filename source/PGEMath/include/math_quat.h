@@ -43,8 +43,8 @@ namespace pge
                 case 1: return x;
                 case 2: return y;
                 case 3: return z;
-                default: core_CrashAndBurn("Quaternion subscript was out of range.");
             }
+            core_CrashAndBurn("Quaternion subscript was out of range.");
             return 0.0f;
         }
 

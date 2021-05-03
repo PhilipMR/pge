@@ -23,29 +23,39 @@ namespace pge
             : min(min)
             , max(max)
         {}
-    };
 
-    inline math_AABB
-    math_CreateAABB(const char* positionBuffer, size_t numPositions, size_t stride, size_t offset)
-    {
-        const char* vtxPtr = positionBuffer;
+        inline math_AABB(const char* buffer, size_t numPoints, size_t stride, size_t offset)
+        {
+            const float floatMax = std::numeric_limits<float>::max();
+            const float floatMin = -floatMax;
 
-        const float floatMax = std::numeric_limits<float>::max();
-        const float floatMin = -floatMax;
+            math_Vec3 min(floatMax, floatMax, floatMax);
+            math_Vec3 max(floatMin, floatMin, floatMin);
 
-        math_Vec3 min(floatMax, floatMax, floatMax);
-        math_Vec3 max(floatMin, floatMin, floatMin);
-        for (size_t i = 0; i < numPositions; ++i) {
-            const auto* pos = reinterpret_cast<const float*>(vtxPtr + i * stride + offset);
-            for (size_t j = 0; j < 3; ++j) {
-                if (pos[j] < min[j])
-                    min[j] = pos[j];
-                if (pos[j] > max[j])
-                    max[j] = pos[j];
+            for (size_t i = 0; i < numPoints; ++i) {
+                const auto* pos = reinterpret_cast<const float*>(buffer + i * stride + offset);
+
+                for (size_t j = 0; j < 3; ++j) {
+                    const auto smin = static_cast<int>(pos[j] < min[j]);
+                    const auto gmax = static_cast<int>(pos[j] > max[j]);
+
+                    min[j] = smin * pos[j] + (1 - smin) * min[j];
+                    max[j] = gmax * pos[j] + (1 - gmax) * max[j];
+                }
             }
+
+            this->min = min;
+            this->max = max;
         }
-        return math_AABB(min, max);
-    }
+
+        inline math_AABB(const math_Vec3* points, size_t numPoints)
+            : math_AABB(reinterpret_cast<const char*>(points), numPoints, sizeof(math_Vec3), 0)
+        {}
+
+        inline math_AABB(const math_Vec4* points, size_t numPoints)
+            : math_AABB(reinterpret_cast<const char*>(points), numPoints, sizeof(math_Vec4), 0)
+        {}
+    };
 
     inline math_AABB
     math_TransformAABB(const math_AABB& aabb, const math_Mat4x4& xform)
@@ -61,7 +71,7 @@ namespace pge
             xform * math_Vec4(aabb.min + math_Vec3(0, diff.y, diff.z), 1),
             xform * math_Vec4(aabb.min + math_Vec3(diff.x, diff.y, diff.z), 1),
         };
-        return math_CreateAABB((const char*)points, 8, sizeof(math_Vec4), 0);
+        return math_AABB(points, 8);
     }
 
 } // namespace pge

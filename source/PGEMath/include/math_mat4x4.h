@@ -291,9 +291,9 @@ namespace pge
     math_CreateTranslationMatrix(const math_Vec3& translation)
     {
         math_Mat4x4 result;
-        for (size_t i = 0; i < 3; ++i) {
-            result[i][3] = translation[i];
-        }
+        result[0][3] = translation[0];
+        result[1][3] = translation[1];
+        result[2][3] = translation[2];
         return result;
     }
 
@@ -449,7 +449,6 @@ namespace pge
                   m[4] * m[2] * m[9] +
                   m[8] * m[1] * m[6] -
                   m[8] * m[2] * m[5];
-
         // clang-format on
 
         float det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
