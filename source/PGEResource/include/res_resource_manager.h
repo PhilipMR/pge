@@ -15,7 +15,7 @@ namespace pge
         res_MeshCache      m_meshes;
 
     public:
-        res_ResourceManager(gfx_GraphicsAdapter* graphicsAdapter);
+        explicit res_ResourceManager(gfx_GraphicsAdapter* graphicsAdapter);
 
         const res_Effect*    GetEffect(const char* path);
         const res_Texture2D* GetTexture(const char* path);

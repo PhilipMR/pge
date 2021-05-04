@@ -18,11 +18,19 @@ namespace pge
     core_GetFilenameFromPath(const char* path)
     {
         size_t len     = strlen(path);
-        size_t lastSep = len;
-        while (path[lastSep] != '\\' && path[--lastSep] != '/') {
+        int    lastSep = len;
+        while (path[lastSep] != '\\' && path[--lastSep] != '/' && lastSep >= 0) {
             core_Assert(lastSep >= 0);
         }
         return std::string(&path[lastSep + 1]);
+    }
+
+    std::string
+    core_GetDirnameFromPath(const char* path)
+    {
+        std::string pathstr(path);
+        size_t      lastSep = pathstr.find_last_of('\\');
+        return (lastSep == std::string::npos) ? pathstr : pathstr.substr(lastSep + 1);
     }
 
     std::string

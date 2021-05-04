@@ -66,6 +66,7 @@ namespace pge
         void DrawEntityTree();
         void DrawInspector();
         void DrawLog();
+        void DrawResources();
     };
 } // namespace pge
 

@@ -73,6 +73,7 @@ namespace pge
         DrawEntityTree();
         DrawInspector();
         DrawLog();
+        DrawResources();
 
         edit_EndFrame();
         return ishovering;
@@ -472,6 +473,116 @@ namespace pge
         if (lastNumRecs != records.size()) {
             ImGui::SetScrollHereY(1.0f);
             lastNumRecs = records.size();
+        }
+        ImGui::EndChild();
+
+        ImGui::End();
+    }
+
+    void
+    edit_Editor::DrawResources()
+    {
+        ImGui::Begin("Resources", nullptr, PANEL_WINDOW_FLAGS);
+
+        static std::string currentDir = "data\\";
+        auto               dirItems   = core_FSItemsInDirectory(currentDir.c_str());
+        static std::string selectedFile;
+
+        if (currentDir != "data\\") {
+            if (ImGui::Button(ICON_FA_ARROW_LEFT)) {
+                currentDir.pop_back();
+                while (currentDir[currentDir.size() - 1] != '\\') {
+                    currentDir.pop_back();
+                }
+                selectedFile.clear();
+            }
+        }
+
+        const std::uint8_t  meshFilterFlag = 1 << 0;
+        const std::uint8_t  matFilterFlag  = 1 << 1;
+        static std::uint8_t filterMask     = meshFilterFlag | matFilterFlag;
+
+        bool showMeshes = filterMask & meshFilterFlag;
+        ImGui::SameLine();
+        if (ImGui::Checkbox(".mesh", &showMeshes)) {
+            filterMask ^= meshFilterFlag;
+        }
+        ImGui::SameLine();
+
+        bool showMats = filterMask & matFilterFlag;
+        if (ImGui::Checkbox(".mat", &showMats)) {
+            filterMask ^= matFilterFlag;
+        }
+
+
+        if (!selectedFile.empty()) {
+            std::string ext = core_GetExtensionFromPath(selectedFile.c_str());
+
+            if (ext == "mesh") {
+                std::string meshPath;
+                {
+                    std::stringstream ss;
+                    ss << currentDir << "\\" << selectedFile;
+                    meshPath = ss.str();
+                }
+
+
+                if (m_selectedEntity != game_EntityId_Invalid) {
+                    ImGui::SameLine();
+                    if (ImGui::Button("Set mesh")) {
+                        auto mid = m_scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
+                        m_scene->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
+                    }
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("New mesh entity")) {
+                    game_Entity newmesh = m_scene->GetEntityManager()->CreateEntity();
+                    m_scene->GetTransformManager()->CreateTransform(newmesh);
+                    auto mid = m_scene->GetStaticMeshManager()->CreateStaticMesh(newmesh);
+                    m_scene->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
+                    m_scene->GetStaticMeshManager()->SetMaterial(mid, m_resources->GetMaterial("data\\Dungeon Pack Export\\DungeonPack.mat"));
+
+                    std::string meshname;
+                    {
+                        std::stringstream ss;
+                        auto              fn = core_GetFilenameFromPath(selectedFile.c_str());
+                        ss << core_GetFilenameFromPath(selectedFile.c_str());
+                        ss << " [" << std::to_string(newmesh.id) << "]";
+                        meshname = ss.str();
+                    }
+                    m_scene->GetEntityMetaDataManager()->CreateMetaData(newmesh, game_EntityMetaData(newmesh, meshname.c_str()));
+                }
+            }
+        }
+
+        ImGui::BeginChild("ResourceTree", ImVec2(0, 0), true);
+        for (const auto& dirItem : dirItems) {
+            switch (dirItem.type) {
+                case core_FSItemType::FILE: {
+                    std::string filename = core_GetFilenameFromPath(dirItem.path.c_str());
+                    std::string ext      = core_GetExtensionFromPath(filename.c_str());
+                    if ((ext != "mesh" || showMeshes) && (ext != "mat" || showMats)) {
+                        std::stringstream ss;
+                        ss << ICON_FA_FILE;
+                        ss << " ";
+                        ss << filename;
+                        if (ImGui::Selectable(ss.str().c_str(), selectedFile == filename)) {
+                            selectedFile = filename;
+                        }
+                    }
+
+                } break;
+                case core_FSItemType::DIRECTORY: {
+                    std::stringstream ss;
+                    ss << ICON_FA_FOLDER;
+                    ss << " ";
+                    ss << core_GetDirnameFromPath(dirItem.path.c_str());
+                    if (ImGui::Selectable(ss.str().c_str())) {
+                        currentDir = dirItem.path;
+                    }
+                } break;
+            }
         }
         ImGui::EndChild();
 
