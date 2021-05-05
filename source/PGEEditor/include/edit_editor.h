@@ -67,6 +67,7 @@ namespace pge
         void DrawInspector();
         void DrawLog();
         void DrawResources();
+        ImTextureID RenderMeshPreviewTexture(const res_Mesh* mesh, const res_Material* material);
     };
 } // namespace pge
 

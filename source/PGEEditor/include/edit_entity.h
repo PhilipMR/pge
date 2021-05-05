@@ -60,6 +60,17 @@ namespace pge
         static std::unique_ptr<edit_Command> Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager);
     };
 
+    class edit_CommandDuplicateEntity : public edit_Command {
+        game_Scene* m_scene;
+        game_Entity m_original;
+
+    public:
+        edit_CommandDuplicateEntity(game_Scene* scene, const game_Entity& entity);
+        virtual void                         Do() override;
+        virtual void                         Undo() override;
+        static std::unique_ptr<edit_Command> Create(game_Scene* scene, const game_Entity& entity);
+    };
+
     class edit_CommandCreateDirectionalLight : public edit_Command {
         game_EntityManager*         m_entityManager;
         game_EntityMetaDataManager* m_metaManager;

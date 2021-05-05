@@ -60,6 +60,27 @@ namespace pge
     }
 
     void
+    game_Renderer::SetDirectionalLight(size_t slot, const game_DirectionalLight& light)
+    {
+        core_Assert(slot < MAX_DIRLIGHTS);
+        auto& dlight     = m_cbLightsData.dirLights[slot];
+        dlight.direction = m_camera->GetViewMatrix() * math_Vec4(light.direction, 0);
+        dlight.color     = math_Vec4(light.color, light.strength);
+        m_cbLights.Update(&m_cbLightsData, sizeof(CBLights));
+    }
+
+    void
+    game_Renderer::SetPointLight(size_t slot, const game_PointLight& light, const math_Vec3& position)
+    {
+        core_Assert(slot < MAX_POINTLIGHTS);
+        auto& plight    = m_cbLightsData.pointLights[slot];
+        plight.position = math_Vec4(position, 1);
+        plight.color    = plight.color;
+        plight.radius   = plight.radius;
+        m_cbLights.Update(&m_cbLightsData, sizeof(CBLights));
+    }
+
+    void
     game_Renderer::DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix)
     {
         core_Assert(mesh != nullptr && material != nullptr);

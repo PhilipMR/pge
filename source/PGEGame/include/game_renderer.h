@@ -45,6 +45,8 @@ namespace pge
 
         void SetCamera(const game_Camera* camera);
         void UpdateLights(const game_LightManager& lightManager, const game_TransformManager& tmanager);
+        void SetDirectionalLight(size_t slot, const game_DirectionalLight& light);
+        void SetPointLight(size_t slot, const game_PointLight& light, const math_Vec3& position);
 
         void DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix);
     };

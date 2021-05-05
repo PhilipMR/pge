@@ -189,6 +189,9 @@ namespace pge
         if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Y)) {
             m_commandStack.Redo();
         }
+        if (m_selectedEntity != game_EntityId_Invalid && input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::D)) {
+            m_commandStack.Do(edit_CommandDuplicateEntity::Create(m_scene.get(), m_selectedEntity));
+        }
 
         // Left mouse click to (de-)select entity
         if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
@@ -580,7 +583,60 @@ namespace pge
             }
         }
         ImGui::EndChild();
+        ImGui::End();
+
+        ImGui::Begin("Preview");
+        if (core_GetExtensionFromPath(selectedFile.c_str()) == "mesh") {
+            ImVec2    prevWinSize = ImGui::GetWindowSize();
+            math_Vec2 previewMargin(10, 40);
+            math_Vec2 previewSize(prevWinSize.x - previewMargin.x, prevWinSize.y - previewMargin.y);
+
+            std::string meshPath;
+            {
+                std::stringstream ss;
+                ss << currentDir << "\\" << selectedFile;
+                meshPath = ss.str();
+            }
+            ImGui::Image(RenderMeshPreviewTexture(m_resources->GetMesh(meshPath.c_str()),
+                                                  m_resources->GetMaterial("data\\Dungeon Pack Export\\DungeonPack.mat")),
+                         ImVec2(previewSize.x, previewSize.y));
+        } else {
+            ImGui::Text("Select a file to preview it here");
+        }
 
         ImGui::End();
+    }
+
+    ImTextureID
+    edit_Editor::RenderMeshPreviewTexture(const res_Mesh* mesh, const res_Material* material)
+    {
+        static gfx_RenderTarget* previewRT = nullptr;
+        static const math_Vec2   resolution(600, 600);
+        if (previewRT == nullptr) {
+            previewRT = new gfx_RenderTarget(m_graphicsAdapter, resolution.x, resolution.y, true, false);
+        }
+
+        game_DirectionalLight light;
+        light.entity    = game_EntityId_Invalid;
+        light.color     = math_Vec3::One();
+        light.strength  = 1;
+        light.direction = math_Vec3(-1, 0, -1);
+
+        game_Camera camera;
+        camera.SetPerspectiveFov(math_DegToRad(60.0f), resolution.x / resolution.y, 0.01f, 100.0f);
+        const float meshSize = math_Length(mesh->GetAABB().max - mesh->GetAABB().min);
+        camera.SetLookAt(math_Vec3(1, 1, 1.5f) * meshSize, math_Vec3::Zero());
+
+        game_Renderer renderer(m_graphicsAdapter, m_graphicsDevice);
+        renderer.SetCamera(&camera);
+        renderer.SetDirectionalLight(0, light);
+
+        previewRT->Bind();
+        previewRT->Clear();
+        renderer.DrawMesh(mesh, material, math_Mat4x4::Identity());
+
+        gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
+
+        return reinterpret_cast<ImTextureID>(previewRT->GetNativeTexture());
     }
 } // namespace pge

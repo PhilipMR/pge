@@ -146,6 +146,31 @@ namespace pge
 
 
     // ===============================
+    // edit_CommandDuplicateEntity
+    // ===============================
+    edit_CommandDuplicateEntity::edit_CommandDuplicateEntity(game_Scene* scene, const game_Entity& entity)
+        : m_scene(scene)
+        , m_original(entity)
+    {}
+
+    void
+    edit_CommandDuplicateEntity::Do()
+    {
+        core_Assert("Not implemented yet" && false);
+    }
+
+    void
+    edit_CommandDuplicateEntity::Undo()
+    {}
+
+    std::unique_ptr<edit_Command>
+    edit_CommandDuplicateEntity::Create(game_Scene* scene, const game_Entity& entity)
+    {
+        return std::unique_ptr<edit_Command>(new edit_CommandDuplicateEntity(scene, entity));
+    }
+
+
+    // ===============================
     // edit_CommandCreateDirectionalLight
     // ===============================
     edit_CommandCreateDirectionalLight::edit_CommandCreateDirectionalLight(game_EntityManager*         emanager,
