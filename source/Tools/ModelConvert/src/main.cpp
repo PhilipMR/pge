@@ -1,14 +1,16 @@
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <stdio.h>
-#include <res_mesh.h>
+
+#include <core_assert.h>
+#include <core_file_utils.h>
 #include <gfx_vertex_layout.h>
-#include <diag_assert.h>
+#include <res_mesh.h>
+
+#include <stdio.h>
 #include <fstream>
 #include <sstream>
 #include <Windows.h>
-#include <os_file.h>
 
 void
 ExtractMesh(const aiMesh* mesh, const char* targetPath)
@@ -27,7 +29,7 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
 
     std::unique_ptr<unsigned[]> triangleData(new unsigned[triangleDataSize]);
     unsigned*                   triangleDataIt = triangleData.get();
-    diag_Assert(mesh->mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
+    core_Assert(mesh->mPrimitiveTypes == aiPrimitiveType_TRIANGLE);
     for (unsigned i = 0; i < mesh->mNumFaces; ++i) {
         for (int j = 0; j < 3; ++j) {
             *triangleDataIt = mesh->mFaces[i].mIndices[j];
@@ -46,9 +48,29 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
         texcoords.emplace_back(math_Vec2(texcoord.x, texcoord.y));
     }
 
+    // Pre-transform the vertices
+    aiMatrix4x4 rotation;
+    aiMatrix4x4::RotationX(0.5f * math_PI, rotation);
+
+    aiMatrix4x4 scale;
+    aiMatrix4x4::Scaling(aiVector3t<float>(2, 2, 2), scale);
+
+    aiMatrix4x4 importTransform = rotation * scale;
+    std::vector<aiVector3D> importVertices, importNormals;
+    importVertices.reserve(mesh->mNumVertices);
+    importNormals.reserve(mesh->mNumVertices);
+    for (size_t i = 0; i < mesh->mNumVertices; ++i) {
+        const aiVector3D pos = importTransform * mesh->mVertices[i];
+        importVertices.emplace_back(pos);
+
+        const aiVector3D norm = importTransform * mesh->mNormals[i];
+        importNormals.emplace_back(norm);
+    }
+
+    // Write to output
     std::ofstream      output(ss.str().c_str(), std::ios::binary);
-    res_SerializedMesh model(reinterpret_cast<math_Vec3*>(mesh->mVertices),
-                             reinterpret_cast<math_Vec3*>(mesh->mNormals),
+    res_SerializedMesh model(reinterpret_cast<math_Vec3*>(&importVertices[0]),
+                             reinterpret_cast<math_Vec3*>(&importNormals[0]),
                              &texcoords[0],
                              reinterpret_cast<math_Vec3*>(mesh->mColors[0]),
                              mesh->mNumVertices,
@@ -64,7 +86,7 @@ ExtractMaterial(const aiMaterial* material, const char* targetPath)
 {
     aiString texPath;
     if(material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
-        std::string fname = pge::os_GetFilename(texPath.C_Str());
+        std::string fname = pge::core_GetFilenameFromPath(texPath.C_Str());
 
 //        std::stringstream ss;
 //        ss << targetPath;
@@ -92,6 +114,7 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     unsigned importFlags = 0;
     //    importFlags |= aiProcess_CalcTangentSpace;
     importFlags |= aiProcess_Triangulate;
+    importFlags |= aiProcess_FlipUVs;
     // importFlags |= aiProcess_ConvertToLeftHanded;
     // importFlags &= ~aiProcess_FlipWindingOrder;
     //     importFlags |= aiProcess_JoinIdenticalVertices;
@@ -139,10 +162,10 @@ int
 main()
 {
     const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
-    const char* outPath = R"(C:\Users\phili\Desktop\Dungeon Pack Export)";
-    auto        models  = pge::os_ListItemsWithExtension(inPath, "fbx", false);
+    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
+    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
     for (const auto& modelItem : models) {
-        if (modelItem.type != pge::os_ListItemType::FILE)
+        if (modelItem.type != pge::core_FSItemType::FILE)
             continue;
         const char* modelPath = modelItem.path.c_str();
         ConvertModel(modelPath, outPath);

@@ -526,7 +526,6 @@ namespace pge
                     meshPath = ss.str();
                 }
 
-
                 if (m_selectedEntity != game_EntityId_Invalid) {
                     ImGui::SameLine();
                     if (ImGui::Button("Set mesh")) {
@@ -564,9 +563,7 @@ namespace pge
                     std::string ext      = core_GetExtensionFromPath(filename.c_str());
                     if ((ext != "mesh" || showMeshes) && (ext != "mat" || showMats)) {
                         std::stringstream ss;
-                        ss << ICON_FA_FILE;
-                        ss << " ";
-                        ss << filename;
+                        ss << ICON_FA_FILE << " " << filename;
                         if (ImGui::Selectable(ss.str().c_str(), selectedFile == filename)) {
                             selectedFile = filename;
                         }
@@ -575,9 +572,7 @@ namespace pge
                 } break;
                 case core_FSItemType::DIRECTORY: {
                     std::stringstream ss;
-                    ss << ICON_FA_FOLDER;
-                    ss << " ";
-                    ss << core_GetDirnameFromPath(dirItem.path.c_str());
+                    ss << ICON_FA_FOLDER << " " << core_GetDirnameFromPath(dirItem.path.c_str());
                     if (ImGui::Selectable(ss.str().c_str())) {
                         currentDir = dirItem.path;
                     }

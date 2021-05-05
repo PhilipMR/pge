@@ -85,7 +85,7 @@ main()
         gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-        editor.LoadScene("test.scene");
+        //editor.LoadScene("test.scene");
         game_Scene& scene = editor.GetScene();
         scene.GetCamera()->SetLookAt(math_Vec3(10, 10, 10), math_Vec3(0, 0, 0));
 
