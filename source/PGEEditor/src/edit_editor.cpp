@@ -62,7 +62,6 @@ namespace pge
         return *m_scene;
     }
 
-
     bool
     edit_Editor::UpdateAndDraw(const gfx_RenderTarget* target)
     {
@@ -90,8 +89,8 @@ namespace pge
 
         // Static Mesh select
         const math_Ray ray = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
-        float          meshSelectDistance;
-        game_Entity    meshSelectEntity
+        float       meshSelectDistance;
+        game_Entity meshSelectEntity
             = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj, &meshSelectDistance);
 
 
@@ -126,7 +125,6 @@ namespace pge
     edit_Editor::DrawGizmos()
     {
         auto* scene     = m_scene.get();
-        auto* resources = m_resources;
 
         if (m_drawGrid) {
             const float     axisThickness = 0.1f;
@@ -293,15 +291,18 @@ namespace pge
                 isPlaying = false;
             }
         }
-        const float playBarHeight = ImGui::GetItemRectSize().y;
 
+        float  r = 16.0f / 9.0f;
+        ImVec2 winPos    = ImGui::GetWindowPos();
+        ImVec2 cursPos   = ImGui::GetCursorPos();
+        m_gameWindowPos  = math_Vec2(winPos.x + cursPos.x, winPos.y + cursPos.y);
 
-        float r = 16.0f / 9.0f;
-        ImGui::Image(target->GetNativeTexture(), ImVec2(ImGui::GetWindowSize().x - 20, (ImGui::GetWindowSize().y - (playBarHeight + 5)) - 20 * r));
-        bool isHovered   = ImGui::IsWindowHovered();
-        m_gameWindowPos  = math_Vec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + playBarHeight);
-        m_gameWindowSize = math_Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+        ImVec2 winSize   = ImGui::GetWindowSize();
+        ImVec2 gameWinSize(winSize.x - 20, (winSize.y - (cursPos.y + 5)) - 20 * r);
+        m_gameWindowSize = math_Vec2(gameWinSize.x, gameWinSize.y);
 
+        ImGui::Image(target->GetNativeTexture(), gameWinSize);
+        bool isHovered = ImGui::IsWindowHovered();
 
         // Right mouse click to open entity context menu
         static bool         mouseDownOnEntity      = false;
