@@ -85,7 +85,7 @@ main()
         gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-        //        editor.LoadWorld("test.scene");
+        editor.LoadWorld("test.world");
         game_World& scene = editor.GetWorld();
         scene.GetCamera()->SetLookAt(math_Vec3(10, 10, 10), math_Vec3(0, 0, 0));
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);

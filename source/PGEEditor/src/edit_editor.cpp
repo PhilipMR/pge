@@ -10,6 +10,7 @@
 #include <imgui/IconFontAwesome5.h>
 #include <imgui/ImGuizmo.h>
 #include <sstream>
+#include <time.h>
 
 namespace pge
 {
@@ -179,16 +180,36 @@ namespace pge
     void
     edit_Editor::HandleEvents()
     {
+        static bool doing = false;
+        static enum {
+            REDOING,
+            UNDOING
+        } doingMode;
         if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Z)) {
-            if (input_KeyboardDown(input_KeyboardKey::SHIFT)) {
+            doing = true;
+            doingMode = input_KeyboardDown(input_KeyboardKey::SHIFT) ? REDOING : UNDOING;
+        }
+        if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Y)) {
+            doing = true;
+            doingMode = REDOING;
+        }
+        if (input_KeyboardReleased(input_KeyboardKey::CTRL) || input_KeyboardReleased(input_KeyboardKey::Z)) {
+            doing = false;
+        }
+
+        static clock_t doTime = clock();
+        clock_t now = clock();
+        double downSecs = static_cast<double>(now - doTime) / CLOCKS_PER_SEC;
+        if (doing && downSecs >= 0.2) {
+            doTime = clock();
+            if (doingMode == REDOING) {
                 m_commandStack.Redo();
             } else {
                 m_commandStack.Undo();
             }
         }
-        if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Y)) {
-            m_commandStack.Redo();
-        }
+
+
         if (m_selectedEntity != game_EntityId_Invalid && input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::D)) {
             m_commandStack.Do(edit_CommandDuplicateEntity::Create(m_scene.get(), m_selectedEntity));
         }
@@ -211,13 +232,13 @@ namespace pge
             if (ImGui::BeginMenu("File")) {
                 if (ImGui::MenuItem("New scene", "CTRL+N")) {}
                 if (ImGui::MenuItem("Save scene", "CTRL+S")) {
-                    std::ofstream os("test.scene");
+                    std::ofstream os("test.world");
                     os << *scene;
                     os.close();
                 }
                 if (ImGui::MenuItem("Save scene as...", "CTRL+SHIFT+S")) {}
                 if (ImGui::MenuItem("Load scene...", "CTRL+L")) {
-                    std::ifstream is("test.scene");
+                    std::ifstream is("test.world");
                     is >> *scene;
                     is.close();
                 }
@@ -586,7 +607,7 @@ namespace pge
         ImGui::End();
 
         ImGui::Begin("Preview");
-        if (core_GetExtensionFromPath(selectedFile.c_str()) == "mesh") {
+        if (!selectedFile.empty() && core_GetExtensionFromPath(selectedFile.c_str()) == "mesh") {
             ImVec2    prevWinSize = ImGui::GetWindowSize();
             math_Vec2 previewMargin(10, 40);
             math_Vec2 previewSize(prevWinSize.x - previewMargin.x, prevWinSize.y - previewMargin.y);
