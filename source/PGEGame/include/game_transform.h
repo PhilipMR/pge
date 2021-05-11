@@ -62,6 +62,9 @@ namespace pge
         math_Vec3   GetWorldScale(const game_TransformId& id) const;
         math_Mat4x4 GetWorld(const game_TransformId& id) const;
 
+        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
+        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
+
         friend std::ostream& operator<<(std::ostream& os, const game_TransformManager& tm);
         friend std::istream& operator>>(std::istream& is, game_TransformManager& tm);
 

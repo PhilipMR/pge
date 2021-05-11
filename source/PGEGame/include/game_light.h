@@ -67,6 +67,9 @@ namespace pge
                                 const math_Mat4x4&           proj,
                                 float*                       distanceOut) const;
 
+        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
+        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
+
         friend std::ostream& operator<<(std::ostream& os, const game_LightManager& lm);
         friend std::istream& operator>>(std::istream& is, game_LightManager& lm);
     };

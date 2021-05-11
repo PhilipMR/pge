@@ -5,7 +5,7 @@
 #include "edit_entity.h"
 #include <math_vec2.h>
 #include <game_light.h>
-#include <game_scene.h>
+#include <game_world.h>
 #include <memory>
 #include <vector>
 #include <imgui/imgui.h>
@@ -17,12 +17,12 @@ namespace pge
     class gfx_GraphicsDevice;
     class gfx_RenderTarget;
     class res_ResourceManager;
-    class game_Scene;
+    class game_World;
 
     void edit_Initialize(core_Display* display, gfx_GraphicsAdapter* graphics);
     void edit_Shutdown();
 
-    class game_Scene;
+    class game_World;
 
 
     class edit_Editor {
@@ -38,7 +38,7 @@ namespace pge
         gfx_GraphicsDevice*  m_graphicsDevice;
         res_ResourceManager* m_resources;
 
-        std::unique_ptr<game_Scene>                        m_scene;
+        std::unique_ptr<game_World>                        m_scene;
         edit_TransformGizmo                                m_transformGizmo;
         std::vector<std::unique_ptr<edit_ComponentEditor>> m_componentEditors;
 
@@ -52,8 +52,8 @@ namespace pge
     public:
         edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
 
-        void        LoadScene(const char* path);
-        game_Scene& GetScene();
+        void        LoadWorld(const char* path);
+        game_World& GetWorld();
         bool        UpdateAndDraw(const gfx_RenderTarget* target);
 
     private:

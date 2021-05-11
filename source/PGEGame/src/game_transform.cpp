@@ -51,9 +51,10 @@ namespace pge
         core_Assert(m_entityMap.size() < m_capacity);
         game_TransformId tid = m_entityMap.size();
 
-        m_entity[tid]          = entity.id;
-        m_localData[tid]       = {};
-        m_localData[tid].scale = math_Vec3::One();
+        m_entity[tid]             = entity.id;
+        m_localData[tid].position = position;
+        m_localData[tid].rotation = rotation;
+        m_localData[tid].scale    = math_Vec3::One();
 
         math_Mat4x4 xform = math_CreateTransformMatrix(position, rotation, scale);
         m_world[tid]      = xform;
@@ -256,6 +257,30 @@ namespace pge
     }
 
     constexpr unsigned SERIALIZE_VERSION = 1;
+
+    void
+    game_TransformManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
+    {
+        game_TransformId          tid       = m_entityMap.at(entity);
+        const LocalTransformData& localData = m_localData[tid];
+        os.write((const char*)&localData.position, sizeof(localData.position));
+        os.write((const char*)&localData.rotation, sizeof(localData.rotation));
+        os.write((const char*)&localData.scale, sizeof(localData.scale));
+    }
+
+    void
+    game_TransformManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
+    {
+        if (!HasTransform(entity)) {
+            CreateTransform(entity);
+        }
+        game_TransformId    tid       = m_entityMap[entity];
+        LocalTransformData& localData = m_localData[tid];
+        is.read((char*)&localData.position, sizeof(localData.position));
+        is.read((char*)&localData.rotation, sizeof(localData.rotation));
+        is.read((char*)&localData.scale, sizeof(localData.scale));
+        SetLocal(tid, math_CreateTransformMatrix(localData.position, localData.rotation, localData.scale));
+    }
 
     std::ostream&
     operator<<(std::ostream& os, const game_TransformManager& tm)

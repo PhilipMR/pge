@@ -36,6 +36,9 @@ namespace pge
         void          DestroyScript(const game_ScriptId& id);
 
         void UpdateScripts();
+
+        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
+        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
     };
 } // namespace pge
 

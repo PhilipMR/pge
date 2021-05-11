@@ -3,7 +3,7 @@
 
 #include "edit_command.h"
 #include <memory>
-#include <game_scene.h>
+#include <game_world.h>
 
 namespace pge
 {
@@ -20,56 +20,47 @@ namespace pge
         static std::unique_ptr<edit_Command> Create(const game_Entity& entity, game_Entity* selected);
     };
 
+
     class edit_CommandDeleteEntity : public edit_Command {
-        game_Entity m_entity;
-        game_Scene* m_scene;
-
-        bool                m_hasMetaData;
-        game_EntityMetaData m_metaData;
-
-        bool      m_hasTransform;
-        math_Vec3 m_localPos;
-        math_Quat m_localRot;
-        math_Vec3 m_localScale;
-
-        bool            m_hasPointLight;
-        game_PointLight m_pointLight;
-
-        bool                m_hasMesh;
-        const res_Material* m_meshMaterial;
-        const res_Mesh*     m_meshMesh;
+        game_Entity           m_entity;
+        game_World*           m_world;
+        game_SerializedEntity m_sentity;
 
     public:
-        edit_CommandDeleteEntity(const game_Entity& entity, game_Scene* scene);
+        edit_CommandDeleteEntity(const game_Entity& entity, game_World* world);
 
         virtual void                         Do() override;
         virtual void                         Undo() override;
-        static std::unique_ptr<edit_Command> Create(const game_Entity& entity, game_Scene* scene);
+        static std::unique_ptr<edit_Command> Create(const game_Entity& entity, game_World* world);
     };
+
 
     class edit_CommandCreateEntity : public edit_Command {
-        game_EntityManager*         m_entityManager;
-        game_EntityMetaDataManager* m_metaManager;
-        game_Entity                 m_createdEntity;
+        game_World*           m_world;
+        game_Entity           m_createdEntity;
+        game_SerializedEntity m_sentity;
 
     public:
-        edit_CommandCreateEntity(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager);
+        edit_CommandCreateEntity(game_World* world);
 
         virtual void                         Do() override;
         virtual void                         Undo() override;
-        static std::unique_ptr<edit_Command> Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager);
+        static std::unique_ptr<edit_Command> Create(game_World* world);
     };
+
 
     class edit_CommandDuplicateEntity : public edit_Command {
-        game_Scene* m_scene;
-        game_Entity m_original;
+        game_World*           m_world;
+        game_SerializedEntity m_sentity;
+        game_Entity           m_duplicate;
 
     public:
-        edit_CommandDuplicateEntity(game_Scene* scene, const game_Entity& entity);
+        edit_CommandDuplicateEntity(game_World* world, const game_Entity& entity);
         virtual void                         Do() override;
         virtual void                         Undo() override;
-        static std::unique_ptr<edit_Command> Create(game_Scene* scene, const game_Entity& entity);
+        static std::unique_ptr<edit_Command> Create(game_World* scene, const game_Entity& entity);
     };
+
 
     class edit_CommandCreateDirectionalLight : public edit_Command {
         game_EntityManager*         m_entityManager;
@@ -89,6 +80,7 @@ namespace pge
         static std::unique_ptr<edit_Command>
         Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager, game_TransformManager* tmanager, game_LightManager* lmanager);
     };
+
 
     class edit_CommandCreatePointLight : public edit_Command {
         game_EntityManager*         m_entityManager;

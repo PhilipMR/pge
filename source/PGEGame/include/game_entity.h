@@ -101,6 +101,9 @@ namespace pge
         game_EntityMetaDataConstIterator CBegin() const;
         game_EntityMetaDataConstIterator CEnd() const;
 
+        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
+        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
+
         friend std::ostream& operator<<(std::ostream& os, const game_EntityMetaDataManager& mm);
         friend std::istream& operator>>(std::istream& is, game_EntityMetaDataManager& mm);
     };
