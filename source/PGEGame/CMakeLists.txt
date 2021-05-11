@@ -7,7 +7,7 @@ add_library(pge_game
     src/game_entity.cpp
     src/game_light.cpp
     src/game_renderer.cpp
-    src/game_scene.cpp
+    src/game_world.cpp
     src/game_script.cpp
     src/game_static_mesh.cpp
     src/game_transform.cpp

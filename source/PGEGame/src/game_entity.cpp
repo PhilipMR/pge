@@ -214,6 +214,24 @@ namespace pge
 
     constexpr unsigned SERIALIZE_META_VERSION = 1;
 
+    void
+    game_EntityMetaDataManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
+    {
+        const game_EntityMetaData& data = m_entityMap.at(entity);
+        os.write(data.name, sizeof(data.name));
+    }
+
+    void
+    game_EntityMetaDataManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
+    {
+        if (!HasMetaData(entity)) {
+            CreateMetaData(entity, game_EntityMetaData());
+        }
+        game_EntityMetaData& data = m_entityMap.at(entity);
+        data.entity = entity;
+        is.read(data.name, sizeof(data.name));
+    }
+
     std::ostream&
     operator<<(std::ostream& os, const game_EntityMetaDataManager& mm)
     {

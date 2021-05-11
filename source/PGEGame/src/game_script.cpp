@@ -2,6 +2,7 @@
 #include <lua/lua.hpp>
 #include <core_assert.h>
 #include <input_keyboard.h>
+#include <iostream>
 
 namespace pge
 {
@@ -30,9 +31,6 @@ namespace pge
     }
 
 
-
-
-
     static int
     TestFuncConstant(lua_State* state)
     {
@@ -56,7 +54,7 @@ namespace pge
     static int
     Print(lua_State* state)
     {
-        int n = lua_gettop(state); 
+        int n = lua_gettop(state);
         core_Assert(n == 1);
         core_Assert(lua_isstring(state, 1));
         const char* message = lua_tostring(state, 1);
@@ -187,5 +185,26 @@ namespace pge
             }
             lua_close(L);
         }
+    }
+
+    void
+    game_ScriptManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
+    {
+        game_ScriptId sid = m_entityMap.at(entity);
+        const ScriptComponent& script = m_scripts[sid];
+        size_t pathSz = script.path.size();
+        os.write((const char*)&pathSz, sizeof(pathSz));
+        os.write(script.path.c_str(), script.path.size());
+    }
+
+    void
+    game_ScriptManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
+    {
+        size_t pathSz;
+        is.read((char*)&pathSz, sizeof(pathSz));
+        std::string path;
+        path.resize(pathSz);
+        is.read(&path[0], pathSz);
+        CreateScript(entity, path.c_str());
     }
 } // namespace pge

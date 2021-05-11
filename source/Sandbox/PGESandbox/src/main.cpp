@@ -14,7 +14,7 @@
 #include <gfx_graphics_device.h>
 #include <gfx_render_target.h>
 #include <res_resource_manager.h>
-#include <game_scene.h>
+#include <game_world.h>
 #include <input_events_win32.h>
 #include <edit_events_win32.h>
 #include <edit_editor.h>
@@ -70,7 +70,7 @@ main()
         const math_Vec2 resolution(1920, 1080);
 
         // Create graphics context
-        core_DisplayWin32          display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
+        core_DisplayWin32        display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
         gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
         gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
         s_graphicsAdapter = &graphicsAdapter;
@@ -85,10 +85,9 @@ main()
         gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-        //editor.LoadScene("test.scene");
-        game_Scene& scene = editor.GetScene();
+        //        editor.LoadWorld("test.scene");
+        game_World& scene = editor.GetWorld();
         scene.GetCamera()->SetLookAt(math_Vec3(10, 10, 10), math_Vec3(0, 0, 0));
-
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
 

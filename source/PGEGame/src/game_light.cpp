@@ -219,6 +219,56 @@ namespace pge
 
     constexpr unsigned SERIALIZE_VERSION = 1;
 
+    constexpr unsigned SERIALIZE_LIGHT_POINT       = 1;
+    constexpr unsigned SERIALIZE_LIGHT_DIRECTIONAL = 2;
+
+
+    void
+    game_LightManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
+    {
+        if (HasPointLight(entity)) {
+            game_PointLightId      pid    = m_pointLightMap.at(entity);
+            const game_PointLight& plight = m_pointLights[pid];
+            os.write((const char*)&SERIALIZE_LIGHT_POINT, sizeof(SERIALIZE_LIGHT_POINT));
+            os.write((const char*)&plight.color, sizeof(plight.color));
+            os.write((const char*)&plight.radius, sizeof(plight.radius));
+        } else if (HasDirectionalLight(entity)) {
+            game_DirectionalLightId      did    = m_dirLightMap.at(entity);
+            const game_DirectionalLight& dlight = m_dirLights[did];
+            os.write((const char*)&SERIALIZE_LIGHT_DIRECTIONAL, sizeof(SERIALIZE_LIGHT_DIRECTIONAL));
+            os.write((const char*)&dlight.color, sizeof(dlight.color));
+            os.write((const char*)&dlight.strength, sizeof(dlight.strength));
+            os.write((const char*)&dlight.direction, sizeof(dlight.direction));
+        }
+    }
+
+    void
+    game_LightManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
+    {
+        unsigned lightType;
+        is.read((char*)&lightType, sizeof(lightType));
+        switch (lightType) {
+            case SERIALIZE_LIGHT_POINT: {
+                game_PointLight plight;
+                plight.entity = entity;
+                is.read((char*)&plight.color, sizeof(plight.color));
+                is.read((char*)&plight.radius, sizeof(plight.radius));
+                CreatePointLight(entity, plight);
+            } break;
+            case SERIALIZE_LIGHT_DIRECTIONAL: {
+                game_DirectionalLight dlight;
+                dlight.entity = entity;
+                is.read((char*)&dlight.color, sizeof(dlight.color));
+                is.read((char*)&dlight.strength, sizeof(dlight.strength));
+                is.read((char*)&dlight.direction, sizeof(dlight.direction));
+                CreateDirectionalLight(entity, dlight);
+            } break;
+            default: {
+                core_AssertWithReason(false, "Unhandled light type (data may be corrupted)");
+            } break;
+        }
+    }
+
     std::ostream&
     operator<<(std::ostream& os, const game_LightManager& lm)
     {

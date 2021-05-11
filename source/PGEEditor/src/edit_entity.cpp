@@ -35,83 +35,38 @@ namespace pge
     // ===============================
     // edit_CommandDeleteEntity
     // ===============================
-    edit_CommandDeleteEntity::edit_CommandDeleteEntity(const game_Entity& entity, game_Scene* scene)
+    edit_CommandDeleteEntity::edit_CommandDeleteEntity(const game_Entity& entity, game_World* world)
         : m_entity(entity)
-        , m_scene(scene)
+        , m_world(world)
+        , m_sentity(world->SerializeEntity(entity))
     {}
 
     void
     edit_CommandDeleteEntity::Do()
     {
-        core_Assert(m_scene->GetEntityManager()->IsEntityAlive(m_entity));
-
-        m_hasMetaData = m_scene->GetEntityMetaDataManager()->HasMetaData(m_entity);
-        if (m_hasMetaData) {
-            m_metaData = m_scene->GetEntityMetaDataManager()->GetMetaData(m_entity);
-            m_scene->GetEntityMetaDataManager()->DestroyMetaData(m_entity);
-        }
-
-        m_hasTransform = m_scene->GetTransformManager()->HasTransform(m_entity);
-        if (m_hasTransform) {
-            game_TransformId tid = m_scene->GetTransformManager()->GetTransformId(m_entity);
-            m_localPos           = m_scene->GetTransformManager()->GetLocalPosition(tid);
-            m_localRot           = m_scene->GetTransformManager()->GetLocalRotation(tid);
-            m_localScale         = m_scene->GetTransformManager()->GetLocalScale(tid);
-            m_scene->GetTransformManager()->DestroyTransform(tid);
-        }
-
-        m_hasPointLight = m_scene->GetLightManager()->HasPointLight(m_entity);
-        if (m_hasPointLight) {
-            game_PointLightId pid = m_scene->GetLightManager()->GetPointLightId(m_entity);
-            m_pointLight          = m_scene->GetLightManager()->GetPointLight(pid);
-            m_scene->GetLightManager()->DestroyPointLight(pid);
-        }
-
-        m_hasMesh = m_scene->GetStaticMeshManager()->HasStaticMesh(m_entity);
-        if (m_hasMesh) {
-            game_StaticMeshId mid = m_scene->GetStaticMeshManager()->GetStaticMeshId(m_entity);
-            m_meshMaterial        = m_scene->GetStaticMeshManager()->GetMaterial(mid);
-            m_meshMesh            = m_scene->GetStaticMeshManager()->GetMesh(mid);
-            m_scene->GetStaticMeshManager()->DestroyStaticMesh(mid);
-        }
-
-        m_scene->GetEntityManager()->DestroyEntity(m_entity);
+        core_Assert(m_world->GetEntityManager()->IsEntityAlive(m_entity));
+        m_world->GetEntityManager()->DestroyEntity(m_entity);
     }
 
     void
     edit_CommandDeleteEntity::Undo()
     {
-        core_Assert(!m_scene->GetEntityManager()->IsEntityAlive(m_entity));
-        m_scene->GetEntityManager()->CreateEntity(m_entity);
-        if (m_hasMetaData) {
-            m_scene->GetEntityMetaDataManager()->CreateMetaData(m_entity, m_metaData);
-        }
-        if (m_hasTransform) {
-            m_scene->GetTransformManager()->CreateTransform(m_entity, m_localPos, m_localRot, m_localScale);
-        }
-        if (m_hasPointLight) {
-            m_scene->GetLightManager()->CreatePointLight(m_entity, m_pointLight);
-        }
-        if (m_hasMesh) {
-            game_StaticMeshId mid = m_scene->GetStaticMeshManager()->CreateStaticMesh(m_entity);
-            m_scene->GetStaticMeshManager()->SetMaterial(mid, m_meshMaterial);
-            m_scene->GetStaticMeshManager()->SetMesh(mid, m_meshMesh);
-        }
+        core_Assert(!m_world->GetEntityManager()->IsEntityAlive(m_entity));
+        m_world->InsertSerializedEntity(m_sentity, m_entity);
     }
 
     std::unique_ptr<edit_Command>
-    edit_CommandDeleteEntity::Create(const game_Entity& entity, game_Scene* scene)
+    edit_CommandDeleteEntity::Create(const game_Entity& entity, game_World* world)
     {
-        return std::unique_ptr<edit_Command>(new edit_CommandDeleteEntity(entity, scene));
+        return std::unique_ptr<edit_Command>(new edit_CommandDeleteEntity(entity, world));
     }
 
 
     // ===============================
     // edit_CommandCreateEntity
     // ===============================
-    edit_CommandCreateEntity::edit_CommandCreateEntity(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager)
-        : m_entityManager(emanager)
-        , m_metaManager(metaManager)
+    edit_CommandCreateEntity::edit_CommandCreateEntity(game_World* world)
+        : m_world(world)
         , m_createdEntity(game_EntityId_Invalid)
     {}
 
@@ -119,52 +74,60 @@ namespace pge
     edit_CommandCreateEntity::Do()
     {
         if (m_createdEntity == game_EntityId_Invalid) {
-            m_createdEntity = m_entityManager->CreateEntity();
+            m_createdEntity = m_world->GetEntityManager()->CreateEntity();
+
+            game_EntityMetaData meta;
+            meta.entity = m_createdEntity;
+            std::stringstream ss;
+            ss << "Entity [" << m_createdEntity.id << "]";
+            strcpy_s(meta.name, ss.str().c_str());
+            m_world->GetEntityMetaDataManager()->CreateMetaData(m_createdEntity, meta);
         } else {
-            m_entityManager->CreateEntity(m_createdEntity);
+            m_world->InsertSerializedEntity(m_sentity, m_createdEntity);
         }
-        game_EntityMetaData meta;
-        meta.entity = m_createdEntity;
-        std::stringstream ss;
-        ss << "Entity [" << m_createdEntity.id << "]";
-        strcpy_s(meta.name, ss.str().c_str());
-        m_metaManager->CreateMetaData(m_createdEntity, meta);
     }
 
     void
     edit_CommandCreateEntity::Undo()
     {
         core_Assert(m_createdEntity != game_EntityId_Invalid);
-        m_entityManager->DestroyEntity(m_createdEntity);
+        m_sentity = m_world->SerializeEntity(m_createdEntity);
+        m_world->GetEntityManager()->DestroyEntity(m_createdEntity);
     }
 
     std::unique_ptr<edit_Command>
-    edit_CommandCreateEntity::Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager)
+    edit_CommandCreateEntity::Create(game_World* world)
     {
-        return std::unique_ptr<edit_Command>(new edit_CommandCreateEntity(emanager, metaManager));
+        return std::unique_ptr<edit_Command>(new edit_CommandCreateEntity(world));
     }
 
 
     // ===============================
     // edit_CommandDuplicateEntity
     // ===============================
-    edit_CommandDuplicateEntity::edit_CommandDuplicateEntity(game_Scene* scene, const game_Entity& entity)
-        : m_scene(scene)
-        , m_original(entity)
+    edit_CommandDuplicateEntity::edit_CommandDuplicateEntity(game_World* world, const game_Entity& entity)
+        : m_world(world)
+        , m_sentity(world->SerializeEntity(entity))
+        , m_duplicate(game_EntityId_Invalid)
     {}
 
     void
     edit_CommandDuplicateEntity::Do()
     {
-        core_Assert("Not implemented yet" && false);
+        core_Assert(m_duplicate == game_EntityId_Invalid);
+        m_duplicate = m_world->InsertSerializedEntity(m_sentity);
     }
 
     void
     edit_CommandDuplicateEntity::Undo()
-    {}
+    {
+        core_Assert(m_duplicate != game_EntityId_Invalid);
+        m_world->GetEntityManager()->DestroyEntity(m_duplicate);
+        m_duplicate = game_EntityId_Invalid;
+    }
 
     std::unique_ptr<edit_Command>
-    edit_CommandDuplicateEntity::Create(game_Scene* scene, const game_Entity& entity)
+    edit_CommandDuplicateEntity::Create(game_World* scene, const game_Entity& entity)
     {
         return std::unique_ptr<edit_Command>(new edit_CommandDuplicateEntity(scene, entity));
     }

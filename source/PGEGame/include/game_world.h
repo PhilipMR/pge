@@ -1,5 +1,5 @@
-#ifndef PGE_GAME_GAME_SCENE_H
-#define PGE_GAME_GAME_SCENE_H
+#ifndef PGE_GAME_GAME_WORLD_H
+#define PGE_GAME_GAME_WORLD_H
 
 #include "game_entity.h"
 #include "game_transform.h"
@@ -13,7 +13,8 @@ namespace pge
 {
     class gfx_GraphicsAdapter;
     class gfx_GraphicsDevice;
-    class game_Scene {
+    using game_SerializedEntity = std::unique_ptr<char[]>;
+    class game_World {
         game_EntityManager         m_entityManager;
         game_EntityMetaDataManager m_entityMetaManager;
         game_TransformManager      m_transformManager;
@@ -24,7 +25,7 @@ namespace pge
         game_Renderer              m_renderer;
 
     public:
-        game_Scene(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
+        game_World(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
         void Update();
         void Draw();
 
@@ -47,8 +48,11 @@ namespace pge
             return &m_camera;
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const game_Scene& scene);
-        friend std::istream& operator>>(std::istream& is, game_Scene& scene);
+        game_SerializedEntity SerializeEntity(const game_Entity& entity);
+        void                  InsertSerializedEntity(const game_SerializedEntity& sentity, const game_Entity& entity);
+        game_Entity           InsertSerializedEntity(const game_SerializedEntity& entity);
+        friend std::ostream&  operator<<(std::ostream& os, const game_World& scene);
+        friend std::istream&  operator>>(std::istream& is, game_World& scene);
     };
 } // namespace pge
 

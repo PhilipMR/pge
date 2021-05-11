@@ -43,6 +43,7 @@ namespace pge
                                res_ResourceManager* resources);
 
         game_StaticMeshId CreateStaticMesh(const game_Entity& entity);
+        game_StaticMeshId CreateStaticMesh(const game_Entity& entity, const res_Mesh* mesh, const res_Material* material);
         void              CreateStaticMeshes(const game_Entity* entities, size_t numEntities, game_StaticMeshId* destBuf);
         void              DestroyStaticMesh(const game_StaticMeshId& id);
         void              GarbageCollect(const game_EntityManager& entityManager);
@@ -59,6 +60,9 @@ namespace pge
 
         void        DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm);
         game_Entity RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj, float* distanceOut) const;
+
+        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
+        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
 
         friend std::ostream& operator<<(std::ostream& os, const game_StaticMeshManager& sm);
         friend std::istream& operator>>(std::istream& is, game_StaticMeshManager& sm);

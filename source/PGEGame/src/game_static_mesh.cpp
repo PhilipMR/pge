@@ -18,13 +18,19 @@ namespace pge
     game_StaticMeshId
     game_StaticMeshManager::CreateStaticMesh(const game_Entity& entity)
     {
+        return CreateStaticMesh(entity, nullptr, nullptr);
+    }
+
+    game_StaticMeshId
+    game_StaticMeshManager::CreateStaticMesh(const game_Entity& entity, const res_Mesh* mesh, const res_Material* material)
+    {
         core_Assert(!HasStaticMesh(entity));
         core_Assert(m_meshes.size() < m_meshes.capacity());
 
         StaticMeshEntity meshEntity;
         meshEntity.entity   = entity;
-        meshEntity.mesh     = nullptr;
-        meshEntity.material = nullptr;
+        meshEntity.mesh     = mesh;
+        meshEntity.material = material;
         m_meshes.push_back(meshEntity);
 
         game_StaticMeshId meshId = m_meshes.size() - 1;
@@ -156,6 +162,48 @@ namespace pge
 
 
     constexpr unsigned SERIALIZE_VERSION = 1;
+
+    void
+    game_StaticMeshManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
+    {
+        game_StaticMeshId mid = m_entityMap.at(entity);
+
+        std::string meshPath    = m_meshes[mid].mesh->GetPath();
+        size_t      meshPathLen = meshPath.size();
+        os.write((const char*)&meshPathLen, sizeof(meshPathLen));
+        os.write((const char*)&meshPath[0], meshPath.size());
+
+        std::string matPath    = m_meshes[mid].material->GetPath();
+        size_t      matPathLen = matPath.size();
+        os.write((const char*)&matPathLen, sizeof(matPathLen));
+        os.write((const char*)&matPath[0], matPath.size());
+    }
+
+    void
+    game_StaticMeshManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
+    {
+        game_EntityId entityId;
+        if (!HasStaticMesh(entity)) {
+            CreateStaticMesh(entity);
+        }
+        game_StaticMeshId mid = m_entityMap.at(entity);
+
+        std::string meshPath;
+        size_t      meshPathLen;
+        is.read((char*)&meshPathLen, sizeof(meshPathLen));
+        meshPath.resize(meshPathLen);
+        is.read((char*)&meshPath[0], meshPathLen);
+
+        std::string matPath;
+        size_t      matPathLen;
+        is.read((char*)&matPathLen, sizeof(matPathLen));
+        matPath.resize(matPathLen);
+        is.read((char*)&matPath[0], matPathLen);
+
+        SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
+        SetMaterial(mid, m_resources->GetMaterial(matPath.c_str()));
+    }
+
 
     std::ostream&
     operator<<(std::ostream& os, const game_StaticMeshManager& sm)

@@ -6,7 +6,7 @@
 #include <input_keyboard.h>
 #include <gfx_render_target.h>
 #include <gfx_debug_draw.h>
-#include <game_scene.h>
+#include <game_world.h>
 #include <imgui/IconFontAwesome5.h>
 #include <imgui/ImGuizmo.h>
 #include <sstream>
@@ -23,7 +23,7 @@ namespace pge
         : m_graphicsAdapter(graphicsAdapter)
         , m_graphicsDevice(graphicsDevice)
         , m_resources(resources)
-        , m_scene(std::make_unique<game_Scene>(m_graphicsAdapter, m_graphicsDevice, m_resources))
+        , m_scene(std::make_unique<game_World>(m_graphicsAdapter, m_graphicsDevice, m_resources))
         , m_transformGizmo(m_scene->GetTransformManager(), &m_commandStack)
         , m_selectedEntity(game_EntityId_Invalid)
         , m_drawGrid(true)
@@ -46,16 +46,16 @@ namespace pge
     }
 
     void
-    edit_Editor::LoadScene(const char* path)
+    edit_Editor::LoadWorld(const char* path)
     {
         std::ifstream is(path, std::ios::binary);
-        game_Scene&   s = *m_scene;
+        game_World&   s = *m_scene;
         is >> s;
         is.close();
     }
 
-    game_Scene&
-    edit_Editor::GetScene()
+    game_World&
+    edit_Editor::GetWorld()
     {
         return *m_scene;
     }
@@ -324,18 +324,18 @@ namespace pge
     void
     edit_Editor::DrawEntityTree()
     {
-        auto* scene = m_scene.get();
+        auto* world = m_scene.get();
 
-        ImGui::Begin("Scene graph", nullptr, PANEL_WINDOW_FLAGS);
+        ImGui::Begin("World graph", nullptr, PANEL_WINDOW_FLAGS);
 
         // ImGui::Image(m_icons.sceneNode, ImVec2(15, 15));
         ImGui::SameLine();
-        ImGui::Text("%s Scene", ICON_FA_CARET_SQUARE_DOWN);
+        ImGui::Text("%s World", ICON_FA_CARET_SQUARE_DOWN);
         ImGui::Indent();
 
         bool                     isAnyNodeHovered    = false;
         bool                     isEntityContextMenu = false;
-        auto*                    mm                  = scene->GetEntityMetaDataManager();
+        auto*                    mm                  = world->GetEntityMetaDataManager();
         std::vector<game_Entity> entitiesToDestroy;
         for (auto it = mm->Begin(); it != mm->End(); ++it) {
             const auto&          entity       = it->second;
@@ -368,7 +368,7 @@ namespace pge
                 }
 
                 std::stringstream ss;
-                ss << "SceneGraphEntityContextMenu" << entity.entity.id;
+                ss << "WorldGraphEntityContextMenu" << entity.entity.id;
                 if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
                     isEntityContextMenu = true;
                     if (ImGui::Selectable("Delete entity")) {
@@ -382,7 +382,7 @@ namespace pge
         }
 
         for (const auto& entity : entitiesToDestroy) {
-            m_commandStack.Do(edit_CommandDeleteEntity::Create(entity, scene));
+            m_commandStack.Do(edit_CommandDeleteEntity::Create(entity, world));
             if (m_selectedEntity == entity) {
                 m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
             }
@@ -392,21 +392,21 @@ namespace pge
             m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
         }
 
-        if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("SceneContextMenu")) {
+        if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("WorldContextMenu")) {
             if (ImGui::Selectable("Create entity")) {
-                m_commandStack.Do(edit_CommandCreateEntity::Create(scene->GetEntityManager(), scene->GetEntityMetaDataManager()));
+                m_commandStack.Do(edit_CommandCreateEntity::Create(world));
             }
             if (ImGui::Selectable("Create light (directional)")) {
-                m_commandStack.Do(edit_CommandCreateDirectionalLight::Create(scene->GetEntityManager(),
-                                                                             scene->GetEntityMetaDataManager(),
-                                                                             scene->GetTransformManager(),
-                                                                             scene->GetLightManager()));
+                m_commandStack.Do(edit_CommandCreateDirectionalLight::Create(world->GetEntityManager(),
+                                                                             world->GetEntityMetaDataManager(),
+                                                                             world->GetTransformManager(),
+                                                                             world->GetLightManager()));
             }
             if (ImGui::Selectable("Create light (point)")) {
-                m_commandStack.Do(edit_CommandCreatePointLight::Create(scene->GetEntityManager(),
-                                                                       scene->GetEntityMetaDataManager(),
-                                                                       scene->GetTransformManager(),
-                                                                       scene->GetLightManager()));
+                m_commandStack.Do(edit_CommandCreatePointLight::Create(world->GetEntityManager(),
+                                                                       world->GetEntityMetaDataManager(),
+                                                                       world->GetTransformManager(),
+                                                                       world->GetLightManager()));
             }
             ImGui::EndPopup();
         }
