@@ -30,6 +30,7 @@ namespace pge
         , m_drawGrid(true)
         , m_drawGizmos(true)
         , m_gameWindowSize(1600, 900)
+        , m_previewRT(graphicsAdapter, PREVIEW_RESOLUTION.x, PREVIEW_RESOLUTION.y, true, false)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
@@ -181,25 +182,22 @@ namespace pge
     edit_Editor::HandleEvents()
     {
         static bool doing = false;
-        static enum {
-            REDOING,
-            UNDOING
-        } doingMode;
+        static enum { REDOING, UNDOING } doingMode;
         if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Z)) {
-            doing = true;
+            doing     = true;
             doingMode = input_KeyboardDown(input_KeyboardKey::SHIFT) ? REDOING : UNDOING;
         }
         if (input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::Y)) {
-            doing = true;
+            doing     = true;
             doingMode = REDOING;
         }
         if (input_KeyboardReleased(input_KeyboardKey::CTRL) || input_KeyboardReleased(input_KeyboardKey::Z)) {
             doing = false;
         }
 
-        static clock_t doTime = clock();
-        clock_t now = clock();
-        double downSecs = static_cast<double>(now - doTime) / CLOCKS_PER_SEC;
+        static clock_t doTime   = clock();
+        clock_t        now      = clock();
+        double         downSecs = static_cast<double>(now - doTime) / CLOCKS_PER_SEC;
         if (doing && downSecs >= 0.2) {
             doTime = clock();
             if (doingMode == REDOING) {
@@ -631,12 +629,6 @@ namespace pge
     ImTextureID
     edit_Editor::RenderMeshPreviewTexture(const res_Mesh* mesh, const res_Material* material)
     {
-        static gfx_RenderTarget* previewRT = nullptr;
-        static const math_Vec2   resolution(600, 600);
-        if (previewRT == nullptr) {
-            previewRT = new gfx_RenderTarget(m_graphicsAdapter, resolution.x, resolution.y, true, false);
-        }
-
         game_DirectionalLight light;
         light.entity    = game_EntityId_Invalid;
         light.color     = math_Vec3::One();
@@ -644,7 +636,7 @@ namespace pge
         light.direction = math_Vec3(-1, 0, -1);
 
         game_Camera camera;
-        camera.SetPerspectiveFov(math_DegToRad(60.0f), resolution.x / resolution.y, 0.01f, 100.0f);
+        camera.SetPerspectiveFov(math_DegToRad(60.0f), PREVIEW_RESOLUTION.x / PREVIEW_RESOLUTION.y, 0.01f, 100.0f);
         const float meshSize = math_Length(mesh->GetAABB().max - mesh->GetAABB().min);
         camera.SetLookAt(math_Vec3(1, 1, 1.5f) * meshSize, math_Vec3::Zero());
 
@@ -652,12 +644,12 @@ namespace pge
         renderer.SetCamera(&camera);
         renderer.SetDirectionalLight(0, light);
 
-        previewRT->Bind();
-        previewRT->Clear();
+        m_previewRT.Bind();
+        m_previewRT.Clear();
         renderer.DrawMesh(mesh, material, math_Mat4x4::Identity());
 
         gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
 
-        return reinterpret_cast<ImTextureID>(previewRT->GetNativeTexture());
+        return reinterpret_cast<ImTextureID>(m_previewRT.GetNativeTexture());
     }
 } // namespace pge

@@ -4,6 +4,7 @@
 #include "edit_transform.h"
 #include "edit_entity.h"
 #include <math_vec2.h>
+#include <gfx_render_target.h>
 #include <game_light.h>
 #include <game_world.h>
 #include <memory>
@@ -49,6 +50,9 @@ namespace pge
         math_Vec2         m_gameWindowSize;
         edit_CommandStack m_commandStack;
 
+        constexpr static const math_Vec2 PREVIEW_RESOLUTION = math_Vec2(600.f, 600.f);
+        gfx_RenderTarget                 m_previewRT;
+
     public:
         edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
 
@@ -60,13 +64,13 @@ namespace pge
         game_Entity SelectEntity() const;
         void        DrawGizmos();
 
-        void HandleEvents();
-        void DrawMenuBar();
-        bool DrawGameView(const gfx_RenderTarget* target);
-        void DrawEntityTree();
-        void DrawInspector();
-        void DrawLog();
-        void DrawResources();
+        void        HandleEvents();
+        void        DrawMenuBar();
+        bool        DrawGameView(const gfx_RenderTarget* target);
+        void        DrawEntityTree();
+        void        DrawInspector();
+        void        DrawLog();
+        void        DrawResources();
         ImTextureID RenderMeshPreviewTexture(const res_Mesh* mesh, const res_Material* material);
     };
 } // namespace pge
