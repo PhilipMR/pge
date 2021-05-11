@@ -323,17 +323,28 @@ namespace pge
         , m_tmanager(tm)
         , m_cstack(cstack)
         , m_axis(edit_Axis::NONE)
-        , m_hasBegun(false)
         , m_entity(game_EntityId_Invalid)
+        , m_isManipulating(false)
     {}
+
+    bool
+    edit_TransformGizmo::IsVisible() const
+    {
+        return m_mode != MODE_NONE && m_entity != game_EntityId_Invalid;
+    }
+
+    bool
+    edit_TransformGizmo::HasBegun() const
+    {
+        return m_entity != game_EntityId_Invalid;
+    }
 
     void
     edit_TransformGizmo::Begin(const Mode& mode, const game_Entity& entity)
     {
-        core_Assert(!m_hasBegun);
-        m_mode     = mode;
-        m_entity   = entity;
-        m_hasBegun = true;
+        core_Assert(!HasBegun());
+        m_mode   = mode;
+        m_entity = entity;
 
         auto tid           = m_tmanager->GetTransformId(m_entity);
         m_initial.position = m_tmanager->GetLocalPosition(tid);
@@ -344,22 +355,23 @@ namespace pge
     void
     edit_TransformGizmo::Cancel()
     {
-        if (!m_hasBegun)
+        if (!HasBegun())
             return;
-        m_hasBegun = false;
-        m_mode     = MODE_NONE;
 
         auto tid = m_tmanager->GetTransformId(m_entity);
         m_tmanager->SetLocalPosition(tid, m_initial.position);
         m_tmanager->SetLocalScale(tid, m_initial.scale);
         m_tmanager->SetLocalRotation(tid, m_initial.rotation);
+
+        m_mode   = MODE_NONE;
+        m_entity = game_EntityId_Invalid;
     }
 
 
     void
     edit_TransformGizmo::Complete()
     {
-        core_Assert(m_hasBegun);
+        core_Assert(HasBegun());
         core_Assert(m_mode != MODE_NONE);
         auto tid = m_tmanager->GetTransformId(m_entity);
         switch (m_mode) {
@@ -378,15 +390,20 @@ namespace pge
             } break;
         }
 
-        m_hasBegun = false;
-        m_mode     = MODE_NONE;
+        m_mode   = MODE_NONE;
+        m_entity = game_EntityId_Invalid;
     }
 
     void
     edit_TransformGizmo::TransformEntity(const game_Entity& entity, const math_Mat4x4& view, const math_Mat4x4& proj)
     {
+        // Change transform to another entity
+        if (HasBegun() && entity != game_EntityId_Invalid && entity != m_entity) {
+            Complete();
+        }
+        // Stop transform (select elsewhere/non-transform entity)
         if (entity == game_EntityId_Invalid || !m_tmanager->HasTransform(entity)) {
-            if (m_hasBegun) {
+            if (HasBegun()) {
                 Complete();
             }
             return;
@@ -423,12 +440,11 @@ namespace pge
                 = (m_mode == MODE_TRANSLATE) ? (ImGuizmo::TRANSLATE) : (m_mode == MODE_ROTATE ? (ImGuizmo::ROTATE) : (ImGuizmo::SCALE));
             const ImGuizmo::MODE guizmoMode = ImGuizmo::WORLD;
 
-            math_Mat4x4       localT          = math_Transpose(m_tmanager->GetLocal(tid));
-            const math_Mat4x4 viewT           = math_Transpose(view);
-            const math_Mat4x4 projT           = math_Transpose(proj);
-            static bool       wasManipulating = false;
+            math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
+            const math_Mat4x4 viewT  = math_Transpose(view);
+            const math_Mat4x4 projT  = math_Transpose(proj);
             if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
-                wasManipulating = true;
+                m_isManipulating = true;
                 math_Vec3 newRotEul, newPos, newScale;
                 ImGuizmo::DecomposeMatrixToComponents(&localT[0][0], &newPos[0], &newRotEul[0], &newScale[0]);
                 newRotEul *= math_PI / 180.0f;
@@ -437,13 +453,13 @@ namespace pge
                 m_tmanager->SetLocalRotation(tid, math_QuatFromEulerAngles(newRotEul));
                 m_tmanager->SetLocalScale(tid, newScale);
             } else {
-                if (wasManipulating) {
+                if (m_isManipulating) {
                     edit_TransformGizmo::Mode mode = m_mode;
                     Complete();
                     Begin(mode, entity);
-                    wasManipulating = false;
+                    m_isManipulating = false;
                 }
-                if (m_hasBegun) {
+                if (HasBegun()) {
                     m_axis = GetActiveAxis(m_axis);
                     DrawAxis(m_tmanager, entity, m_axis);
                     const math_Mat4x4 viewProj = proj * view;

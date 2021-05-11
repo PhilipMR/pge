@@ -81,7 +81,7 @@ namespace pge
         game_TransformManager* m_tmanager;
         edit_CommandStack*     m_cstack;
         edit_Axis              m_axis;
-        bool                   m_hasBegun;
+        bool                   m_isManipulating;
 
         struct {
             math_Vec3 position;
@@ -90,12 +90,14 @@ namespace pge
         } m_initial;
         game_Entity m_entity;
 
+        bool HasBegun() const;
         void Begin(const Mode& mode, const game_Entity& entity);
         void Cancel();
         void Complete();
 
     public:
         edit_TransformGizmo(game_TransformManager* tm, edit_CommandStack* cstack);
+        bool IsVisible() const;
         void TransformEntity(const game_Entity& entity, const math_Mat4x4& view, const math_Mat4x4& proj);
     };
 

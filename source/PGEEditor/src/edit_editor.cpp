@@ -211,10 +211,12 @@ namespace pge
         }
 
         // Left mouse click to (de-)select entity
-        if (input_MouseButtonPressed(input_MouseButton::LEFT) && !ImGuizmo::IsOver()) {
-            game_Entity entity = SelectEntity();
-            if (entity != m_selectedEntity) {
-                m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
+        if (input_MouseButtonPressed(input_MouseButton::LEFT) ) {
+            if (!ImGuizmo::IsOver() || !m_transformGizmo.IsVisible()) {
+                game_Entity entity = SelectEntity();
+                if (entity != m_selectedEntity) {
+                    m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
+                }
             }
         }
     }
