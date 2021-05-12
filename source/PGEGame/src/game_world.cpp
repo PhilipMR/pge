@@ -189,7 +189,7 @@ namespace pge
     std::istream&
     operator>>(std::istream& is, game_World& scene)
     {
-        int version = 0;
+        unsigned version = 0;
         is >> version;
         is >> scene.m_entityManager;
         is >> scene.m_entityMetaManager;

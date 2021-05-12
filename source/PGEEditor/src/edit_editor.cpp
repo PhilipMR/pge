@@ -24,8 +24,8 @@ namespace pge
         : m_graphicsAdapter(graphicsAdapter)
         , m_graphicsDevice(graphicsDevice)
         , m_resources(resources)
-        , m_scene(std::make_unique<game_World>(m_graphicsAdapter, m_graphicsDevice, m_resources))
-        , m_transformGizmo(m_scene->GetTransformManager(), &m_commandStack)
+        , m_world(std::make_unique<game_World>(m_graphicsAdapter, m_graphicsDevice, m_resources))
+        , m_transformGizmo(m_world->GetTransformManager(), &m_commandStack)
         , m_selectedEntity(game_EntityId_Invalid)
         , m_drawGrid(true)
         , m_drawGizmos(true)
@@ -33,15 +33,15 @@ namespace pge
         , m_previewRT(graphicsAdapter, PREVIEW_RESOLUTION.x, PREVIEW_RESOLUTION.y, true, false)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
-        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_scene->GetTransformManager())));
-        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_scene->GetStaticMeshManager(), resources)));
-        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_ScriptEditor(m_scene->GetScriptManager())));
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_world->GetTransformManager())));
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_world->GetStaticMeshManager(), resources)));
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_ScriptEditor(m_world->GetScriptManager())));
 
         auto GetImTexture = [&](const char* path) {
             return (ImTextureID)resources->GetTexture(path)->GetTexture()->GetNativeTexture();
         };
-        m_icons.sceneNode         = GetImTexture("data/icons/node.png");
-        m_icons.sceneNodeSelected = GetImTexture("data/icons/node_selected.png");
+        m_icons.worldNode         = GetImTexture("data/icons/node.png");
+        m_icons.worldNodeSelected = GetImTexture("data/icons/node_selected.png");
         m_icons.playButton        = GetImTexture("data/icons/btn_play.png");
         m_icons.pauseButton       = GetImTexture("data/icons/btn_pause.png");
         m_icons.pointLight        = resources->GetTexture("data/icons/light_point.png")->GetTexture();
@@ -51,7 +51,7 @@ namespace pge
     edit_Editor::LoadWorld(const char* path)
     {
         std::ifstream is(path, std::ios::binary);
-        game_World&   s = *m_scene;
+        game_World&   s = *m_world;
         is >> s;
         is.close();
     }
@@ -59,7 +59,7 @@ namespace pge
     game_World&
     edit_Editor::GetWorld()
     {
-        return *m_scene;
+        return *m_world;
     }
 
     bool
@@ -84,13 +84,13 @@ namespace pge
     game_Entity
     edit_Editor::SelectEntity() const
     {
-        auto*             scene    = m_scene.get();
+        auto*             scene    = m_world.get();
         const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
 
         // Static Mesh select
         const math_Ray ray = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
-        float       meshSelectDistance;
-        game_Entity meshSelectEntity
+        float          meshSelectDistance;
+        game_Entity    meshSelectEntity
             = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj, &meshSelectDistance);
 
 
@@ -103,7 +103,7 @@ namespace pge
 
         math_Vec2   billboardSize(2, 2);
         float       lightSelectDistance;
-        game_Entity lightSelectEntity = scene->GetLightManager()->HoverSelect(*m_scene->GetTransformManager(),
+        game_Entity lightSelectEntity = scene->GetLightManager()->HoverSelect(*m_world->GetTransformManager(),
                                                                               hoverPosNorm,
                                                                               billboardSize,
                                                                               scene->GetCamera()->GetViewMatrix(),
@@ -124,7 +124,7 @@ namespace pge
     void
     edit_Editor::DrawGizmos()
     {
-        auto* scene     = m_scene.get();
+        auto* scene = m_world.get();
 
         if (m_drawGrid) {
             const float     axisThickness = 0.1f;
@@ -140,7 +140,7 @@ namespace pge
         ImGuizmo::Enable(m_drawGizmos);
         if (m_drawGizmos) {
             ImGuizmo::SetRect(m_gameWindowPos.x, m_gameWindowPos.y, m_gameWindowSize.x, m_gameWindowSize.y);
-            m_transformGizmo.TransformEntity(m_selectedEntity, m_scene->GetCamera()->GetViewMatrix(), m_scene->GetCamera()->GetProjectionMatrix());
+            m_transformGizmo.TransformEntity(m_selectedEntity, m_world->GetCamera()->GetViewMatrix(), m_world->GetCamera()->GetProjectionMatrix());
 
             // Selected entity AABB
             if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
@@ -207,16 +207,16 @@ namespace pge
 
 
         if (m_selectedEntity != game_EntityId_Invalid && input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardPressed(input_KeyboardKey::D)) {
-            m_commandStack.Do(edit_CommandDuplicateEntity::Create(m_scene.get(), m_selectedEntity));
+            auto command = edit_CommandDuplicateEntity::Create(m_world.get(), m_selectedEntity);
+            command->Do();
+            m_selectedEntity = ((edit_CommandDuplicateEntity*)command.get())->GetCreatedEntity();
+            m_commandStack.Add(std::move(command));
         }
 
         // Left mouse click to (de-)select entity
-        if (input_MouseButtonPressed(input_MouseButton::LEFT) ) {
+        if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
             if (!ImGuizmo::IsOver() || !m_transformGizmo.IsVisible()) {
-                game_Entity entity = SelectEntity();
-                if (entity != m_selectedEntity) {
-                    m_commandStack.Do(edit_CommandSelectEntity::Create(entity, &m_selectedEntity));
-                }
+                m_selectedEntity = SelectEntity();
             }
         }
     }
@@ -224,7 +224,7 @@ namespace pge
     void
     edit_Editor::DrawMenuBar()
     {
-        auto* scene = m_scene.get();
+        auto* scene = m_world.get();
 
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
@@ -272,7 +272,7 @@ namespace pge
     bool
     edit_Editor::DrawGameView(const gfx_RenderTarget* target)
     {
-        auto* scene = m_scene.get();
+        auto* scene = m_world.get();
 
 
         ImGui::Begin("Game", nullptr, PANEL_WINDOW_FLAGS);
@@ -294,12 +294,12 @@ namespace pge
             }
         }
 
-        float  r = 16.0f / 9.0f;
-        ImVec2 winPos    = ImGui::GetWindowPos();
-        ImVec2 cursPos   = ImGui::GetCursorPos();
-        m_gameWindowPos  = math_Vec2(winPos.x + cursPos.x, winPos.y + cursPos.y);
+        float  r        = 16.0f / 9.0f;
+        ImVec2 winPos   = ImGui::GetWindowPos();
+        ImVec2 cursPos  = ImGui::GetCursorPos();
+        m_gameWindowPos = math_Vec2(winPos.x + cursPos.x, winPos.y + cursPos.y);
 
-        ImVec2 winSize   = ImGui::GetWindowSize();
+        ImVec2 winSize = ImGui::GetWindowSize();
         ImVec2 gameWinSize(winSize.x - 20, (winSize.y - (cursPos.y + 5)) - 20 * r);
         m_gameWindowSize = math_Vec2(gameWinSize.x, gameWinSize.y);
 
@@ -346,7 +346,7 @@ namespace pge
     void
     edit_Editor::DrawEntityTree()
     {
-        auto* world = m_scene.get();
+        auto* world = m_world.get();
 
         ImGui::Begin("World graph", nullptr, PANEL_WINDOW_FLAGS);
 
@@ -375,8 +375,8 @@ namespace pge
                 textIdSs << "##editname" << entity.entity.id;
                 std::string textIdStr = textIdSs.str();
                 if (ImGui::InputText(textIdStr.c_str(), (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
-                    editEntityId = game_EntityId_Invalid;
+                    m_selectedEntity = entity.entity;
+                    editEntityId     = game_EntityId_Invalid;
                 }
             } else {
                 ImGui::Selectable(entity.name, isSelected);
@@ -384,8 +384,8 @@ namespace pge
                     editEntityId = entity.entity.id;
                 } else if (ImGui::IsItemClicked()) {
                     if (m_selectedEntity.id != entity.entity.id) {
-                        m_commandStack.Do(edit_CommandSelectEntity::Create(entity.entity, &m_selectedEntity));
-                        editEntityId = game_EntityId_Invalid;
+                        m_selectedEntity = entity.entity;
+                        editEntityId     = game_EntityId_Invalid;
                     }
                 }
 
@@ -406,12 +406,12 @@ namespace pge
         for (const auto& entity : entitiesToDestroy) {
             m_commandStack.Do(edit_CommandDeleteEntity::Create(entity, world));
             if (m_selectedEntity == entity) {
-                m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
+                m_selectedEntity = game_EntityId_Invalid;
             }
         }
 
         if (!isAnyNodeHovered && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            m_commandStack.Do(edit_CommandSelectEntity::Create(game_EntityId_Invalid, &m_selectedEntity));
+            m_selectedEntity = game_EntityId_Invalid;
         }
 
         if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("WorldContextMenu")) {
@@ -441,9 +441,9 @@ namespace pge
     {
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
-            if (m_scene->GetLightManager()->HasDirectionalLight(m_selectedEntity) || m_scene->GetLightManager()->HasPointLight(m_selectedEntity)) {
-                edit_TransformEditor(m_scene->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
-                edit_LightEditor(m_scene->GetLightManager()).UpdateAndDraw(m_selectedEntity);
+            if (m_world->GetLightManager()->HasDirectionalLight(m_selectedEntity) || m_world->GetLightManager()->HasPointLight(m_selectedEntity)) {
+                edit_TransformEditor(m_world->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
+                edit_LightEditor(m_world->GetLightManager()).UpdateAndDraw(m_selectedEntity);
             } else {
                 for (auto& compEditor : m_componentEditors) {
                     compEditor->UpdateAndDraw(m_selectedEntity);
@@ -554,18 +554,18 @@ namespace pge
                 if (m_selectedEntity != game_EntityId_Invalid) {
                     ImGui::SameLine();
                     if (ImGui::Button("Set mesh")) {
-                        auto mid = m_scene->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
-                        m_scene->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
+                        auto mid = m_world->GetStaticMeshManager()->GetStaticMeshId(m_selectedEntity);
+                        m_world->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
                     }
                 }
 
                 ImGui::SameLine();
                 if (ImGui::Button("New mesh entity")) {
-                    game_Entity newmesh = m_scene->GetEntityManager()->CreateEntity();
-                    m_scene->GetTransformManager()->CreateTransform(newmesh);
-                    auto mid = m_scene->GetStaticMeshManager()->CreateStaticMesh(newmesh);
-                    m_scene->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
-                    m_scene->GetStaticMeshManager()->SetMaterial(mid, m_resources->GetMaterial("data\\Dungeon Pack Export\\DungeonPack.mat"));
+                    game_Entity newmesh = m_world->GetEntityManager()->CreateEntity();
+                    m_world->GetTransformManager()->CreateTransform(newmesh);
+                    auto mid = m_world->GetStaticMeshManager()->CreateStaticMesh(newmesh);
+                    m_world->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
+                    m_world->GetStaticMeshManager()->SetMaterial(mid, m_resources->GetMaterial("data\\Dungeon Pack Export\\DungeonPack.mat"));
 
                     std::string meshname;
                     {
@@ -575,7 +575,7 @@ namespace pge
                         ss << " [" << std::to_string(newmesh.id) << "]";
                         meshname = ss.str();
                     }
-                    m_scene->GetEntityMetaDataManager()->CreateMetaData(newmesh, game_EntityMetaData(newmesh, meshname.c_str()));
+                    m_world->GetEntityMetaDataManager()->CreateMetaData(newmesh, game_EntityMetaData(newmesh, meshname.c_str()));
                 }
             }
         }

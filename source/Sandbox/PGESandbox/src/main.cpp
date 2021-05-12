@@ -86,8 +86,8 @@ main()
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
         editor.LoadWorld("test.world");
-        game_World& scene = editor.GetWorld();
-        scene.GetCamera()->SetLookAt(math_Vec3(10, 10, 10), math_Vec3(0, 0, 0));
+        game_World& world = editor.GetWorld();
+        world.GetCamera()->SetLookAt(math_Vec3(10, 10, 10), math_Vec3(0, 0, 0));
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
 
@@ -117,16 +117,16 @@ main()
             input_KeyboardClearDelta();
             input_MouseClearDelta();
             display.HandleEvents();
-            scene.Update();
+            world.Update();
 
             // Draw scene to texture
             gfx_Texture2D_Unbind(&graphicsAdapter, 0);
             rtGame.Bind();
             rtGame.Clear();
-            scene.Draw();
+            world.Draw();
 
-            gfx_DebugDraw_SetView(scene.GetCamera()->GetViewMatrix());
-            gfx_DebugDraw_SetProjection(scene.GetCamera()->GetProjectionMatrix());
+            gfx_DebugDraw_SetView(world.GetCamera()->GetViewMatrix());
+            gfx_DebugDraw_SetProjection(world.GetCamera()->GetProjectionMatrix());
 
 
             gfx_DebugDraw_Flush();

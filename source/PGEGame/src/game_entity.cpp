@@ -71,6 +71,7 @@ namespace pge
     void
     game_EntityManager::CreateEntity(const game_Entity& entity)
     {
+        core_Assert(!IsEntityAlive(entity));
         auto it = std::find(m_freeIndices.begin(), m_freeIndices.end(), entity.GetIndex());
         if (it != m_freeIndices.end()) {
             m_freeIndices.erase(it);
@@ -103,9 +104,12 @@ namespace pge
     std::ostream&
     operator<<(std::ostream& os, const game_EntityManager& em)
     {
-        unsigned numEntities = em.m_generation.size();
+        unsigned numEntities = em.m_generation.size() - em.m_freeIndices.size();
         os.write((const char*)&numEntities, sizeof(numEntities));
         for (size_t i = 0; i < em.m_generation.size(); ++i) {
+            // If i is in m_freeIndices, then that entity was deleted
+            if (std::find(em.m_freeIndices.begin(), em.m_freeIndices.end(), i) != em.m_freeIndices.end())
+                continue;
             const game_Entity entity(i, em.m_generation[i]);
             os.write((const char*)&entity.id, sizeof(game_EntityId));
         }
@@ -119,12 +123,16 @@ namespace pge
         em.m_freeIndices.clear();
         unsigned numEntities = 0;
         is.read((char*)&numEntities, sizeof(numEntities));
-        core_Assert(numEntities > 0);
+        if (numEntities == 0)
+            return is;
+
         em.m_generation.resize(numEntities);
         for (size_t i = 0; i < numEntities; ++i) {
             game_EntityId entityId = 0;
             is.read((char*)&entityId, sizeof(entityId));
             game_Entity entity(entityId);
+            while (entity.GetIndex() >= em.m_generation.size())
+                em.m_generation.push_back(0);
             em.m_generation[entity.GetIndex()] = entity.GetGeneration();
         }
         return is;

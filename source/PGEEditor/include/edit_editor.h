@@ -28,8 +28,8 @@ namespace pge
 
     class edit_Editor {
         struct {
-            ImTextureID          sceneNode;
-            ImTextureID          sceneNodeSelected;
+            ImTextureID          worldNode;
+            ImTextureID          worldNodeSelected;
             ImTextureID          playButton;
             ImTextureID          pauseButton;
             const gfx_Texture2D* pointLight;
@@ -39,7 +39,7 @@ namespace pge
         gfx_GraphicsDevice*  m_graphicsDevice;
         res_ResourceManager* m_resources;
 
-        std::unique_ptr<game_World>                        m_scene;
+        std::unique_ptr<game_World>                        m_world;
         edit_TransformGizmo                                m_transformGizmo;
         std::vector<std::unique_ptr<edit_ComponentEditor>> m_componentEditors;
 
