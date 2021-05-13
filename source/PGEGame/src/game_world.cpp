@@ -34,7 +34,7 @@ namespace pge
 
         m_renderer.SetCamera(&m_camera);
         m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
-        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager);
+        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager, m_entityManager);
     }
 
     game_EntityManager*

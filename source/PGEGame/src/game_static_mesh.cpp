@@ -129,10 +129,10 @@ namespace pge
     }
 
     void
-    game_StaticMeshManager::DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm)
+    game_StaticMeshManager::DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm, const game_EntityManager& em)
     {
         for (const auto& mesh : m_meshes) {
-            if (mesh.mesh == nullptr || mesh.material == nullptr)
+            if (mesh.mesh == nullptr || mesh.material == nullptr || !em.IsEntityAlive(mesh.entity))
                 continue;
             math_Mat4x4 modelMatrix = tm.HasTransform(mesh.entity) ? tm.GetWorld(tm.GetTransformId(mesh.entity)) : math_Mat4x4();
             renderer->DrawMesh(mesh.mesh, mesh.material, modelMatrix);
