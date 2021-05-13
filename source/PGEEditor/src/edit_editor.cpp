@@ -50,9 +50,8 @@ namespace pge
     void
     edit_Editor::LoadWorld(const char* path)
     {
-        std::ifstream is(path, std::ios::binary);
-        game_World&   s = *m_world;
-        is >> s;
+        std::ifstream is(path);
+        is >> *m_world;
         is.close();
     }
 
