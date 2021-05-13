@@ -11,9 +11,8 @@ namespace pge
     {}
 
     void
-    game_World::Update()
+    game_World::GarbageCollect()
     {
-        game_Camera_UpdateFPS(&m_camera, .1f);
         m_entityMetaManager.GarbageCollect(m_entityManager);
         m_staticMeshManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);
@@ -22,12 +21,19 @@ namespace pge
     }
 
     void
+    game_World::Update()
+    {
+        game_Camera_UpdateFPS(&m_camera, .1f);
+        GarbageCollect();
+    }
+
+    void
     game_World::Draw()
     {
         m_scriptManager.UpdateScripts();
 
         m_renderer.SetCamera(&m_camera);
-        m_renderer.UpdateLights(m_lightManager, m_transformManager);
+        m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
         m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager);
     }
 
@@ -67,6 +73,44 @@ namespace pge
         return &m_scriptManager;
     }
 
+
+    const game_EntityManager*
+    game_World::GetEntityManager() const
+    {
+        return &m_entityManager;
+    }
+
+    const game_EntityMetaDataManager*
+    game_World::GetEntityMetaDataManager() const
+    {
+        return &m_entityMetaManager;
+    }
+
+    const game_TransformManager*
+    game_World::GetTransformManager() const
+    {
+        return &m_transformManager;
+    }
+
+    const game_StaticMeshManager*
+    game_World::GetStaticMeshManager() const
+    {
+        return &m_staticMeshManager;
+    }
+
+    const game_LightManager*
+    game_World::GetLightManager() const
+    {
+        return &m_lightManager;
+    }
+
+    const game_ScriptManager*
+    game_World::GetScriptManager() const
+    {
+        return &m_scriptManager;
+    }
+
+
     constexpr unsigned SERIALIZE_VERSION             = 1;
     constexpr size_t   SERIALIZED_ENTITY_BUFFER_SIZE = 512;
 
@@ -93,6 +137,8 @@ namespace pge
         memset(sentity.get(), 0, length);
         membuf       sbuf(sentity.get(), length);
         std::ostream sentitystream(&sbuf);
+
+        GarbageCollect();
 
         if (m_entityMetaManager.HasMetaData(entity)) {
             sentitystream.write((const char*)&SERIALIZE_TYPE_META, sizeof(SERIALIZE_TYPE_META));

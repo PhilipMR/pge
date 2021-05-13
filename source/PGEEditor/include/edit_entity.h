@@ -7,20 +7,6 @@
 
 namespace pge
 {
-//    class edit_CommandSelectEntity : public edit_Command {
-//        game_Entity  m_entity;
-//        game_Entity  m_previous;
-//        game_Entity* m_selected;
-//
-//    public:
-//        edit_CommandSelectEntity(const game_Entity& entity, game_Entity* selected);
-//
-//        virtual void                         Do() override;
-//        virtual void                         Undo() override;
-//        static std::unique_ptr<edit_Command> Create(const game_Entity& entity, game_Entity* selected);
-//    };
-
-
     class edit_CommandDeleteEntity : public edit_Command {
         game_Entity           m_entity;
         game_World*           m_world;
@@ -34,7 +20,6 @@ namespace pge
         static std::unique_ptr<edit_Command> Create(const game_Entity& entity, game_World* world);
     };
 
-
     class edit_CommandCreateEntity : public edit_Command {
         game_World*           m_world;
         game_Entity           m_createdEntity;
@@ -42,12 +27,12 @@ namespace pge
 
     public:
         edit_CommandCreateEntity(game_World* world);
+        game_Entity GetCreatedEntity() const;
 
         virtual void                         Do() override;
         virtual void                         Undo() override;
         static std::unique_ptr<edit_Command> Create(game_World* world);
     };
-
 
     class edit_CommandDuplicateEntity : public edit_Command {
         game_World*           m_world;

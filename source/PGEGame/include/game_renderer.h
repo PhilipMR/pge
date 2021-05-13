@@ -9,7 +9,6 @@
 
 #include "game_light.h"
 #include "game_camera.h"
-#include "game_transform.h"
 
 namespace pge
 {
@@ -44,7 +43,8 @@ namespace pge
         game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice);
 
         void SetCamera(const game_Camera* camera);
-        void UpdateLights(const game_LightManager& lightManager, const game_TransformManager& tmanager);
+
+        void UpdateLights(const game_LightManager& lmanager, const game_TransformManager& tmanager, const game_EntityManager& emanager);
         void SetDirectionalLight(size_t slot, const game_DirectionalLight& light);
         void SetPointLight(size_t slot, const game_PointLight& light, const math_Vec3& position);
 

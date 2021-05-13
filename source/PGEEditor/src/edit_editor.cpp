@@ -419,16 +419,10 @@ namespace pge
                 m_commandStack.Do(edit_CommandCreateEntity::Create(world));
             }
             if (ImGui::Selectable("Create light (directional)")) {
-                m_commandStack.Do(edit_CommandCreateDirectionalLight::Create(world->GetEntityManager(),
-                                                                             world->GetEntityMetaDataManager(),
-                                                                             world->GetTransformManager(),
-                                                                             world->GetLightManager()));
+                m_commandStack.Do(edit_CommandCreateDirectionalLight::Create(world));
             }
             if (ImGui::Selectable("Create light (point)")) {
-                m_commandStack.Do(edit_CommandCreatePointLight::Create(world->GetEntityManager(),
-                                                                       world->GetEntityMetaDataManager(),
-                                                                       world->GetTransformManager(),
-                                                                       world->GetLightManager()));
+                m_commandStack.Do(edit_CommandCreatePointLight::Create(world));
             }
             ImGui::EndPopup();
         }
@@ -561,7 +555,11 @@ namespace pge
 
                 ImGui::SameLine();
                 if (ImGui::Button("New mesh entity")) {
-                    game_Entity newmesh = m_world->GetEntityManager()->CreateEntity();
+                    auto createCommand = edit_CommandCreateEntity::Create(m_world.get());
+                    createCommand->Do();
+                    game_Entity newmesh = ((edit_CommandCreateEntity*)createCommand.get())->GetCreatedEntity();
+                    m_commandStack.Add(std::move(createCommand));
+
                     m_world->GetTransformManager()->CreateTransform(newmesh);
                     auto mid = m_world->GetStaticMeshManager()->CreateStaticMesh(newmesh);
                     m_world->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
@@ -575,7 +573,7 @@ namespace pge
                         ss << " [" << std::to_string(newmesh.id) << "]";
                         meshname = ss.str();
                     }
-                    m_world->GetEntityMetaDataManager()->CreateMetaData(newmesh, game_EntityMetaData(newmesh, meshname.c_str()));
+                    m_world->GetEntityMetaDataManager()->SetMetaData(newmesh, game_EntityMetaData(newmesh, meshname.c_str()));
                 }
             }
         }

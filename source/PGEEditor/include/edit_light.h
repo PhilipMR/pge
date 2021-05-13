@@ -3,7 +3,7 @@
 
 #include "edit_component.h"
 #include "edit_command.h"
-#include <game_light.h>
+#include <game_world.h>
 
 namespace pge
 {
@@ -17,42 +17,30 @@ namespace pge
 
 
     class edit_CommandCreateDirectionalLight : public edit_Command {
-        game_EntityManager*         m_entityManager;
-        game_EntityMetaDataManager* m_metaManager;
-        game_TransformManager*      m_transformManager;
-        game_LightManager*          m_lightManager;
-        game_Entity                 m_createdEntity;
+        game_World*           m_world;
+        game_Entity           m_createdEntity;
+        game_SerializedEntity m_sentity;
 
     public:
-        edit_CommandCreateDirectionalLight(game_EntityManager*         emanager,
-                                           game_EntityMetaDataManager* metaManager,
-                                           game_TransformManager*      tmanager,
-                                           game_LightManager*          lmanager);
+        edit_CommandCreateDirectionalLight(game_World* world);
 
-        virtual void Do() override;
-        virtual void Undo() override;
-        static std::unique_ptr<edit_Command>
-        Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager, game_TransformManager* tmanager, game_LightManager* lmanager);
+        virtual void                         Do() override;
+        virtual void                         Undo() override;
+        static std::unique_ptr<edit_Command> Create(game_World* world);
     };
 
     class edit_CommandCreatePointLight : public edit_Command {
-        game_EntityManager*         m_entityManager;
-        game_EntityMetaDataManager* m_metaManager;
-        game_TransformManager*      m_transformManager;
-        game_LightManager*          m_lightManager;
-        game_Entity                 m_createdEntity;
+        game_World*           m_world;
+        game_Entity           m_createdEntity;
+        game_SerializedEntity m_sentity;
 
     public:
-        edit_CommandCreatePointLight(game_EntityManager*         emanager,
-                                     game_EntityMetaDataManager* metaManager,
-                                     game_TransformManager*      tmanager,
-                                     game_LightManager*          lmanager);
+        edit_CommandCreatePointLight(game_World* world);
 
-        virtual void Do() override;
-        virtual void Undo() override;
-        static std::unique_ptr<edit_Command>
-        Create(game_EntityManager* emanager, game_EntityMetaDataManager* metaManager, game_TransformManager* tmanager, game_LightManager* lmanager);
+        virtual void                         Do() override;
+        virtual void                         Undo() override;
+        static std::unique_ptr<edit_Command> Create(game_World* world);
     };
-}
+} // namespace pge
 
 #endif

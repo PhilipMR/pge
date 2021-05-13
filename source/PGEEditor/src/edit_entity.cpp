@@ -6,30 +6,30 @@ namespace pge
     // ===============================
     // edit_CommandSelectEntity
     // ===============================
-//    edit_CommandSelectEntity::edit_CommandSelectEntity(const game_Entity& entity, game_Entity* selected)
-//        : m_entity(entity)
-//        , m_previous(game_EntityId_Invalid)
-//        , m_selected(selected)
-//    {}
-//
-//    void
-//    edit_CommandSelectEntity::Do()
-//    {
-//        m_previous  = *m_selected;
-//        *m_selected = m_entity;
-//    }
-//
-//    void
-//    edit_CommandSelectEntity::Undo()
-//    {
-//        *m_selected = m_previous;
-//    }
-//
-//    std::unique_ptr<edit_Command>
-//    edit_CommandSelectEntity::Create(const game_Entity& entity, game_Entity* selected)
-//    {
-//        return std::unique_ptr<edit_Command>(new edit_CommandSelectEntity(entity, selected));
-//    }
+    //    edit_CommandSelectEntity::edit_CommandSelectEntity(const game_Entity& entity, game_Entity* selected)
+    //        : m_entity(entity)
+    //        , m_previous(game_EntityId_Invalid)
+    //        , m_selected(selected)
+    //    {}
+    //
+    //    void
+    //    edit_CommandSelectEntity::Do()
+    //    {
+    //        m_previous  = *m_selected;
+    //        *m_selected = m_entity;
+    //    }
+    //
+    //    void
+    //    edit_CommandSelectEntity::Undo()
+    //    {
+    //        *m_selected = m_previous;
+    //    }
+    //
+    //    std::unique_ptr<edit_Command>
+    //    edit_CommandSelectEntity::Create(const game_Entity& entity, game_Entity* selected)
+    //    {
+    //        return std::unique_ptr<edit_Command>(new edit_CommandSelectEntity(entity, selected));
+    //    }
 
 
     // ===============================
@@ -69,6 +69,12 @@ namespace pge
         : m_world(world)
         , m_createdEntity(game_EntityId_Invalid)
     {}
+
+    game_Entity
+    edit_CommandCreateEntity::GetCreatedEntity() const
+    {
+        return m_createdEntity;
+    }
 
     void
     edit_CommandCreateEntity::Do()
