@@ -1,4 +1,5 @@
 #include "../include/game_renderer.h"
+#include "../include/game_world.h"
 
 namespace pge
 {
