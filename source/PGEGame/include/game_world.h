@@ -24,6 +24,8 @@ namespace pge
         game_Camera                m_camera;
         game_Renderer              m_renderer;
 
+        void GarbageCollect();
+
     public:
         game_World(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
         void Update();
@@ -35,6 +37,13 @@ namespace pge
         game_StaticMeshManager*     GetStaticMeshManager();
         game_LightManager*          GetLightManager();
         game_ScriptManager*         GetScriptManager();
+
+        const game_EntityManager*         GetEntityManager() const;
+        const game_EntityMetaDataManager* GetEntityMetaDataManager() const;
+        const game_TransformManager*      GetTransformManager() const;
+        const game_StaticMeshManager*     GetStaticMeshManager() const;
+        const game_LightManager*          GetLightManager() const;
+        const game_ScriptManager*         GetScriptManager() const;
 
         inline game_Camera*
         GetCamera()

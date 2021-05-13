@@ -255,7 +255,6 @@ namespace pge
         for (size_t i = 0; i < numAxisVecs; ++i) {
             math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
             auto      taxlen = math_Length(taxis);
-            // core_LogDebugf("taxlen = %f", taxlen);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             pos += stepSize * axisVecs[i];
@@ -282,7 +281,6 @@ namespace pge
         for (size_t i = 0; i < numAxisVecs; ++i) {
             math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
             auto      taxlen = math_Length(taxis);
-            // core_LogDebugf("taxlen = %f", taxlen);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             scl += stepSize * axisVecs[i];

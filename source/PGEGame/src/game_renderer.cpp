@@ -15,18 +15,21 @@ namespace pge
     }
 
     void
-    game_Renderer::UpdateLights(const game_LightManager& lightManager, const game_TransformManager& tmanager)
+    game_Renderer::UpdateLights(const game_LightManager& lmanager, const game_TransformManager& tmanager, const game_EntityManager& emanager)
     {
         // Update directional lights
         {
             size_t                       dirCount = 0;
-            const game_DirectionalLight* dlights  = lightManager.GetDirectionalLights(&dirCount);
+            const game_DirectionalLight* dlights  = lmanager.GetDirectionalLights(&dirCount);
             for (size_t i = 0; i < dirCount; ++i) {
-                auto&            dlight   = m_cbLightsData.dirLights[i];
-                game_TransformId tid      = tmanager.GetTransformId(dlights[i].entity);
-                math_Quat        rotation = tid == game_TransformId_Invalid ? math_Quat() : tmanager.GetLocalRotation(tid);
-                dlight.direction          = m_camera->GetViewMatrix() * math_Rotate(math_Vec4(dlights[i].direction, 0), rotation);
-                dlight.color              = math_Vec4(dlights[i].color, dlights[i].strength);
+                auto& dlight = m_cbLightsData.dirLights[i];
+                if (!emanager.IsEntityAlive(dlights[i].entity)) {
+                    continue;
+                }
+                game_TransformId             tid      = tmanager.GetTransformId(dlights[i].entity);
+                math_Quat                    rotation = tid == game_TransformId_Invalid ? math_Quat() : tmanager.GetLocalRotation(tid);
+                dlight.direction                      = m_camera->GetViewMatrix() * math_Rotate(math_Vec4(dlights[i].direction, 0), rotation);
+                dlight.color                          = math_Vec4(dlights[i].color, dlights[i].strength);
             }
             for (size_t i = dirCount; i < MAX_DIRLIGHTS; ++i) {
                 auto& dlight     = m_cbLightsData.dirLights[i];
@@ -39,11 +42,17 @@ namespace pge
         // Update point lights
         {
             size_t                 pointCount = 0;
-            const game_PointLight* plights    = lightManager.GetPointLights(&pointCount);
+            const game_PointLight* plights    = lmanager.GetPointLights(&pointCount);
             for (size_t i = 0; i < pointCount; ++i) {
-                auto&            plight = m_cbLightsData.pointLights[i];
-                game_TransformId tid    = tmanager.GetTransformId(plights[i].entity);
-                plight.position         = m_camera->GetViewMatrix()
+                auto& plight = m_cbLightsData.pointLights[i];
+                if (!emanager.IsEntityAlive(plights[i].entity)) {
+                    plight.position = math_Vec4::Zero();
+                    plight.color    = math_Vec3::Zero();
+                    plight.radius   = 0;
+                    continue;
+                }
+                game_TransformId             tid      = tmanager.GetTransformId(plights[i].entity);
+                plight.position                       = m_camera->GetViewMatrix()
                                   * math_Vec4((tid == game_TransformId_Invalid) ? math_Vec3::Zero() : tmanager.GetWorldPosition(tid), 1);
                 plight.color  = plights[i].color;
                 plight.radius = plights[i].radius;
