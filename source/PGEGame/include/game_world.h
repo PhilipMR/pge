@@ -7,6 +7,7 @@
 #include "game_camera.h"
 #include "game_light.h"
 #include "game_script.h"
+#include "game_behaviour.h"
 #include "game_renderer.h"
 
 namespace pge
@@ -21,13 +22,13 @@ namespace pge
         game_StaticMeshManager     m_staticMeshManager;
         game_LightManager          m_lightManager;
         game_ScriptManager         m_scriptManager;
+        game_BehaviourManager      m_behaviourManager;
         game_Camera                m_camera;
         game_Renderer              m_renderer;
 
-        void GarbageCollect();
-
     public:
         game_World(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
+        void GarbageCollect();
         void Update();
         void Draw();
 
@@ -37,6 +38,7 @@ namespace pge
         game_StaticMeshManager*     GetStaticMeshManager();
         game_LightManager*          GetLightManager();
         game_ScriptManager*         GetScriptManager();
+        game_BehaviourManager*             GetBehaviourManager();
 
         const game_EntityManager*         GetEntityManager() const;
         const game_EntityMetaDataManager* GetEntityMetaDataManager() const;
@@ -44,6 +46,8 @@ namespace pge
         const game_StaticMeshManager*     GetStaticMeshManager() const;
         const game_LightManager*          GetLightManager() const;
         const game_ScriptManager*         GetScriptManager() const;
+        const game_BehaviourManager*             GetBehaviourManager() const;
+
 
         inline game_Camera*
         GetCamera()

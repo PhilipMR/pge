@@ -52,6 +52,42 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+class EntityBehaviour : public pge::game_Behaviour {
+    pge::game_Entity m_entity;
+    pge::game_TransformManager* m_transformManager;
+
+public:
+    EntityBehaviour(const pge::game_Entity& entity, pge::game_TransformManager* transformManager)
+        : m_entity(entity)
+        , m_transformManager(transformManager)
+    {}
+
+    void
+    Update(float delta) override
+    {
+        pge::math_Vec3 movement;
+        if (pge::input_KeyboardDown(pge::input_KeyboardKey::W)) {
+            movement.y += 1;
+        }
+        if (pge::input_KeyboardDown(pge::input_KeyboardKey::A)) {
+            movement.x -= 1;
+        }
+        if (pge::input_KeyboardDown(pge::input_KeyboardKey::S)) {
+            movement.y -= 1;
+        }
+        if (pge::input_KeyboardDown(pge::input_KeyboardKey::D)) {
+            movement.x += 1;
+        }
+        if (pge::math_LengthSquared(movement) > 0) {
+            movement = pge::math_Normalize(movement);
+        }
+        const float MOVEMENT_SPEED = 0.1f;
+        movement *= MOVEMENT_SPEED;
+        pge::game_TransformId tid = m_transformManager->GetTransformId(m_entity);
+        m_transformManager->Translate(tid, movement);
+    }
+};
+
 int
 main()
 {
@@ -85,11 +121,18 @@ main()
         gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
         edit_Initialize(&display, &graphicsAdapter);
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-        editor.LoadWorld("test.world");
+        // editor.LoadWorld("test.world");
         game_World& world = editor.GetWorld();
         world.GetCamera()->SetLookAt(math_Vec3(10, 10, 10), math_Vec3(0, 0, 0));
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
+        game_Entity e1 = world.GetEntityManager()->CreateEntity();
+        world.GetTransformManager()->CreateTransform(e1);
+        world.GetEntityMetaDataManager()->CreateMetaData(e1, game_EntityMetaData(e1, "e1"));
+        world.GetStaticMeshManager()->CreateStaticMesh(e1,
+                                                       resources.GetMesh("data/meshes/cube/Cube.001.mesh"),
+                                                       resources.GetMaterial("data/materials/checkers.mat"));
+        world.GetBehaviourManager()->CreateBehaviour(e1, std::make_unique<EntityBehaviour>(e1, world.GetTransformManager()));
 
         const res_Effect*         screenTexEffect     = resources.GetEffect("data/effects/screentex.effect");
         const gfx_VertexAttribute screenTexAttribs[]  = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2),
@@ -117,7 +160,9 @@ main()
             input_KeyboardClearDelta();
             input_MouseClearDelta();
             display.HandleEvents();
-            world.Update();
+
+//            world.Update();
+            world.GarbageCollect();
 
             // Draw scene to texture
             gfx_Texture2D_Unbind(&graphicsAdapter, 0);

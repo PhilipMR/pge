@@ -7,6 +7,7 @@ namespace pge
         , m_staticMeshManager(100, graphicsAdapter, graphicsDevice, resources)
         , m_lightManager(100)
         , m_scriptManager(100)
+        , m_behaviourManager()
         , m_renderer(graphicsAdapter, graphicsDevice)
     {}
 
@@ -23,8 +24,7 @@ namespace pge
     void
     game_World::Update()
     {
-        game_Camera_UpdateFPS(&m_camera, .1f);
-        GarbageCollect();
+        m_behaviourManager.Update(1.0f / 60.0f);
     }
 
     void
@@ -73,6 +73,12 @@ namespace pge
         return &m_scriptManager;
     }
 
+    game_BehaviourManager*
+    game_World::GetBehaviourManager()
+    {
+        return &m_behaviourManager;
+    }
+
 
     const game_EntityManager*
     game_World::GetEntityManager() const
@@ -108,6 +114,12 @@ namespace pge
     game_World::GetScriptManager() const
     {
         return &m_scriptManager;
+    }
+
+    const game_BehaviourManager*
+    game_World::GetBehaviourManager() const
+    {
+        return &m_behaviourManager;
     }
 
 

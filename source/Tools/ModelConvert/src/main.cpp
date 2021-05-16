@@ -6,6 +6,7 @@
 #include <core_file_utils.h>
 #include <gfx_vertex_layout.h>
 #include <res_mesh.h>
+#include <res_material.h>
 
 #include <stdio.h>
 #include <fstream>
@@ -55,7 +56,7 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
     aiMatrix4x4 scale;
     aiMatrix4x4::Scaling(aiVector3t<float>(2, 2, 2), scale);
 
-    aiMatrix4x4 importTransform = rotation * scale;
+    aiMatrix4x4             importTransform = rotation * scale;
     std::vector<aiVector3D> importVertices, importNormals;
     importVertices.reserve(mesh->mNumVertices);
     importNormals.reserve(mesh->mNumVertices);
@@ -82,22 +83,46 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
 }
 
 void
-ExtractMaterial(const aiMaterial* material, const char* targetPath)
+ExtractMaterial(aiMaterial* material, const char* targetPath)
 {
-    aiString texPath;
-    if(material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
-        std::string fname = pge::core_GetFilenameFromPath(texPath.C_Str());
+    auto FindFirstOccuranceInString = [](const char* str, const char* substr) {
+        size_t substrLen = strlen(substr);
+        size_t matches = 0;
+        for (const char* p = str; *p != '\0'; ++p) {
+            if (*p == substr[matches]) {
+                ++matches;
+            } else {
+                matches = 0;
+            }
+            if (matches == substrLen) {
+                for (size_t i = 0; i < (matches-1); ++i)
+                    --p;
+                return p;
+            }
+        }
+        return str;
+    };
 
-//        std::stringstream ss;
-//        ss << targetPath;
-//        ss << fname.c_str();
-//        std::filesystem::path destPath{ ss.str().c_str() };
-//        if (!std::filesystem::exists(destPath)) {
-//            std::filesystem::copy()
-//        }
-        // if file at targetPath exists, ignore
-        // else copy to targetPath
+    const char* localTargetPath = FindFirstOccuranceInString(targetPath, "data\\");
+
+    std::stringstream matFileSrc;
+    matFileSrc << "Effect = data\\effects\\default.effect\n"
+                  "Properties {\n"
+                  "  float4    MainColor(1, 1, 1, 1)\n";
+    aiString texPath;
+    if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == aiReturn_SUCCESS) {
+        std::stringstream localTexPath;
+        localTexPath << localTargetPath << "\\" << pge::core_GetFilenameFromPath(texPath.C_Str());
+        matFileSrc << "  Texture2D DiffuseMap(" << localTexPath.str() << ")\n";
     }
+    matFileSrc << "}";
+
+
+    std::stringstream matPath;
+    matPath << targetPath << "\\" << material->GetName().C_Str() << ".mat";
+    std::ofstream mat(matPath.str());
+    mat << matFileSrc.str();
+    mat.close();
 }
 
 void

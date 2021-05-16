@@ -6,6 +6,8 @@
 
 namespace pge
 {
+    constexpr char* core_PATH_SEPARATOR = "\\";
+
     std::string core_ReadFile(const char* path);
     std::string core_GetFilenameFromPath(const char* path);
     std::string core_GetDirnameFromPath(const char* path);

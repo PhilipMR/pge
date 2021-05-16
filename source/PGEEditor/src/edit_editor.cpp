@@ -21,7 +21,8 @@ namespace pge
 
 
     edit_Editor::edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
-        : m_graphicsAdapter(graphicsAdapter)
+        : m_editMode(EDITOR_MODE_EDIT)
+        , m_graphicsAdapter(graphicsAdapter)
         , m_graphicsDevice(graphicsDevice)
         , m_resources(resources)
         , m_world(std::make_unique<game_World>(m_graphicsAdapter, m_graphicsDevice, m_resources))
@@ -67,13 +68,25 @@ namespace pge
         edit_BeginFrame();
 
         HandleEvents();
-        DrawMenuBar();
+
+        if (m_editMode == EDITOR_MODE_EDIT) {
+            DrawMenuBar();
+        }
+
+        if (m_editMode == EDITOR_MODE_PLAY) {
+            m_world->Update();
+        } else {
+            game_Camera_UpdateFPS(m_world->GetCamera(), .1f);
+        }
         bool ishovering = DrawGameView(target);
-        DrawGizmos();
-        DrawEntityTree();
-        DrawInspector();
-        DrawLog();
-        DrawResources();
+
+        if (m_editMode == EDITOR_MODE_EDIT) {
+            DrawGizmos();
+            DrawEntityTree();
+            DrawInspector();
+            DrawLog();
+            DrawResources();
+        }
 
         edit_EndFrame();
         return ishovering;
@@ -276,19 +289,25 @@ namespace pge
 
         ImGui::Begin("Game", nullptr, PANEL_WINDOW_FLAGS);
 
-        ImGui::Checkbox("Grid", &m_drawGrid);
-        ImGui::SameLine();
-        ImGui::Checkbox("Gizmos", &m_drawGizmos);
-        ImGui::SameLine();
+        float barWidth = ImGui::GetContentRegionAvailWidth();
+        if (m_editMode == EDITOR_MODE_EDIT) {
+            ImGui::Checkbox("Grid", &m_drawGrid);
+            ImGui::SameLine();
+            ImGui::Checkbox("Gizmos", &m_drawGizmos);
+            ImGui::SameLine();
+        }
+
         static bool  isPlaying = false;
         const ImVec2 size(50, 20);
-        ImGui::SetCursorPosX(ImGui::GetContentRegionAvailWidth());
+        ImGui::SetCursorPosX(barWidth - size.x);
         if (!isPlaying) {
             if (ImGui::Button(ICON_FA_PLAY, size)) {
+                m_editMode = EDITOR_MODE_PLAY;
                 isPlaying = true;
             }
         } else {
             if (ImGui::Button(ICON_FA_PAUSE, size)) {
+                m_editMode = EDITOR_MODE_EDIT;
                 isPlaying = false;
             }
         }

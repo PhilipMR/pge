@@ -35,6 +35,11 @@ namespace pge
             const gfx_Texture2D* pointLight;
         } m_icons;
 
+        enum {
+            EDITOR_MODE_EDIT,
+            EDITOR_MODE_PLAY
+        } m_editMode;
+
         gfx_GraphicsAdapter* m_graphicsAdapter;
         gfx_GraphicsDevice*  m_graphicsDevice;
         res_ResourceManager* m_resources;
