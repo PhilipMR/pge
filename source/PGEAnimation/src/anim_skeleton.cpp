@@ -259,7 +259,7 @@ namespace pge
     }
 
     void
-    anim_DebugDrawSkeleton(const anim_Skeleton& skeleton, const math_Mat4x4& modelMatrix, const math_Vec3& color, float lineWidth, bool hasDepth)
+    anim_DebugDraw_Skeleton(const anim_Skeleton& skeleton, const math_Mat4x4& modelMatrix, const math_Vec3& color, float lineWidth, bool hasDepth)
     {
         for (unsigned i = 0; i < skeleton.GetBoneCount(); ++i) {
             const anim_SkeletonBone& bone = skeleton.GetBone(i);
