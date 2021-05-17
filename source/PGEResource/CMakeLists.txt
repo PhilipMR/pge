@@ -5,9 +5,10 @@ project(pge_resource)
 add_library(pge_resource
     src/res_effect.cpp
     src/res_material.cpp
-    src/res_texture2d.cpp
     src/res_mesh.cpp
     src/res_resource_manager.cpp
+    src/res_skeleton.cpp
+    src/res_texture2d.cpp
 )
 
 target_include_directories(pge_resource PRIVATE

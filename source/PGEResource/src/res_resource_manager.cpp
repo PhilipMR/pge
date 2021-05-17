@@ -7,6 +7,8 @@ namespace pge
         , m_textures(graphicsAdapter)
         , m_materials(graphicsAdapter, &m_effects, &m_textures)
         , m_meshes(graphicsAdapter)
+        , m_skeletons()
+        , m_skeletonAnimations()
     {}
 
     const res_Effect*
@@ -31,5 +33,17 @@ namespace pge
     res_ResourceManager::GetMesh(const char* path)
     {
         return m_meshes.Load(path);
+    }
+
+    const res_Skeleton*
+    res_ResourceManager::GetSkeleton(const char* path)
+    {
+        return m_skeletons.Load(path);
+    }
+
+    const res_SkeletonAnimation*
+    res_ResourceManager::GetSkeletonAnimation(const char* path)
+    {
+        return m_skeletonAnimations.Load(path);
     }
 } // namespace pge
