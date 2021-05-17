@@ -78,7 +78,12 @@ namespace pge
         void Transform();
         void Animate(const anim_SkeletonAnimation& animation, double time);
         void Animate(const anim_SkeletonAnimation& from, double fromTime, const anim_SkeletonAnimation& to, double toTime, float factor);
+
+        size_t                   GetBoneCount() const;
+        const anim_SkeletonBone& GetBone(size_t index) const;
     };
+
+    void anim_DebugDrawSkeleton(const anim_Skeleton& skeleton, const math_Mat4x4& modelMatrix, const math_Vec3& color, float lineWidth, bool hasDepth);
 
 } // namespace pge
 

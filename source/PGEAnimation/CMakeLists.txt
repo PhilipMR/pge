@@ -9,4 +9,5 @@ add_library(pge_animation
 target_include_directories(pge_animation PRIVATE
     ../PGECore/include
     ../PGEMath/include
+    ../PGEGraphics/include
 )

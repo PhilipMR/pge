@@ -1,6 +1,8 @@
 #include "../include/anim_skeleton.h"
 #include "../include/anim_easing.h"
+
 #include <core_assert.h>
+#include <gfx_debug_draw.h>
 
 namespace pge
 {
@@ -11,6 +13,7 @@ namespace pge
     static TValue
     Sample(const TKey* keys, unsigned keyCount, double time)
     {
+        core_Assert(keyCount > 0);
         if (keyCount == 1) {
             return keys[0].value;
         }
@@ -239,6 +242,36 @@ namespace pge
             anim_SkeletonBone* bone     = FindBone(boneName);
             core_Assert(bone != nullptr);
             AnimateBone(bone, fromChannel, fromTime, toChannel, toTime, factor);
+        }
+    }
+
+    size_t
+    anim_Skeleton::GetBoneCount() const
+    {
+        return m_bones.size();
+    }
+
+    const anim_SkeletonBone&
+    anim_Skeleton::GetBone(size_t index) const
+    {
+        core_Assert(index < m_bones.size());
+        return m_bones[index];
+    }
+
+    void
+    anim_DebugDrawSkeleton(const anim_Skeleton& skeleton, const math_Mat4x4& modelMatrix, const math_Vec3& color, float lineWidth, bool hasDepth)
+    {
+        for (unsigned i = 0; i < skeleton.GetBoneCount(); ++i) {
+            const anim_SkeletonBone& bone = skeleton.GetBone(i);
+
+            math_Vec3 p1 = (modelMatrix * bone.worldTransform * math_Vec4(0.f, 0.f, 0.f, 1.f)).xyz;
+            gfx_DebugDraw_Point(p1, color, lineWidth, hasDepth);
+
+            if (bone.parent != nullptr) {
+                math_Mat4x4 parentTransform = bone.parent->worldTransform;
+                math_Vec3   p2              = (modelMatrix * parentTransform * math_Vec4(0.f, 0.f, 0.f, 1.f)).xyz;
+                gfx_DebugDraw_Line(p1, p2, color, lineWidth, hasDepth);
+            }
         }
     }
 } // namespace pge
