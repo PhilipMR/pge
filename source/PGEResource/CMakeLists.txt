@@ -13,6 +13,7 @@ add_library(pge_resource
 
 target_include_directories(pge_resource PRIVATE
     ../External/stb
+    ../PGEAnimation/include
     ../PGECore/include
     ../PGEMath/include
     ../PGEGraphics/include

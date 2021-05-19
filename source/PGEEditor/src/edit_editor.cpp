@@ -2,6 +2,7 @@
 #include "../include/edit_mesh.h"
 #include "../include/edit_light.h"
 #include "../include/edit_script.h"
+#include <anim_skeleton.h>
 #include <input_mouse.h>
 #include <input_keyboard.h>
 #include <gfx_render_target.h>
@@ -86,6 +87,12 @@ namespace pge
             DrawInspector();
             DrawLog();
             DrawResources();
+
+
+            // TODO: THIS IS JUST A TEST TO SEE IF THE SKELETON DATA IS RIGHT
+            static anim_Skeleton skeleton = *m_resources->GetSkeleton("C:\\Users\\phili\\Desktop\\Walking\\RootNode.skel")->GetSkeleton();
+            skeleton.Transform();
+            anim_DebugDraw_Skeleton(skeleton, math_CreateScaleMatrix(math_Vec3::One() * 0.01f), math_Vec3::One(), 0.01f, true);
         }
 
         edit_EndFrame();
@@ -303,12 +310,12 @@ namespace pge
         if (!isPlaying) {
             if (ImGui::Button(ICON_FA_PLAY, size)) {
                 m_editMode = EDITOR_MODE_PLAY;
-                isPlaying = true;
+                isPlaying  = true;
             }
         } else {
             if (ImGui::Button(ICON_FA_PAUSE, size)) {
                 m_editMode = EDITOR_MODE_EDIT;
-                isPlaying = false;
+                isPlaying  = false;
             }
         }
 

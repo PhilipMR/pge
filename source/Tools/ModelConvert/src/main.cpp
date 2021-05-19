@@ -2,11 +2,15 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 #include <core_assert.h>
 #include <core_file_utils.h>
 #include <gfx_vertex_layout.h>
 #include <res_mesh.h>
 #include <res_material.h>
+#include <res_skeleton.h>
 
 #include <stdio.h>
 #include <fstream>
@@ -83,11 +87,27 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
 }
 
 void
+ExtractTexture(aiTexture* texture, const char* targetPath)
+{
+    std::string       texName = pge::core_GetFilenameFromPath(texture->mFilename.C_Str());
+    std::stringstream texPath;
+    texPath << targetPath << "\\" << texName;
+
+    // If mHeight == 0, then it is a compressed format (and the data is stored directly)
+    if (texture->mHeight == 0) {
+        std::ofstream tex(texPath.str(), std::ios::binary);
+        tex.write((const char*)texture->pcData, texture->mWidth);
+    } else {
+        stbi_write_png(texPath.str().c_str(), texture->mWidth, texture->mHeight, 4, texture->pcData, sizeof(aiTexel));
+    }
+}
+
+void
 ExtractMaterial(aiMaterial* material, const char* targetPath)
 {
     auto FindFirstOccuranceInString = [](const char* str, const char* substr) {
         size_t substrLen = strlen(substr);
-        size_t matches = 0;
+        size_t matches   = 0;
         for (const char* p = str; *p != '\0'; ++p) {
             if (*p == substr[matches]) {
                 ++matches;
@@ -95,7 +115,7 @@ ExtractMaterial(aiMaterial* material, const char* targetPath)
                 matches = 0;
             }
             if (matches == substrLen) {
-                for (size_t i = 0; i < (matches-1); ++i)
+                for (size_t i = 0; i < (matches - 1); ++i)
                     --p;
                 return p;
             }
@@ -125,9 +145,33 @@ ExtractMaterial(aiMaterial* material, const char* targetPath)
     mat.close();
 }
 
+
+void
+ExtractBoneData(std::vector<pge::res_Bone>* data, const aiNode* node, int parentIdx)
+{
+    pge::res_Bone bone;
+    bone.name = node->mName.C_Str();
+    memcpy(&bone.transform, &node->mTransformation, sizeof(bone.transform));
+    bone.parent = parentIdx;
+    data->push_back(bone);
+    const int index = data->size() - 1;
+    for (size_t i = 0; i < node->mNumChildren; ++i) {
+        ExtractBoneData(data, node->mChildren[i], index);
+    }
+}
+
 void
 ExtractSkeleton(const aiNode* rootNode, const char* targetPath)
-{}
+{
+    std::vector<pge::res_Bone> boneData;
+    ExtractBoneData(&boneData, rootNode, -1);
+    pge::res_Skeleton skeleton(&boneData[0], boneData.size());
+
+    std::stringstream ss;
+    ss << targetPath << "\\" << boneData[0].name << ".skel";
+    std::ofstream skel(ss.str(), std::ios::binary);
+    skeleton.Write(skel);
+}
 
 void
 ExtractAnimation(const aiAnimation* animation, const char* targetPath)
@@ -159,6 +203,7 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     };
 
     printf("Found %d mesh(es).\n", scene->mNumMeshes);
+    printf("Found %d texture(s).\n", scene->mNumTextures);
     printf("Found %d material(s).\n", scene->mNumMaterials);
     printf("Found %s skeleton.\n", SceneHasSkeleton(scene) ? "a" : "no");
     printf("Found %d animation(s).\n", scene->mNumAnimations);
@@ -166,6 +211,10 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     for (unsigned i = 0; i < scene->mNumMeshes; ++i) {
         ExtractMesh(scene->mMeshes[i], targetPath);
         printf("Done extracting mesh %d: %s\n", i + 1, scene->mMeshes[i]->mName.C_Str());
+    }
+    for (unsigned i = 0; i < scene->mNumTextures; ++i) {
+        ExtractTexture(scene->mTextures[i], targetPath);
+        printf("Done extracting texture %d: %s\n", i + 1, scene->mTextures[i]->mFilename.C_Str());
     }
     for (unsigned i = 0; i < scene->mNumMaterials; ++i) {
         ExtractMaterial(scene->mMaterials[i], targetPath);
@@ -186,14 +235,16 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 int
 main()
 {
-    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
-    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
-    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
-    for (const auto& modelItem : models) {
-        if (modelItem.type != pge::core_FSItemType::FILE)
-            continue;
-        const char* modelPath = modelItem.path.c_str();
-        ConvertModel(modelPath, outPath);
-    }
+    //    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
+    //    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
+    //    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
+    //    for (const auto& modelItem : models) {
+    //        if (modelItem.type != pge::core_FSItemType::FILE)
+    //            continue;
+    //        const char* modelPath = modelItem.path.c_str();
+    //        ConvertModel(modelPath, outPath);
+    //    }
+
+    ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(C:\Users\phili\Desktop\Walking)");
     return 0;
 }

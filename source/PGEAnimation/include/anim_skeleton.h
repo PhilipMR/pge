@@ -6,10 +6,10 @@
 namespace pge
 {
     struct anim_SkeletonBone {
-        char                     name[64];
-        math_Mat4x4              localTransform;
-        math_Mat4x4              worldTransform;
-        const anim_SkeletonBone* parent = nullptr;
+        char        name[64];
+        math_Mat4x4 localTransform;
+        math_Mat4x4 worldTransform;
+        int         parentIdx;
     };
 
     struct anim_KeyVec3 {
@@ -36,6 +36,7 @@ namespace pge
         anim_KeyQuat* m_rotationKeys;
 
     public:
+        anim_SkeletonAnimationChannel() = default;
         anim_SkeletonAnimationChannel(const char*   boneName,
                                       anim_KeyVec3* posKeys,
                                       unsigned      numPosKeys,
@@ -75,6 +76,11 @@ namespace pge
 
     public:
         anim_Skeleton(anim_SkeletonBone* bones, unsigned numBones);
+
+        anim_Skeleton(const anim_Skeleton& rhs)
+            : m_bones(rhs.m_bones)
+        {}
+
         void Transform();
         void Animate(const anim_SkeletonAnimation& animation, double time);
         void Animate(const anim_SkeletonAnimation& from, double fromTime, const anim_SkeletonAnimation& to, double toTime, float factor);

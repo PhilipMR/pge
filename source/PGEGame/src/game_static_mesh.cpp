@@ -145,6 +145,8 @@ namespace pge
         float             closestDistance = std::numeric_limits<float>::max();
         game_StaticMeshId closestMesh     = game_StaticMeshId_Invalid;
         for (const auto& mesh : m_meshes) {
+            if (!tm.HasTransform(mesh.entity))
+                continue;
             auto aabb      = mesh.mesh->GetAABB();
             aabb           = math_TransformAABB(aabb, tm.GetWorld(tm.GetTransformId(mesh.entity)));
             float distance = 0;

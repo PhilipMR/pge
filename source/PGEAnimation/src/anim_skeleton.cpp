@@ -196,7 +196,7 @@ namespace pge
 
     anim_Skeleton::anim_Skeleton(anim_SkeletonBone* bones, unsigned numBones)
     {
-        m_bones.resize(numBones);
+        m_bones.reserve(numBones);
         for (unsigned i = 0; i < numBones; ++i)
             m_bones.emplace_back(bones[i]);
     }
@@ -205,8 +205,8 @@ namespace pge
     anim_Skeleton::Transform()
     {
         for (auto& bone : m_bones) {
-            if (bone.parent != nullptr) {
-                bone.worldTransform = bone.parent->worldTransform * bone.localTransform;
+            if (bone.parentIdx != -1) {
+                bone.worldTransform = GetBone(bone.parentIdx).worldTransform * bone.localTransform;
             } else {
                 bone.worldTransform = bone.localTransform;
             }
@@ -230,14 +230,14 @@ namespace pge
     void
     anim_Skeleton::Animate(const anim_SkeletonAnimation& from, double fromTime, const anim_SkeletonAnimation& to, double toTime, float factor)
     {
-        core_Assert(from.channelCount == to.channelCount);
+        core_Assert(from.GetChannelCount() == to.GetChannelCount());
         unsigned                             channelCount = from.GetChannelCount();
         const anim_SkeletonAnimationChannel* fromChannels = from.GetChannels();
         const anim_SkeletonAnimationChannel* toChannels   = to.GetChannels();
         for (unsigned i = 0; i < channelCount; ++i) {
             const anim_SkeletonAnimationChannel& fromChannel = fromChannels[i];
             const anim_SkeletonAnimationChannel& toChannel   = toChannels[i];
-            core_Assert(strcmp(fromChannel.boneName, toChannel.boneName) == 0);
+            core_Assert(strcmp(fromChannel.GetBoneName(), toChannel.GetBoneName()) == 0);
             const char*        boneName = fromChannel.GetBoneName();
             anim_SkeletonBone* bone     = FindBone(boneName);
             core_Assert(bone != nullptr);
@@ -267,8 +267,8 @@ namespace pge
             math_Vec3 p1 = (modelMatrix * bone.worldTransform * math_Vec4(0.f, 0.f, 0.f, 1.f)).xyz;
             gfx_DebugDraw_Point(p1, color, lineWidth, hasDepth);
 
-            if (bone.parent != nullptr) {
-                math_Mat4x4 parentTransform = bone.parent->worldTransform;
+            if (bone.parentIdx != -1) {
+                math_Mat4x4 parentTransform = skeleton.GetBone(bone.parentIdx).worldTransform;
                 math_Vec3   p2              = (modelMatrix * parentTransform * math_Vec4(0.f, 0.f, 0.f, 1.f)).xyz;
                 gfx_DebugDraw_Line(p1, p2, color, lineWidth, hasDepth);
             }

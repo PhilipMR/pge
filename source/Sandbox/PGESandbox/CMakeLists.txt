@@ -11,6 +11,7 @@ add_definitions(-DNOMINMAX)
 target_include_directories(pge_sandbox PRIVATE 
     ../../External/imgui
     ../../External/lua
+    ../../PGEAnimation/include
     ../../PGECore/include
     ../../PGEInput/include
     ../../PGEGraphics/include
@@ -25,6 +26,7 @@ target_link_libraries(pge_sandbox PRIVATE
     d3dcompiler.lib
     imgui
     lua
+    pge_animation
     pge_core
     pge_input
     pge_graphics

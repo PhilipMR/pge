@@ -77,7 +77,7 @@ namespace pge
     }
 
     void
-    res_SerializedMesh::Write(std::ostream& output)
+    res_SerializedMesh::Write(std::ostream& output) const
     {
         output.write((char*)&m_version, sizeof(m_version));
         output.write((char*)&m_attributeFlags, sizeof(m_attributeFlags));

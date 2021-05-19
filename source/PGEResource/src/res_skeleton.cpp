@@ -7,7 +7,11 @@ namespace pge
     res_Skeleton*
     res_SkeletonCache::Load(const char* path)
     {
-        return nullptr;
+        auto it = m_skelMap.find(path);
+        if (it == m_skelMap.end()) {
+            m_skelMap.emplace(std::piecewise_construct, std::make_tuple(path), std::make_tuple(path));
+        }
+        return &m_skelMap.at(path);
     }
 
     res_SkeletonAnimationCache::res_SkeletonAnimationCache() {}

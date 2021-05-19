@@ -1,4 +1,4 @@
-#ifndef PGE_RESOURCE_RES_MESH_H
+ #ifndef PGE_RESOURCE_RES_MESH_H
 #define PGE_RESOURCE_RES_MESH_H
 
 #include <core_assert.h>
@@ -80,7 +80,7 @@ namespace pge
                            size_t     numTriangles);
 
 
-        void Write(std::ostream& output);
+        void Write(std::ostream& output) const;
 
         std::string     GetPath() const;
         uint16_t        GetVersion() const;
