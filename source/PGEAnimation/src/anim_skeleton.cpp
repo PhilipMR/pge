@@ -3,6 +3,8 @@
 
 #include <core_assert.h>
 #include <gfx_debug_draw.h>
+#include <memory>
+#include <iostream>
 
 namespace pge
 {
@@ -77,20 +79,25 @@ namespace pge
     // ============================
     // anim_SkeletonAnimationChannel
     // ============================
-    anim_SkeletonAnimationChannel::anim_SkeletonAnimationChannel(const char*   boneName,
-                                                                 anim_KeyVec3* posKeys,
-                                                                 unsigned      numPosKeys,
-                                                                 anim_KeyVec3* scaleKeys,
-                                                                 unsigned      numScaleKeys,
-                                                                 anim_KeyQuat* rotKeys,
-                                                                 unsigned      numRotKeys)
-        : m_numPosKeys(numPosKeys)
-        , m_numScaleKeys(numScaleKeys)
-        , m_numRotKeys(numRotKeys)
+    void
+    anim_SkeletonAnimationChannel::MakeSkeletonAnimationChannel(const char*         boneName,
+                                                                const anim_KeyVec3* posKeys,
+                                                                unsigned            numPosKeys,
+                                                                const anim_KeyVec3* scaleKeys,
+                                                                unsigned            numScaleKeys,
+                                                                const anim_KeyQuat* rotKeys,
+                                                                unsigned            numRotKeys)
     {
         core_Assert(strlen(boneName) <= sizeof(m_boneName));
+        m_numPosKeys   = numPosKeys;
+        m_numScaleKeys = numScaleKeys;
+        m_numRotKeys   = numRotKeys;
+
         strcpy_s(m_boneName, boneName);
 
+        if (m_buffer != nullptr) {
+            free(m_buffer);
+        }
         m_buffer       = malloc(sizeof(anim_KeyVec3) * numPosKeys + sizeof(anim_KeyVec3) * numScaleKeys + sizeof(anim_KeyQuat) * numRotKeys);
         m_positionKeys = reinterpret_cast<anim_KeyVec3*>(m_buffer);
         m_scaleKeys    = reinterpret_cast<anim_KeyVec3*>(m_positionKeys + numPosKeys);
@@ -99,6 +106,61 @@ namespace pge
         memcpy(m_positionKeys, posKeys, sizeof(anim_KeyVec3) * numPosKeys);
         memcpy(m_scaleKeys, scaleKeys, sizeof(anim_KeyVec3) * numScaleKeys);
         memcpy(m_rotationKeys, rotKeys, sizeof(anim_KeyQuat) * numRotKeys);
+    }
+
+
+    anim_SkeletonAnimationChannel::anim_SkeletonAnimationChannel()
+        : m_buffer(nullptr)
+    {}
+
+    anim_SkeletonAnimationChannel::anim_SkeletonAnimationChannel(const anim_SkeletonAnimationChannel& rhs)
+    {
+        MakeSkeletonAnimationChannel(rhs.m_boneName,
+                                     rhs.m_positionKeys,
+                                     rhs.m_numPosKeys,
+                                     rhs.m_scaleKeys,
+                                     rhs.m_numScaleKeys,
+                                     rhs.m_rotationKeys,
+                                     rhs.m_numRotKeys);
+    }
+
+    anim_SkeletonAnimationChannel::anim_SkeletonAnimationChannel(anim_SkeletonAnimationChannel&& rhs)
+    {
+        memcpy(this, &rhs, sizeof(rhs));
+        memset(&rhs, 0, sizeof(rhs));
+    }
+
+    anim_SkeletonAnimationChannel&
+    anim_SkeletonAnimationChannel::operator=(const anim_SkeletonAnimationChannel& rhs)
+    {
+        MakeSkeletonAnimationChannel(rhs.m_boneName,
+                                     rhs.m_positionKeys,
+                                     rhs.m_numPosKeys,
+                                     rhs.m_scaleKeys,
+                                     rhs.m_numScaleKeys,
+                                     rhs.m_rotationKeys,
+                                     rhs.m_numRotKeys);
+        return *this;
+    }
+
+    anim_SkeletonAnimationChannel&
+    anim_SkeletonAnimationChannel::operator=(anim_SkeletonAnimationChannel&& rhs)
+    {
+        memcpy(this, &rhs, sizeof(rhs));
+        memset(&rhs, 0, sizeof(rhs));
+        return *this;
+    }
+
+    anim_SkeletonAnimationChannel::anim_SkeletonAnimationChannel(const char*         boneName,
+                                                                 const anim_KeyVec3* posKeys,
+                                                                 unsigned            numPosKeys,
+                                                                 const anim_KeyVec3* scaleKeys,
+                                                                 unsigned            numScaleKeys,
+                                                                 const anim_KeyQuat* rotKeys,
+                                                                 unsigned            numRotKeys)
+        : m_buffer(nullptr)
+    {
+        MakeSkeletonAnimationChannel(boneName, posKeys, numPosKeys, scaleKeys, numScaleKeys, rotKeys, numRotKeys);
     }
 
     anim_SkeletonAnimationChannel::~anim_SkeletonAnimationChannel()
@@ -152,12 +214,21 @@ namespace pge
     // ============================
     // anim_SkeletonAnimation
     // ============================
-    anim_SkeletonAnimation::anim_SkeletonAnimation(double duration, const anim_SkeletonAnimationChannel* channels, unsigned numChannels)
-        : m_duration(duration)
+    anim_SkeletonAnimation::anim_SkeletonAnimation(std::istream& is)
+    {
+        is >> *this;
+    }
+
+    anim_SkeletonAnimation::anim_SkeletonAnimation(const char*                          name,
+                                                   double                               duration,
+                                                   const anim_SkeletonAnimationChannel* channels,
+                                                   unsigned                             numChannels)
+        : m_name(name)
+        , m_duration(duration)
     {
         m_channels.resize(numChannels);
         for (unsigned i = 0; i < numChannels; ++i) {
-            m_channels.emplace_back(channels[i]);
+            m_channels[i] = channels[i];
         }
     }
 
@@ -177,6 +248,102 @@ namespace pge
     anim_SkeletonAnimation::GetChannelCount() const
     {
         return m_channels.size();
+    }
+
+    const char*
+    anim_SkeletonAnimation::GetName() const
+    {
+        return m_name.c_str();
+    }
+
+
+    std::ostream&
+    operator<<(std::ostream& os, const anim_SkeletonAnimationChannel& channel)
+    {
+        const char* boneName = channel.GetBoneName();
+        unsigned    nameSz   = strlen(boneName);
+        os.write((const char*)&nameSz, sizeof(nameSz));
+        os.write((const char*)boneName, nameSz);
+
+        unsigned numPosKeys = channel.GetPositionKeyCount();
+        os.write((const char*)&numPosKeys, sizeof(numPosKeys));
+        os.write((const char*)&channel.GetPositionKeys()[0], sizeof(channel.GetPositionKeys()[0]) * numPosKeys);
+
+        unsigned numScaleKeys = channel.GetScaleKeyCount();
+        os.write((const char*)&numScaleKeys, sizeof(numScaleKeys));
+        os.write((const char*)&channel.GetScaleKeys()[0], sizeof(channel.GetScaleKeys()[0]) * numScaleKeys);
+
+        unsigned numRotKeys = channel.GetRotationKeyCount();
+        os.write((const char*)&numRotKeys, sizeof(numRotKeys));
+        os.write((const char*)&channel.GetRotationKeys()[0], sizeof(channel.GetRotationKeys()[0]) * numRotKeys);
+
+        return os;
+    }
+
+    std::istream&
+    operator>>(std::istream& is, anim_SkeletonAnimationChannel& channel)
+    {
+        unsigned nameSz = 0;
+        is.read((char*)&nameSz, sizeof(nameSz));
+        std::unique_ptr<char[]> name(new char[nameSz + 1]);
+        is.read((char*)&name[0], nameSz);
+        name[nameSz] = 0;
+
+        unsigned numPosKeys = 0;
+        is.read((char*)&numPosKeys, sizeof(numPosKeys));
+        std::unique_ptr<anim_KeyVec3[]> positionKeys(new anim_KeyVec3[numPosKeys]);
+        is.read((char*)&positionKeys[0], sizeof(positionKeys[0]) * numPosKeys);
+
+        unsigned numScaleKeys = 0;
+        is.read((char*)&numScaleKeys, sizeof(numScaleKeys));
+        std::unique_ptr<anim_KeyVec3[]> scaleKeys(new anim_KeyVec3[numScaleKeys]);
+        is.read((char*)&scaleKeys[0], sizeof(scaleKeys[0]) * numScaleKeys);
+
+        unsigned numRotKeys = 0;
+        is.read((char*)&numRotKeys, sizeof(numRotKeys));
+        std::unique_ptr<anim_KeyQuat[]> rotationKeys(new anim_KeyQuat[numScaleKeys]);
+        is.read((char*)&rotationKeys[0], sizeof(rotationKeys[0]) * numRotKeys);
+
+        channel
+            .MakeSkeletonAnimationChannel(name.get(), positionKeys.get(), numPosKeys, scaleKeys.get(), numScaleKeys, rotationKeys.get(), numRotKeys);
+
+        return is;
+    }
+
+
+    std::ostream&
+    operator<<(std::ostream& os, const anim_SkeletonAnimation& animation)
+    {
+        unsigned nameLen = animation.m_name.size();
+        os.write((const char*)&nameLen, sizeof(nameLen));
+        os.write(animation.m_name.c_str(), nameLen);
+        os.write((const char*)&animation.m_duration, sizeof(animation.m_duration));
+        unsigned numChannels = animation.m_channels.size();
+        os.write((const char*)&numChannels, sizeof(numChannels));
+        for (const auto& c : animation.m_channels) {
+            os << c;
+        }
+        return os;
+    }
+
+    std::istream&
+    operator>>(std::istream& is, anim_SkeletonAnimation& animation)
+    {
+        unsigned nameSz = 0;
+        is.read((char*)&nameSz, sizeof(nameSz));
+        std::unique_ptr<char[]> name(new char[nameSz + 1]);
+        is.read((char*)&name[0], nameSz);
+        name[nameSz]     = 0;
+        animation.m_name = name.get();
+
+        is.read((char*)&animation.m_duration, sizeof(animation.m_duration));
+        unsigned numChannels = 0;
+        is.read((char*)&numChannels, sizeof(numChannels));
+        animation.m_channels.resize(numChannels);
+        for (unsigned i = 0; i < animation.m_channels.size(); ++i) {
+            is >> animation.m_channels[i];
+        }
+        return is;
     }
 
 

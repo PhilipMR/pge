@@ -173,9 +173,70 @@ ExtractSkeleton(const aiNode* rootNode, const char* targetPath)
     skeleton.Write(skel);
 }
 
+static pge::math_Vec3
+Vec3FromAssimp(const aiVector3D& vec)
+{
+    return pge::math_Vec3(vec.x, vec.y, vec.z);
+}
+
+static pge::math_Quat
+QuatFromAssimp(const aiQuaternion& quat)
+{
+    return pge::math_Quat(quat.w, quat.x, quat.y, quat.z);
+}
+
 void
 ExtractAnimation(const aiAnimation* animation, const char* targetPath)
-{}
+{
+    std::vector<pge::anim_SkeletonAnimationChannel> channels;
+    channels.reserve(animation->mNumChannels);
+    for (unsigned i = 0; i < animation->mNumChannels; ++i) {
+        aiNodeAnim* nodeAnim = animation->mChannels[i];
+
+        const char*                    boneName = nodeAnim->mNodeName.C_Str();
+        std::vector<pge::anim_KeyVec3> positionKeys;
+        std::vector<pge::anim_KeyVec3> scaleKeys;
+        std::vector<pge::anim_KeyQuat> rotationKeys;
+
+        positionKeys.reserve(nodeAnim->mNumPositionKeys);
+        for (unsigned j = 0; j < nodeAnim->mNumPositionKeys; ++j) {
+            pge::anim_KeyVec3 key;
+            key.time  = nodeAnim->mPositionKeys[j].mTime;
+            key.value = Vec3FromAssimp(nodeAnim->mPositionKeys[j].mValue);
+            positionKeys.emplace_back(key);
+        }
+
+        scaleKeys.reserve(nodeAnim->mNumScalingKeys);
+        for (unsigned j = 0; j < nodeAnim->mNumScalingKeys; ++j) {
+            pge::anim_KeyVec3 key;
+            key.time  = nodeAnim->mScalingKeys[j].mTime;
+            key.value = Vec3FromAssimp(nodeAnim->mScalingKeys[j].mValue);
+            scaleKeys.emplace_back(key);
+        }
+
+        rotationKeys.reserve(nodeAnim->mNumRotationKeys);
+        for (unsigned j = 0; j < nodeAnim->mNumRotationKeys; ++j) {
+            pge::anim_KeyQuat key;
+            key.time  = nodeAnim->mRotationKeys[j].mTime;
+            key.value = QuatFromAssimp(nodeAnim->mRotationKeys[j].mValue);
+            rotationKeys.emplace_back(key);
+        }
+
+        channels.emplace_back(pge::anim_SkeletonAnimationChannel(boneName,
+                                                                 &positionKeys[0],
+                                                                 positionKeys.size(),
+                                                                 &scaleKeys[0],
+                                                                 scaleKeys.size(),
+                                                                 &rotationKeys[0],
+                                                                 rotationKeys.size()));
+    }
+    pge::res_SkeletonAnimation anim(animation->mName.C_Str(), animation->mDuration, &channels[0], channels.size());
+
+    std::stringstream ss;
+    ss << targetPath << "\\" << animation->mName.C_Str() << ".skelanim";
+    std::ofstream animFile(ss.str(), std::ios::binary);
+    anim.Write(animFile);
+}
 
 void
 ConvertModel(const char* sourcePath, const char* targetPath)
@@ -244,6 +305,8 @@ main()
     //        const char* modelPath = modelItem.path.c_str();
     //        ConvertModel(modelPath, outPath);
     //    }
+
+    pge::res_SkeletonAnimation anim("C:\\Users\\phili\\Desktop\\Walking\\mixamo.com.skelanim");
 
     ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(C:\Users\phili\Desktop\Walking)");
     return 0;

@@ -35,15 +35,29 @@ namespace pge
         unsigned      m_numRotKeys;
         anim_KeyQuat* m_rotationKeys;
 
+        void MakeSkeletonAnimationChannel(const char*         boneName,
+                                          const anim_KeyVec3* posKeys,
+                                          unsigned            numPosKeys,
+                                          const anim_KeyVec3* scaleKeys,
+                                          unsigned            numScaleKeys,
+                                          const anim_KeyQuat* rotKeys,
+                                          unsigned            numRotKeys);
+
     public:
-        anim_SkeletonAnimationChannel() = default;
-        anim_SkeletonAnimationChannel(const char*   boneName,
-                                      anim_KeyVec3* posKeys,
-                                      unsigned      numPosKeys,
-                                      anim_KeyVec3* scaleKeys,
-                                      unsigned      numScaleKeys,
-                                      anim_KeyQuat* rotKeys,
-                                      unsigned      numRotKeys);
+        anim_SkeletonAnimationChannel();
+        anim_SkeletonAnimationChannel(const anim_SkeletonAnimationChannel& rhs);
+        anim_SkeletonAnimationChannel(anim_SkeletonAnimationChannel&& rhs);
+
+        anim_SkeletonAnimationChannel& operator=(const anim_SkeletonAnimationChannel& rhs);
+        anim_SkeletonAnimationChannel& operator=(anim_SkeletonAnimationChannel&& rhs);
+
+        anim_SkeletonAnimationChannel(const char*         boneName,
+                                      const anim_KeyVec3* posKeys,
+                                      unsigned            numPosKeys,
+                                      const anim_KeyVec3* scaleKeys,
+                                      unsigned            numScaleKeys,
+                                      const anim_KeyQuat* rotKeys,
+                                      unsigned            numRotKeys);
         ~anim_SkeletonAnimationChannel();
 
         const char* GetBoneName() const;
@@ -56,17 +70,26 @@ namespace pge
 
         unsigned      GetRotationKeyCount() const;
         anim_KeyQuat* GetRotationKeys() const;
+
+        friend std::ostream& operator<<(std::ostream& os, const anim_SkeletonAnimationChannel& animation);
+        friend std::istream& operator>>(std::istream& is, anim_SkeletonAnimationChannel& animation);
     };
 
     class anim_SkeletonAnimation {
         double                                     m_duration;
         std::vector<anim_SkeletonAnimationChannel> m_channels;
+        std::string                                m_name;
 
     public:
-        anim_SkeletonAnimation(double duration, const anim_SkeletonAnimationChannel* channels, unsigned numChannels);
+        anim_SkeletonAnimation(std::istream& is);
+        anim_SkeletonAnimation(const char* name, double duration, const anim_SkeletonAnimationChannel* channels, unsigned numChannels);
         double                               GetDuration() const;
         const anim_SkeletonAnimationChannel* GetChannels() const;
         unsigned                             GetChannelCount() const;
+        const char*                          GetName() const;
+
+        friend std::ostream& operator<<(std::ostream& os, const anim_SkeletonAnimation& animation);
+        friend std::istream& operator>>(std::istream& is, anim_SkeletonAnimation& animation);
     };
 
     class anim_Skeleton {

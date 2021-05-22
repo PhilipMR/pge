@@ -91,6 +91,12 @@ namespace pge
 
             // TODO: THIS IS JUST A TEST TO SEE IF THE SKELETON DATA IS RIGHT
             static anim_Skeleton skeleton = *m_resources->GetSkeleton("C:\\Users\\phili\\Desktop\\Walking\\RootNode.skel")->GetSkeleton();
+            static const anim_SkeletonAnimation* anim = m_resources->GetSkeletonAnimation("C:\\Users\\phili\\Desktop\\Walking\\mixamo.com.skelanim")->GetAnimation();
+            static double animTime = 0;
+            animTime += 1.0 / 30.0 * 5;
+            if (animTime > anim->GetDuration())
+                animTime = 0;
+            skeleton.Animate(*anim, animTime);
             skeleton.Transform();
             anim_DebugDraw_Skeleton(skeleton, math_CreateScaleMatrix(math_Vec3::One() * 0.01f), math_Vec3::One(), 0.01f, true);
         }
