@@ -6,6 +6,7 @@
 #include "res_material.h"
 #include "res_mesh.h"
 #include "res_skeleton.h"
+#include "res_animator.h"
 
 namespace pge
 {
@@ -16,6 +17,7 @@ namespace pge
         res_MeshCache              m_meshes;
         res_SkeletonCache          m_skeletons;
         res_SkeletonAnimationCache m_skeletonAnimations;
+        res_AnimatorConfigCache    m_animConfigs;
 
     public:
         explicit res_ResourceManager(gfx_GraphicsAdapter* graphicsAdapter);
@@ -26,6 +28,7 @@ namespace pge
         const res_Mesh*              GetMesh(const char* path);
         const res_Skeleton*          GetSkeleton(const char* path);
         const res_SkeletonAnimation* GetSkeletonAnimation(const char* path);
+        const res_AnimatorConfig*    GetAnimatorConfig(const char* path);
     };
 } // namespace pge
 

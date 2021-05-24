@@ -201,7 +201,7 @@ ExtractAnimation(const aiAnimation* animation, const char* targetPath)
         positionKeys.reserve(nodeAnim->mNumPositionKeys);
         for (unsigned j = 0; j < nodeAnim->mNumPositionKeys; ++j) {
             pge::anim_KeyVec3 key;
-            key.time  = nodeAnim->mPositionKeys[j].mTime;
+            key.time  = nodeAnim->mPositionKeys[j].mTime  / animation->mTicksPerSecond;
             key.value = Vec3FromAssimp(nodeAnim->mPositionKeys[j].mValue);
             positionKeys.emplace_back(key);
         }
@@ -209,7 +209,7 @@ ExtractAnimation(const aiAnimation* animation, const char* targetPath)
         scaleKeys.reserve(nodeAnim->mNumScalingKeys);
         for (unsigned j = 0; j < nodeAnim->mNumScalingKeys; ++j) {
             pge::anim_KeyVec3 key;
-            key.time  = nodeAnim->mScalingKeys[j].mTime;
+            key.time  = nodeAnim->mScalingKeys[j].mTime / animation->mTicksPerSecond;
             key.value = Vec3FromAssimp(nodeAnim->mScalingKeys[j].mValue);
             scaleKeys.emplace_back(key);
         }
@@ -217,7 +217,7 @@ ExtractAnimation(const aiAnimation* animation, const char* targetPath)
         rotationKeys.reserve(nodeAnim->mNumRotationKeys);
         for (unsigned j = 0; j < nodeAnim->mNumRotationKeys; ++j) {
             pge::anim_KeyQuat key;
-            key.time  = nodeAnim->mRotationKeys[j].mTime;
+            key.time  = nodeAnim->mRotationKeys[j].mTime / animation->mTicksPerSecond;
             key.value = QuatFromAssimp(nodeAnim->mRotationKeys[j].mValue);
             rotationKeys.emplace_back(key);
         }
@@ -230,7 +230,7 @@ ExtractAnimation(const aiAnimation* animation, const char* targetPath)
                                                                  &rotationKeys[0],
                                                                  rotationKeys.size()));
     }
-    pge::res_SkeletonAnimation anim(animation->mName.C_Str(), animation->mDuration, &channels[0], channels.size());
+    pge::res_SkeletonAnimation anim(animation->mName.C_Str(), animation->mDuration / animation->mTicksPerSecond, &channels[0], channels.size());
 
     std::stringstream ss;
     ss << targetPath << "\\" << animation->mName.C_Str() << ".skelanim";
@@ -306,8 +306,7 @@ main()
     //        ConvertModel(modelPath, outPath);
     //    }
 
-    pge::res_SkeletonAnimation anim("C:\\Users\\phili\\Desktop\\Walking\\mixamo.com.skelanim");
-
     ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(C:\Users\phili\Desktop\Walking)");
+    ConvertModel(R"(C:\Users\phili\Desktop\Idle.fbx)", R"(C:\Users\phili\Desktop\Idle)");
     return 0;
 }

@@ -19,7 +19,6 @@
 #include <edit_events_win32.h>
 #include <edit_editor.h>
 #include <gfx_debug_draw.h>
-#include <game_script.h>
 #include <input_keyboard.h>
 #include <input_mouse.h>
 
@@ -53,7 +52,7 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 class EntityBehaviour : public pge::game_Behaviour {
-    pge::game_Entity m_entity;
+    pge::game_Entity            m_entity;
     pge::game_TransformManager* m_transformManager;
 
 public:
@@ -161,7 +160,7 @@ main()
             input_MouseClearDelta();
             display.HandleEvents();
 
-//            world.Update();
+            //            world.Update();
             world.GarbageCollect();
 
             // Draw scene to texture

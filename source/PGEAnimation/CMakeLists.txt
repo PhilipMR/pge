@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(pge_animation)
 
 add_library(pge_animation
+    src/anim_animator.cpp
     src/anim_skeleton.cpp
 )
 

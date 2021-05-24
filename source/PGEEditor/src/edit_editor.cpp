@@ -13,6 +13,8 @@
 #include <sstream>
 #include <time.h>
 
+#include <anim_animator.h>
+
 namespace pge
 {
     extern void                   edit_BeginFrame();
@@ -90,15 +92,20 @@ namespace pge
 
 
             // TODO: THIS IS JUST A TEST TO SEE IF THE SKELETON DATA IS RIGHT
-            static anim_Skeleton skeleton = *m_resources->GetSkeleton("C:\\Users\\phili\\Desktop\\Walking\\RootNode.skel")->GetSkeleton();
-            static const anim_SkeletonAnimation* anim = m_resources->GetSkeletonAnimation("C:\\Users\\phili\\Desktop\\Walking\\mixamo.com.skelanim")->GetAnimation();
-            static double animTime = 0;
-            animTime += 1.0 / 30.0 * 5;
-            if (animTime > anim->GetDuration())
-                animTime = 0;
-            skeleton.Animate(*anim, animTime);
-            skeleton.Transform();
-            anim_DebugDraw_Skeleton(skeleton, math_CreateScaleMatrix(math_Vec3::One() * 0.01f), math_Vec3::One(), 0.01f, true);
+            static const anim_AnimatorConfig* animConfig = m_resources->GetAnimatorConfig("data\\Vampire\\Vampire_animconf.json")->GetConfig();
+            static anim_Animator              animator(animConfig);
+            static bool isIdle = true;
+            if (input_KeyboardPressed(input_KeyboardKey::I)) {
+                if (isIdle)
+                    animator.Trigger("move_start");
+                else
+                    animator.Trigger("move_stop");
+                isIdle = !isIdle;
+            }
+
+            animator.Update(1.0f / 60.0f);
+            anim_Skeleton animSkel = animator.GetAnimatedSkeleton();
+            anim_DebugDraw_Skeleton(animSkel, math_CreateScaleMatrix(math_Vec3::One() * 0.01f), math_Vec3::One(), 0.01f, true);
         }
 
         edit_EndFrame();

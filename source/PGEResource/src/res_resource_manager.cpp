@@ -9,6 +9,7 @@ namespace pge
         , m_meshes(graphicsAdapter)
         , m_skeletons()
         , m_skeletonAnimations()
+        , m_animConfigs(&m_skeletons, &m_skeletonAnimations)
     {}
 
     const res_Effect*
@@ -45,5 +46,11 @@ namespace pge
     res_ResourceManager::GetSkeletonAnimation(const char* path)
     {
         return m_skeletonAnimations.Load(path);
+    }
+
+    const res_AnimatorConfig*
+    res_ResourceManager::GetAnimatorConfig(const char* path)
+    {
+        return m_animConfigs.Load(path);
     }
 } // namespace pge

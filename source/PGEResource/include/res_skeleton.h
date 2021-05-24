@@ -38,6 +38,7 @@ namespace pge
         res_Skeleton* Load(const char* path);
     };
 
+
     class res_SkeletonAnimation {
         std::string                             m_path;
         std::unique_ptr<anim_SkeletonAnimation> m_animation;
@@ -56,7 +57,7 @@ namespace pge
         std::unordered_map<std::string, res_SkeletonAnimation> m_animMap;
 
     public:
-        res_SkeletonAnimationCache();
+        res_SkeletonAnimationCache() = default;
         res_SkeletonAnimation* Load(const char* path);
     };
 } // namespace pge

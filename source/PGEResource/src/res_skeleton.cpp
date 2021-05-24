@@ -147,6 +147,7 @@ namespace pge
         : m_path(path)
     {
         std::ifstream is(path, std::ios::binary);
+        core_Assert(is.is_open());
         m_animation = std::make_unique<anim_SkeletonAnimation>(is);
     }
 
@@ -168,8 +169,6 @@ namespace pge
         return m_animation.get();
     }
 
-
-    res_SkeletonAnimationCache::res_SkeletonAnimationCache() {}
 
     res_SkeletonAnimation*
     res_SkeletonAnimationCache::Load(const char* path)

@@ -62,14 +62,9 @@ namespace pge
 
         const char* GetBoneName() const;
 
-        unsigned      GetPositionKeyCount() const;
-        anim_KeyVec3* GetPositionKeys() const;
-
-        unsigned      GetScaleKeyCount() const;
-        anim_KeyVec3* GetScaleKeys() const;
-
-        unsigned      GetRotationKeyCount() const;
-        anim_KeyQuat* GetRotationKeys() const;
+        math_Vec3 SamplePosition(double time) const;
+        math_Vec3 SampleScale(double time) const;
+        math_Quat SampleRotation(double time) const;
 
         friend std::ostream& operator<<(std::ostream& os, const anim_SkeletonAnimationChannel& animation);
         friend std::istream& operator>>(std::istream& is, anim_SkeletonAnimationChannel& animation);
@@ -84,6 +79,7 @@ namespace pge
         anim_SkeletonAnimation(std::istream& is);
         anim_SkeletonAnimation(const char* name, double duration, const anim_SkeletonAnimationChannel* channels, unsigned numChannels);
         double                               GetDuration() const;
+        const anim_SkeletonAnimationChannel* GetChannel(const char* boneName) const;
         const anim_SkeletonAnimationChannel* GetChannels() const;
         unsigned                             GetChannelCount() const;
         const char*                          GetName() const;
@@ -99,10 +95,11 @@ namespace pge
 
     public:
         anim_Skeleton(anim_SkeletonBone* bones, unsigned numBones);
+        anim_Skeleton(const anim_Skeleton& rhs);
+        anim_Skeleton(const anim_Skeleton&& rhs);
 
-        anim_Skeleton(const anim_Skeleton& rhs)
-            : m_bones(rhs.m_bones)
-        {}
+        anim_Skeleton& operator=(const anim_Skeleton& rhs);
+        anim_Skeleton& operator=(anim_Skeleton&& rhs);
 
         void Transform();
         void Animate(const anim_SkeletonAnimation& animation, double time);
