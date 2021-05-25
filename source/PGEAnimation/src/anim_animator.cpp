@@ -62,14 +62,12 @@ namespace pge
     void
     anim_Animator::Trigger(const char* trigger)
     {
-        if (m_currentTrans != nullptr)
-            return;
-
         for (const auto& transition : m_config->m_transitions) {
             if (transition.from != m_currentState)
                 continue;
             if (transition.trigger == trigger) {
                 m_currentTrans = &transition;
+                m_transitTime  = 0;
             }
         }
     }

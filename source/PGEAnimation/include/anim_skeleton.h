@@ -107,6 +107,7 @@ namespace pge
 
         size_t                   GetBoneCount() const;
         const anim_SkeletonBone& GetBone(size_t index) const;
+        int                      GetBoneIndex(const char* name) const;
     };
 
     void

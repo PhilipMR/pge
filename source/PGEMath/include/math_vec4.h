@@ -5,6 +5,39 @@
 
 namespace pge
 {
+    struct math_Vec4i {
+        union {
+            struct { int x, y, z, w; };
+            int xyzw[4];
+        };
+
+        constexpr math_Vec4i()
+            : x(0)
+            , y(0)
+            , z(0)
+            , w(0)
+        {}
+
+        constexpr math_Vec4i(int x, int y, int z, int w)
+            : x(x)
+            , y(y)
+            , z(z)
+            , w(w)
+        {}
+
+        constexpr int&
+        operator[](size_t index)
+        {
+            return xyzw[index];
+        }
+
+        constexpr const int&
+        operator[](size_t index) const
+        {
+            return xyzw[index];
+        }
+    };
+
     struct math_Vec4 {
         union {
             struct {

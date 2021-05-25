@@ -25,7 +25,8 @@ namespace pge
     gfx_VertexAttribute&
     gfx_VertexAttribute::operator=(const gfx_VertexAttribute& rhs)
     {
-        if (&rhs == this) return *this;
+        if (&rhs == this)
+            return *this;
         strcpy_s(m_name, rhs.m_name);
         m_type = rhs.m_type;
         return *this;
@@ -55,6 +56,7 @@ namespace pge
             case gfx_VertexAttributeType::FLOAT2: return DXGI_FORMAT_R32G32_FLOAT;
             case gfx_VertexAttributeType::FLOAT3: return DXGI_FORMAT_R32G32B32_FLOAT;
             case gfx_VertexAttributeType::FLOAT4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+            case gfx_VertexAttributeType::INT4: return DXGI_FORMAT_R32G32B32A32_SINT;
             default: throw std::runtime_error("Unhandled gfx_VertexAttributeType");
         }
     }
@@ -67,6 +69,7 @@ namespace pge
             case DXGI_FORMAT_R32G32_FLOAT: return "float2";
             case DXGI_FORMAT_R32G32B32_FLOAT: return "float3";
             case DXGI_FORMAT_R32G32B32A32_FLOAT: return "float4";
+            case DXGI_FORMAT_R32G32B32A32_SINT: return "int4";
             default: throw std::runtime_error("Unhandled DXGI format");
         }
     }

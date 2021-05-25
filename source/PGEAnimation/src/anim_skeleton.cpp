@@ -438,6 +438,17 @@ namespace pge
         return m_bones[index];
     }
 
+    int
+    anim_Skeleton::GetBoneIndex(const char* name) const
+    {
+        for (size_t i = 0; i < m_bones.size(); ++i) {
+            if (strcmp(m_bones[i].name, name) == 0)
+                return static_cast<int>(i);
+        }
+        core_AssertWithReason(false, "Bone does not exist!");
+        return -1;
+    }
+
     void
     anim_DebugDraw_Skeleton(const anim_Skeleton& skeleton, const math_Mat4x4& modelMatrix, const math_Vec3& color, float lineWidth, bool hasDepth)
     {

@@ -13,7 +13,7 @@ namespace pge
     }
 
     res_SerializedMesh::res_SerializedMesh(const char* path)
-     : m_path(path)
+        : m_path(path)
     {
         std::ifstream input(path, std::ios::binary);
         core_Assert(input.is_open());
@@ -27,16 +27,28 @@ namespace pge
         m_triangleData = std::unique_ptr<unsigned[]>(new unsigned[m_numTriangles * 3]);
         input.read(m_vertexData.get(), m_vertexDataSize);
         input.read((char*)&m_triangleData[0], GetTriangleDataSize(m_numTriangles));
+
+        unsigned numBones = 0;
+        input.read((char*)&numBones, sizeof(numBones));
+        if (numBones > 0) {
+            m_boneOffsetMatrices.resize(numBones);
+            input.read((char*)&m_boneOffsetMatrices[0], numBones * sizeof(m_boneOffsetMatrices[0]));
+        }
+
         input.close();
     }
 
-    res_SerializedMesh::res_SerializedMesh(math_Vec3* positions,
-                                           math_Vec3* normals,
-                                           math_Vec2* texcoords,
-                                           math_Vec3* colors,
-                                           size_t     numVertices,
-                                           unsigned*  triangleData,
-                                           size_t     numTriangles)
+    res_SerializedMesh::res_SerializedMesh(math_Vec3*         positions,
+                                           math_Vec3*         normals,
+                                           math_Vec2*         texcoords,
+                                           math_Vec3*         colors,
+                                           math_Vec4*         boneWeights,
+                                           math_Vec4i*        boneIndices,
+                                           size_t             numVertices,
+                                           unsigned*          triangleData,
+                                           size_t             numTriangles,
+                                           const math_Mat4x4* boneOffsetMatrices,
+                                           unsigned           numBones)
         : m_path("<from-memory>")
         , m_version(res_SerializedMesh::Version)
         , m_numVertices(numVertices)
@@ -47,12 +59,19 @@ namespace pge
         m_attributeFlags |= !normals ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::NORMAL);
         m_attributeFlags |= !texcoords ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::TEXTURECOORD);
         m_attributeFlags |= !colors ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::COLOR);
+        m_attributeFlags |= !boneWeights ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::BONEWEIGHTS);
+        m_attributeFlags |= !boneIndices ? 0 : res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::BONEINDICES);
 
         size_t stride    = res_SerializedVertexAttribute_GetVertexStride(m_attributeFlags);
         m_vertexDataSize = stride * numVertices;
 
         m_vertexData   = std::unique_ptr<char[]>(new char[m_vertexDataSize]);
         m_triangleData = std::unique_ptr<unsigned[]>(new unsigned[m_numTriangles * 3]);
+
+        if (numBones > 0) {
+            m_boneOffsetMatrices.resize(numBones);
+            memcpy(&m_boneOffsetMatrices[0], boneOffsetMatrices, numBones * sizeof(math_Mat4x4));
+        }
 
         size_t offset = 0;
         for (size_t i = 0; i < numVertices; ++i) {
@@ -72,6 +91,14 @@ namespace pge
                 memcpy(m_vertexData.get() + offset, &colors[i], sizeof(math_Vec3));
                 offset += sizeof(math_Vec3);
             }
+            if (boneWeights) {
+                memcpy(m_vertexData.get() + offset, &boneWeights[i], sizeof(math_Vec4));
+                offset += sizeof(math_Vec4);
+            }
+            if (boneIndices) {
+                memcpy(m_vertexData.get() + offset, &boneIndices[i], sizeof(math_Vec4i));
+                offset += sizeof(math_Vec4i);
+            }
         }
         memcpy(m_triangleData.get(), triangleData, GetTriangleDataSize(m_numTriangles));
     }
@@ -79,13 +106,19 @@ namespace pge
     void
     res_SerializedMesh::Write(std::ostream& output) const
     {
-        output.write((char*)&m_version, sizeof(m_version));
-        output.write((char*)&m_attributeFlags, sizeof(m_attributeFlags));
-        output.write((char*)&m_numVertices, sizeof(m_numVertices));
-        output.write((char*)&m_vertexDataSize, sizeof(m_vertexDataSize));
-        output.write((char*)&m_numTriangles, sizeof(m_numTriangles));
-        output.write((char*)m_vertexData.get(), m_vertexDataSize);
-        output.write((char*)m_triangleData.get(), GetTriangleDataSize(m_numTriangles));
+        output.write((const char*)&m_version, sizeof(m_version));
+        output.write((const char*)&m_attributeFlags, sizeof(m_attributeFlags));
+        output.write((const char*)&m_numVertices, sizeof(m_numVertices));
+        output.write((const char*)&m_vertexDataSize, sizeof(m_vertexDataSize));
+        output.write((const char*)&m_numTriangles, sizeof(m_numTriangles));
+        output.write((const char*)m_vertexData.get(), m_vertexDataSize);
+        output.write((const char*)m_triangleData.get(), GetTriangleDataSize(m_numTriangles));
+
+        unsigned numBones = m_boneOffsetMatrices.size();
+        output.write((const char*)&numBones, sizeof(numBones));
+        if (numBones > 0) {
+            output.write((const char*)&m_boneOffsetMatrices[0], numBones * sizeof(m_boneOffsetMatrices[0]));
+        }
     }
 
     std::string
@@ -159,6 +192,12 @@ namespace pge
         return math_AABB(m_vertexData.get(), m_numVertices, vertexStride, 0);
     }
 
+    const std::vector<math_Mat4x4>&
+    res_SerializedMesh::GetBoneOffsetMatrices() const
+    {
+        return m_boneOffsetMatrices;
+    }
+
 
     // ----------------------------------------------
     // res_Mesh
@@ -181,7 +220,9 @@ namespace pge
                        const void*                vertexData,
                        size_t                     vertexDataSize,
                        const unsigned*            indexData,
-                       size_t                     numIndices)
+                       size_t                     numIndices,
+                       const math_Mat4x4*         boneOffsetMatrices,
+                       unsigned                   numBones)
         : m_path("<from-memory>")
         , m_vertexBuffer(graphicsAdapter, vertexData, vertexDataSize, gfx_BufferUsage::STATIC)
         , m_indexBuffer(graphicsAdapter, indexData, numIndices * sizeof(unsigned), gfx_BufferUsage::STATIC)
@@ -197,6 +238,11 @@ namespace pge
         core_AssertWithReason(strcmp(attributes[0].Name(), "POSITION") == 0, "The position has to be the first attribute!");
         size_t numVertices = vertexDataSize / m_vertexStride;
         m_aabb             = math_AABB(reinterpret_cast<const char*>(vertexData), numVertices, m_vertexStride, 0);
+
+        // Copy the bone offset matrices
+        m_boneMatrices.resize(numBones);
+        for (unsigned i = 0; i < numBones; ++i)
+            m_boneMatrices[i] = boneOffsetMatrices[i];
     }
 
     res_Mesh::res_Mesh(res_Mesh&& other) noexcept
@@ -207,6 +253,7 @@ namespace pge
         , m_vertexStride(other.m_vertexStride)
         , m_numTriangles(other.m_numTriangles)
         , m_aabb(other.m_aabb)
+        , m_boneMatrices(std::move(other.m_boneMatrices))
     {}
 
     res_Mesh::res_Mesh(pge::gfx_GraphicsAdapter* graphicsAdapter, const res_SerializedMesh& smesh)
@@ -217,6 +264,7 @@ namespace pge
         , m_vertexStride(smesh.GetVertexStride())
         , m_numTriangles(smesh.GetNumTriangles())
         , m_aabb(smesh.GetAABB())
+        , m_boneMatrices(smesh.GetBoneOffsetMatrices())
     {}
 
     res_Mesh::res_Mesh(pge::gfx_GraphicsAdapter* graphicsAdapter, const char* path)

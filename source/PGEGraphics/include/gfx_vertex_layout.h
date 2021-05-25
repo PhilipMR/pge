@@ -12,7 +12,8 @@ namespace pge
         FLOAT,
         FLOAT2,
         FLOAT3,
-        FLOAT4
+        FLOAT4,
+        INT4
     };
 
     constexpr size_t
@@ -23,6 +24,7 @@ namespace pge
             case gfx_VertexAttributeType::FLOAT2: return sizeof(float) * 2;
             case gfx_VertexAttributeType::FLOAT3: return sizeof(float) * 3;
             case gfx_VertexAttributeType::FLOAT4: return sizeof(float) * 4;
+            case gfx_VertexAttributeType::INT4: return sizeof(int) * 4;
             default: core_CrashAndBurn("No mapping for gfx_VertexAttributeType.");
         }
         return 0;

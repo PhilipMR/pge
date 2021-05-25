@@ -1,0 +1,21 @@
+{
+	"skeleton": "data/Vampire/Vampire.skel",
+	"animation_states": [
+		{ "name": "idle", "path": "data/Vampire/Vampire_idle.skelanim", "looping": true },
+		{ "name": "walk", "path": "data/Vampire/Vampire_walk.skelanim", "looping": true }
+	],
+	"transitions": [
+		{
+			"from": "idle",
+			"to": "walk",
+			"trigger": "move_start",
+			"duration": 0.1
+		}, 
+		{
+			"from": "walk",
+			"to": "idle",
+			"trigger": "move_stop",
+			"duration": 0.5
+		}
+	]
+}

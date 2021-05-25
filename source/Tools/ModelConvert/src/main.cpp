@@ -18,7 +18,7 @@
 #include <Windows.h>
 
 void
-ExtractMesh(const aiMesh* mesh, const char* targetPath)
+ExtractMesh(const aiMesh* mesh, const char* targetPath, const pge::anim_Skeleton* skeleton)
 {
     using namespace pge;
 
@@ -27,6 +27,11 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
     attributeFlags |= mesh->HasNormals() ? res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::NORMAL) : 0;
     attributeFlags |= mesh->HasTextureCoords(0) ? res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::TEXTURECOORD) : 0;
     attributeFlags |= mesh->HasVertexColors(0) ? res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::COLOR) : 0;
+    attributeFlags |= mesh->HasBones() ? res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::BONEWEIGHTS) : 0;
+    attributeFlags |= mesh->HasBones() ? res_SerializedVertexAttribute_GetFlag(res_SerializedVertexAttribute::BONEINDICES) : 0;
+
+    // Either no bones and no skeleton, or both
+    core_Assert(!mesh->HasBones() || skeleton != nullptr);
 
     const size_t vertexStride     = res_SerializedVertexAttribute_GetVertexStride(attributeFlags);
     const size_t vertexDataSize   = mesh->mNumVertices * vertexStride;
@@ -48,7 +53,7 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
 
     std::vector<math_Vec2> texcoords;
     texcoords.reserve(mesh->mNumVertices);
-    for (size_t i = 0; i < mesh->mNumVertices; ++i) {
+    for (unsigned i = 0; i < mesh->mNumVertices; ++i) {
         const aiVector3D& texcoord = mesh->mTextureCoords[0][i];
         texcoords.emplace_back(math_Vec2(texcoord.x, texcoord.y));
     }
@@ -64,7 +69,7 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
     std::vector<aiVector3D> importVertices, importNormals;
     importVertices.reserve(mesh->mNumVertices);
     importNormals.reserve(mesh->mNumVertices);
-    for (size_t i = 0; i < mesh->mNumVertices; ++i) {
+    for (unsigned i = 0; i < mesh->mNumVertices; ++i) {
         const aiVector3D pos = importTransform * mesh->mVertices[i];
         importVertices.emplace_back(pos);
 
@@ -72,15 +77,56 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath)
         importNormals.emplace_back(norm);
     }
 
+    std::vector<aiMatrix4x4> boneOffsetMatrices;
+    std::vector<math_Vec4>   boneWeights;
+    std::vector<math_Vec4i>  boneIndices;
+    if (skeleton != nullptr) {
+        boneOffsetMatrices.resize(skeleton->GetBoneCount());
+
+        boneWeights.resize(mesh->mNumVertices);
+        boneIndices.resize(mesh->mNumVertices);
+        std::for_each(boneIndices.begin(), boneIndices.end(), [](math_Vec4i& idx) { idx = math_Vec4i(-1, -1, -1, -1); });
+
+        for (unsigned i = 0; i < mesh->mNumBones; ++i) {
+            const aiBone* aiBone    = mesh->mBones[i];
+            const int     boneIndex = skeleton->GetBoneIndex(aiBone->mName.C_Str());
+            core_Assert(boneIndex >= 0);
+            core_Assert(boneIndex < skeleton->GetBoneCount());
+
+            boneOffsetMatrices[boneIndex] = aiBone->mOffsetMatrix;
+
+            for (unsigned j = 0; j < aiBone->mNumWeights; ++j) {
+                const aiVertexWeight& aiWeight = aiBone->mWeights[j];
+
+                const unsigned vertexIdx   = aiWeight.mVertexId;
+                int            freeBoneIdx = -1;
+                for (int k = 0; k < 4; ++k) {
+                    if (boneIndices[vertexIdx][k] != -1)
+                        continue;
+                    freeBoneIdx = k;
+                    k           = 4; // Break out of inner loop
+                }
+                core_Assert(freeBoneIdx != -1);
+                boneIndices[vertexIdx][freeBoneIdx] = boneIndex;
+                boneWeights[vertexIdx][freeBoneIdx] = aiWeight.mWeight;
+            }
+        }
+    }
+
+
     // Write to output
     std::ofstream      output(ss.str().c_str(), std::ios::binary);
     res_SerializedMesh model(reinterpret_cast<math_Vec3*>(&importVertices[0]),
                              reinterpret_cast<math_Vec3*>(&importNormals[0]),
                              &texcoords[0],
                              reinterpret_cast<math_Vec3*>(mesh->mColors[0]),
+                             skeleton == nullptr ? nullptr : &boneWeights[0],
+                             skeleton == nullptr ? nullptr : &boneIndices[0],
                              mesh->mNumVertices,
                              triangleData.get(),
-                             mesh->mNumFaces);
+                             mesh->mNumFaces,
+                             skeleton == nullptr ? nullptr : reinterpret_cast<math_Mat4x4*>(&boneOffsetMatrices[0]),
+                             boneOffsetMatrices.size());
 
     model.Write(output);
     output.close();
@@ -160,17 +206,17 @@ ExtractBoneData(std::vector<pge::res_Bone>* data, const aiNode* node, int parent
     }
 }
 
-void
+pge::res_Skeleton
 ExtractSkeleton(const aiNode* rootNode, const char* targetPath)
 {
     std::vector<pge::res_Bone> boneData;
     ExtractBoneData(&boneData, rootNode, -1);
     pge::res_Skeleton skeleton(&boneData[0], boneData.size());
-
     std::stringstream ss;
     ss << targetPath << "\\" << boneData[0].name << ".skel";
     std::ofstream skel(ss.str(), std::ios::binary);
     skeleton.Write(skel);
+    return skeleton;
 }
 
 static pge::math_Vec3
@@ -201,7 +247,7 @@ ExtractAnimation(const aiAnimation* animation, const char* targetPath)
         positionKeys.reserve(nodeAnim->mNumPositionKeys);
         for (unsigned j = 0; j < nodeAnim->mNumPositionKeys; ++j) {
             pge::anim_KeyVec3 key;
-            key.time  = nodeAnim->mPositionKeys[j].mTime  / animation->mTicksPerSecond;
+            key.time  = nodeAnim->mPositionKeys[j].mTime / animation->mTicksPerSecond;
             key.value = Vec3FromAssimp(nodeAnim->mPositionKeys[j].mValue);
             positionKeys.emplace_back(key);
         }
@@ -249,6 +295,7 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     // importFlags &= ~aiProcess_FlipWindingOrder;
     //     importFlags |= aiProcess_JoinIdenticalVertices;
     //     importFlags |= aiProcess_SortByPType;
+    importFlags |= aiProcess_LimitBoneWeights;
     const aiScene* scene = aiImportFile(sourcePath, importFlags);
     if (scene == nullptr) {
         printf("Could not open the scene at path: %s", sourcePath);
@@ -269,8 +316,13 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     printf("Found %s skeleton.\n", SceneHasSkeleton(scene) ? "a" : "no");
     printf("Found %d animation(s).\n", scene->mNumAnimations);
 
+    std::unique_ptr<pge::res_Skeleton> skeleton;
+    if (SceneHasSkeleton(scene)) {
+        skeleton = std::make_unique<pge::res_Skeleton>(ExtractSkeleton(scene->mRootNode, targetPath));
+        printf("Done extracting skeleton\n");
+    }
     for (unsigned i = 0; i < scene->mNumMeshes; ++i) {
-        ExtractMesh(scene->mMeshes[i], targetPath);
+        ExtractMesh(scene->mMeshes[i], targetPath, skeleton.get() == nullptr ? nullptr : skeleton->GetSkeleton());
         printf("Done extracting mesh %d: %s\n", i + 1, scene->mMeshes[i]->mName.C_Str());
     }
     for (unsigned i = 0; i < scene->mNumTextures; ++i) {
@@ -280,10 +332,6 @@ ConvertModel(const char* sourcePath, const char* targetPath)
     for (unsigned i = 0; i < scene->mNumMaterials; ++i) {
         ExtractMaterial(scene->mMaterials[i], targetPath);
         printf("Done extracting material %d: %s\n", i + 1, scene->mMaterials[i]->GetName().C_Str());
-    }
-    if (SceneHasSkeleton(scene)) {
-        ExtractSkeleton(scene->mRootNode, targetPath);
-        printf("Done extracting skeleton\n");
     }
     for (unsigned i = 0; i < scene->mNumAnimations; ++i) {
         ExtractAnimation(scene->mAnimations[i], targetPath);
@@ -296,17 +344,17 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 int
 main()
 {
-    //    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
-    //    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
-    //    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
-    //    for (const auto& modelItem : models) {
-    //        if (modelItem.type != pge::core_FSItemType::FILE)
-    //            continue;
-    //        const char* modelPath = modelItem.path.c_str();
-    //        ConvertModel(modelPath, outPath);
-    //    }
+    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
+    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
+    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
+    for (const auto& modelItem : models) {
+        if (modelItem.type != pge::core_FSItemType::FILE)
+            continue;
+        const char* modelPath = modelItem.path.c_str();
+        ConvertModel(modelPath, outPath);
+    }
 
-    ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(C:\Users\phili\Desktop\Walking)");
-    ConvertModel(R"(C:\Users\phili\Desktop\Idle.fbx)", R"(C:\Users\phili\Desktop\Idle)");
+    ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(D:\Projects\pge\data\Vampire)");
+    ConvertModel(R"(C:\Users\phili\Desktop\Idle.fbx)", R"(D:\Projects\pge\data\Vampire\Idle)");
     return 0;
 }
