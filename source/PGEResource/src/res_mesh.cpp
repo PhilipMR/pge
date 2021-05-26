@@ -297,6 +297,12 @@ namespace pge
         return m_path;
     }
 
+    const std::vector<math_Mat4x4>&
+    res_Mesh::GetBoneOffsetMatrices() const
+    {
+        return m_boneMatrices;
+    }
+
     // ---------------------------------
     // res_MeshCache
     // ---------------------------------

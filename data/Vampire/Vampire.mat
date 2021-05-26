@@ -1,4 +1,4 @@
-Effect = data\effects\default.effect
+Effect = data\effects\animated.effect
 Properties {
   float4    MainColor(1, 1, 1, 1)
   Texture2D DiffuseMap(data\Vampire\Vampire_diffuse.png)

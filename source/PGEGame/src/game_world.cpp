@@ -4,7 +4,8 @@ namespace pge
 {
     game_World::game_World(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_transformManager(100)
-        , m_staticMeshManager(100, graphicsAdapter, graphicsDevice, resources)
+        , m_staticMeshManager(100, resources)
+        , m_animationManager(100)
         , m_lightManager(100)
         , m_scriptManager(100)
         , m_behaviourManager()
@@ -16,6 +17,7 @@ namespace pge
     {
         m_entityMetaManager.GarbageCollect(m_entityManager);
         m_staticMeshManager.GarbageCollect(m_entityManager);
+        m_animationManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);
         m_lightManager.GarbageCollect(m_entityManager);
         m_scriptManager.GarbageCollect(m_entityManager);
@@ -25,6 +27,7 @@ namespace pge
     game_World::Update()
     {
         m_behaviourManager.Update(1.0f / 60.0f);
+        m_animationManager.Update(1.0f / 60.0f);
     }
 
     void
@@ -34,7 +37,7 @@ namespace pge
 
         m_renderer.SetCamera(&m_camera);
         m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
-        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager, m_entityManager);
+        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager, m_animationManager, m_entityManager);
     }
 
     game_EntityManager*
@@ -59,6 +62,12 @@ namespace pge
     game_World::GetStaticMeshManager()
     {
         return &m_staticMeshManager;
+    }
+
+    game_AnimationManager*
+    game_World::GetAnimationManager()
+    {
+        return &m_animationManager;
     }
 
     game_LightManager*
@@ -102,6 +111,12 @@ namespace pge
     game_World::GetStaticMeshManager() const
     {
         return &m_staticMeshManager;
+    }
+
+    const game_AnimationManager*
+    game_World::GetAnimationManager() const
+    {
+        return &m_animationManager;
     }
 
     const game_LightManager*

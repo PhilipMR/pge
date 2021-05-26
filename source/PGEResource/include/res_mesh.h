@@ -129,10 +129,11 @@ namespace pge
         res_Mesh(gfx_GraphicsAdapter* graphicsAdapter, const res_SerializedMesh& smesh);
         res_Mesh(gfx_GraphicsAdapter* graphicsAdapter, const char* path);
 
-        void        Bind() const;
-        size_t      GetNumTriangles() const;
-        math_AABB   GetAABB() const;
-        std::string GetPath() const;
+        void                            Bind() const;
+        size_t                          GetNumTriangles() const;
+        math_AABB                       GetAABB() const;
+        std::string                     GetPath() const;
+        const std::vector<math_Mat4x4>& GetBoneOffsetMatrices() const;
     };
 
     class res_MeshCache {

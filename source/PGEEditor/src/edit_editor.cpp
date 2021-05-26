@@ -76,8 +76,10 @@ namespace pge
             DrawMenuBar();
         }
 
+        m_world->GetAnimationManager()->Update(1.0f / 60.0f);
         if (m_editMode == EDITOR_MODE_PLAY) {
-            m_world->Update();
+//            m_world->Update();
+            m_world->GetBehaviourManager()->Update(1.0f / 60.0f);
         } else {
             game_Camera_UpdateFPS(m_world->GetCamera(), .1f);
         }
@@ -89,23 +91,6 @@ namespace pge
             DrawInspector();
             DrawLog();
             DrawResources();
-
-
-            // TODO: THIS IS JUST A TEST TO SEE IF THE SKELETON DATA IS RIGHT
-            static const anim_AnimatorConfig* animConfig = m_resources->GetAnimatorConfig("data\\Vampire\\Vampire_animconf.json")->GetConfig();
-            static anim_Animator              animator(animConfig);
-            static bool isIdle = true;
-            if (input_KeyboardPressed(input_KeyboardKey::I)) {
-                if (isIdle)
-                    animator.Trigger("move_start");
-                else
-                    animator.Trigger("move_stop");
-                isIdle = !isIdle;
-            }
-
-            animator.Update(1.0f / 60.0f);
-            anim_Skeleton animSkel = animator.GetAnimatedSkeleton();
-            anim_DebugDraw_Skeleton(animSkel, math_CreateScaleMatrix(math_Vec3::One() * 0.01f), math_Vec3::One(), 0.01f, true);
         }
 
         edit_EndFrame();

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(pge_game)
 
 add_library(pge_game
+    src/game_animation.cpp
     src/game_behaviour.cpp
     src/game_camera.cpp
     src/game_entity.cpp

@@ -4,13 +4,8 @@
 
 namespace pge
 {
-    game_StaticMeshManager::game_StaticMeshManager(size_t               capacity,
-                                                   gfx_GraphicsAdapter* graphicsAdapter,
-                                                   gfx_GraphicsDevice*  graphicsDevice,
-                                                   res_ResourceManager* resources)
-        : m_graphicsDevice(graphicsDevice)
-        , m_cbTransforms(graphicsAdapter, nullptr, sizeof(CBTransforms), gfx_BufferUsage::DYNAMIC)
-        , m_resources(resources)
+    game_StaticMeshManager::game_StaticMeshManager(size_t capacity, res_ResourceManager* resources)
+        : m_resources(resources)
     {
         m_meshes.reserve(capacity);
     }
@@ -129,13 +124,18 @@ namespace pge
     }
 
     void
-    game_StaticMeshManager::DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm, const game_EntityManager& em)
+    game_StaticMeshManager::DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm, const game_AnimationManager& am, const game_EntityManager& em)
     {
         for (const auto& mesh : m_meshes) {
             if (mesh.mesh == nullptr || mesh.material == nullptr || !em.IsEntityAlive(mesh.entity))
                 continue;
+
             math_Mat4x4 modelMatrix = tm.HasTransform(mesh.entity) ? tm.GetWorld(tm.GetTransformId(mesh.entity)) : math_Mat4x4();
-            renderer->DrawMesh(mesh.mesh, mesh.material, modelMatrix);
+            if (am.HasAnimator(mesh.entity)) {
+                renderer->DrawSkeletalMesh(mesh.mesh, mesh.material, modelMatrix, am.GetAnimatedSkeleton(mesh.entity));
+            } else {
+                renderer->DrawMesh(mesh.mesh, mesh.material, modelMatrix);
+            }
         }
     }
 

@@ -65,7 +65,7 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath, const pge::anim_Skeleton
     aiMatrix4x4 scale;
     aiMatrix4x4::Scaling(aiVector3t<float>(2, 2, 2), scale);
 
-    aiMatrix4x4             importTransform = rotation * scale;
+    aiMatrix4x4             importTransform = aiMatrix4x4(); //rotation * scale;
     std::vector<aiVector3D> importVertices, importNormals;
     importVertices.reserve(mesh->mNumVertices);
     importNormals.reserve(mesh->mNumVertices);
@@ -344,17 +344,17 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 int
 main()
 {
-    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
-    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
-    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
-    for (const auto& modelItem : models) {
-        if (modelItem.type != pge::core_FSItemType::FILE)
-            continue;
-        const char* modelPath = modelItem.path.c_str();
-        ConvertModel(modelPath, outPath);
-    }
+//    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
+//    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
+//    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
+//    for (const auto& modelItem : models) {
+//        if (modelItem.type != pge::core_FSItemType::FILE)
+//            continue;
+//        const char* modelPath = modelItem.path.c_str();
+//        ConvertModel(modelPath, outPath);
+//    }
 
-    ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(D:\Projects\pge\data\Vampire)");
-    ConvertModel(R"(C:\Users\phili\Desktop\Idle.fbx)", R"(D:\Projects\pge\data\Vampire\Idle)");
+    ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(C:\Users\phili\Desktop\Walking)");
+//    ConvertModel(R"(C:\Users\phili\Desktop\Idle.fbx)", R"(D:\Projects\pge\data\Vampire\Idle)");
     return 0;
 }

@@ -4,6 +4,7 @@
 #include "game_entity.h"
 #include "game_transform.h"
 #include "game_renderer.h"
+#include "game_animation.h"
 
 #include <math_raycasting.h>
 #include <gfx_graphics_device.h>
@@ -25,22 +26,10 @@ namespace pge
         };
         std::vector<StaticMeshEntity>                      m_meshes;
         std::unordered_map<game_Entity, game_StaticMeshId> m_entityMap;
-
-        struct CBTransforms {
-            math_Mat4x4 modelMatrix;
-            math_Mat4x4 viewMatrix;
-            math_Mat4x4 projMatrix;
-        } m_cbTransformsData;
-        gfx_GraphicsDevice* m_graphicsDevice;
-        gfx_ConstantBuffer  m_cbTransforms;
-
-        res_ResourceManager* m_resources;
+        res_ResourceManager*                               m_resources;
 
     public:
-        game_StaticMeshManager(size_t               capacity,
-                               gfx_GraphicsAdapter* graphicsAdapter,
-                               gfx_GraphicsDevice*  graphicsDevice,
-                               res_ResourceManager* resources);
+        game_StaticMeshManager(size_t capacity, res_ResourceManager* resources);
 
         game_StaticMeshId CreateStaticMesh(const game_Entity& entity);
         game_StaticMeshId CreateStaticMesh(const game_Entity& entity, const res_Mesh* mesh, const res_Material* material);
@@ -58,7 +47,7 @@ namespace pge
         const res_Mesh*     GetMesh(const game_StaticMeshId& id) const;
         const res_Material* GetMaterial(const game_StaticMeshId& id) const;
 
-        void        DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm, const game_EntityManager& em);
+        void        DrawStaticMeshes(game_Renderer* renderer, const game_TransformManager& tm, const game_AnimationManager& am, const game_EntityManager& em);
         game_Entity RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj, float* distanceOut) const;
 
         void SerializeEntity(std::ostream& os, const game_Entity& entity) const;

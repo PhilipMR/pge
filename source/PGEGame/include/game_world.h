@@ -4,6 +4,7 @@
 #include "game_entity.h"
 #include "game_transform.h"
 #include "game_static_mesh.h"
+#include "game_animation.h"
 #include "game_camera.h"
 #include "game_light.h"
 #include "game_script.h"
@@ -20,6 +21,7 @@ namespace pge
         game_EntityMetaDataManager m_entityMetaManager;
         game_TransformManager      m_transformManager;
         game_StaticMeshManager     m_staticMeshManager;
+        game_AnimationManager      m_animationManager;
         game_LightManager          m_lightManager;
         game_ScriptManager         m_scriptManager;
         game_BehaviourManager      m_behaviourManager;
@@ -36,17 +38,19 @@ namespace pge
         game_EntityMetaDataManager* GetEntityMetaDataManager();
         game_TransformManager*      GetTransformManager();
         game_StaticMeshManager*     GetStaticMeshManager();
+        game_AnimationManager*      GetAnimationManager();
         game_LightManager*          GetLightManager();
         game_ScriptManager*         GetScriptManager();
-        game_BehaviourManager*             GetBehaviourManager();
+        game_BehaviourManager*      GetBehaviourManager();
 
         const game_EntityManager*         GetEntityManager() const;
         const game_EntityMetaDataManager* GetEntityMetaDataManager() const;
         const game_TransformManager*      GetTransformManager() const;
         const game_StaticMeshManager*     GetStaticMeshManager() const;
+        const game_AnimationManager*      GetAnimationManager() const;
         const game_LightManager*          GetLightManager() const;
         const game_ScriptManager*         GetScriptManager() const;
-        const game_BehaviourManager*             GetBehaviourManager() const;
+        const game_BehaviourManager*      GetBehaviourManager() const;
 
 
         inline game_Camera*

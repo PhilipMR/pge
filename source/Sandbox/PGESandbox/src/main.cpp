@@ -54,11 +54,13 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 class EntityBehaviour : public pge::game_Behaviour {
     pge::game_Entity            m_entity;
     pge::game_TransformManager* m_transformManager;
+    pge::game_AnimationManager* m_animManager;
 
 public:
-    EntityBehaviour(const pge::game_Entity& entity, pge::game_TransformManager* transformManager)
+    EntityBehaviour(const pge::game_Entity& entity, pge::game_TransformManager* transformManager, pge::game_AnimationManager* animManager)
         : m_entity(entity)
         , m_transformManager(transformManager)
+        , m_animManager(animManager)
     {}
 
     void
@@ -77,9 +79,19 @@ public:
         if (pge::input_KeyboardDown(pge::input_KeyboardKey::D)) {
             movement.x += 1;
         }
+
+        static bool wasMoving = false;
         if (pge::math_LengthSquared(movement) > 0) {
             movement = pge::math_Normalize(movement);
+            if (!wasMoving) {
+                m_animManager->Trigger("move_start");
+                wasMoving = true;
+            }
+        } else if (wasMoving) {
+            m_animManager->Trigger("move_stop");
+            wasMoving = false;
         }
+
         const float MOVEMENT_SPEED = 0.1f;
         movement *= MOVEMENT_SPEED;
         pge::game_TransformId tid = m_transformManager->GetTransformId(m_entity);
@@ -126,14 +138,22 @@ main()
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
         game_Entity e1 = world.GetEntityManager()->CreateEntity();
-        world.GetTransformManager()->CreateTransform(e1);
-        world.GetEntityMetaDataManager()->CreateMetaData(e1, game_EntityMetaData(e1, "e1"));
+        world.GetTransformManager()->CreateTransform(e1, math_Vec3::Zero(), math_Quat(), math_Vec3::One() * 0.01f);
+        world.GetEntityMetaDataManager()->CreateMetaData(e1, game_EntityMetaData(e1, "Vampire"));
         world.GetStaticMeshManager()->CreateStaticMesh(e1,
-                                                       resources.GetMesh("data/meshes/cube/Cube.001.mesh"),
-                                                       resources.GetMaterial("data/materials/checkers.mat"));
-        world.GetBehaviourManager()->CreateBehaviour(e1, std::make_unique<EntityBehaviour>(e1, world.GetTransformManager()));
+                                                       resources.GetMesh("data\\Vampire\\Vampire.mesh"),
+                                                       resources.GetMaterial("data\\Vampire\\Vampire.mat"));
+        world.GetBehaviourManager()->CreateBehaviour(e1,
+                                                     std::make_unique<EntityBehaviour>(e1, world.GetTransformManager(), world.GetAnimationManager()));
+        world.GetAnimationManager()->CreateAnimator(e1, resources.GetAnimatorConfig("data\\Vampire\\Vampire_animconf.json"));
 
-        const res_Effect*         screenTexEffect     = resources.GetEffect("data/effects/screentex.effect");
+        game_Entity e2 = world.GetEntityManager()->CreateEntity();
+        world.GetTransformManager()->CreateTransform(e2);
+        world.GetEntityMetaDataManager()->CreateMetaData(e2, game_EntityMetaData(e2, "DirLight"));
+        world.GetLightManager()->CreateDirectionalLight(e2, game_DirectionalLight());
+
+
+        const res_Effect*         screenTexEffect     = resources.GetEffect("data\\effects\\screentex.effect");
         const gfx_VertexAttribute screenTexAttribs[]  = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2),
                                                         gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2)};
         const math_Vec2           screenTexVertices[] = {math_Vec2(-1, 1),
@@ -160,7 +180,6 @@ main()
             input_MouseClearDelta();
             display.HandleEvents();
 
-            //            world.Update();
             world.GarbageCollect();
 
             // Draw scene to texture

@@ -1,9 +1,10 @@
 #ifndef PGE_GAME_GAME_RENDERER_H
 #define PGE_GAME_GAME_RENDERER_H
 
+#include <math_mat4x4.h>
 #include <gfx_graphics_device.h>
 #include <gfx_buffer.h>
-#include <math_mat4x4.h>
+#include <anim_skeleton.h>
 #include <res_mesh.h>
 #include <res_material.h>
 
@@ -23,6 +24,12 @@ namespace pge
             math_Mat4x4 projMatrix;
         } m_cbTransformData;
         gfx_ConstantBuffer m_cbTransform;
+
+        static const unsigned MAX_BONES = 100;
+        struct CBBones {
+            math_Mat4x4 bones[MAX_BONES];
+        } m_cbBonesData;
+        gfx_ConstantBuffer m_cbBones;
 
         static const unsigned MAX_DIRLIGHTS   = 10;
         static const unsigned MAX_POINTLIGHTS = 10;
@@ -49,6 +56,7 @@ namespace pge
         void SetPointLight(size_t slot, const game_PointLight& light, const math_Vec3& position);
 
         void DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix);
+        void DrawSkeletalMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const anim_Skeleton& skeleton);
     };
 } // namespace pge
 

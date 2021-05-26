@@ -12,9 +12,9 @@ namespace pge
 {
     struct game_DirectionalLight {
         game_Entity entity;
-        math_Vec3   color;
-        float       strength{};
-        math_Vec3   direction;
+        math_Vec3   color     = math_Vec3::One();
+        float       strength  = 1.0f;
+        math_Vec3   direction = math_Vec3(0, 0, -1);
     };
 
     struct game_PointLight {
