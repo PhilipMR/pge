@@ -78,7 +78,7 @@ namespace pge
 
         m_world->GetAnimationManager()->Update(1.0f / 60.0f);
         if (m_editMode == EDITOR_MODE_PLAY) {
-//            m_world->Update();
+            //            m_world->Update();
             m_world->GetBehaviourManager()->Update(1.0f / 60.0f);
         } else {
             game_Camera_UpdateFPS(m_world->GetCamera(), .1f);

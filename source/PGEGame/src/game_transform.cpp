@@ -182,6 +182,31 @@ namespace pge
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
     }
 
+    void
+    game_TransformManager::SetLocalForward(const game_TransformId& id, const math_Vec3& forward, const math_Vec3& up)
+    {
+        core_Assert(id < m_entityMap.size());
+
+        const math_Vec3 originalFwd(0, 1, 0);
+        const math_Vec3 cross = math_Cross(originalFwd, forward);
+        const float     dot   = math_Dot(originalFwd, forward);
+
+        // Compare the new forward vector with the original, there are 3 cases:
+        if (dot >= 1) {
+            // 1. Same direction, keep rotation as default.
+            m_localData[id].rotation = math_Quat();
+        }
+        else if (dot <= -1) {
+            // 2. Opposite direction, rotate 180 degrees.
+            m_localData[id].rotation = math_QuatFromAxisAngle(up, 180.0f);
+        } else {
+            // 3. Not parallel, determine corresponding rotation.
+            float qw                 = sqrtf(math_LengthSquared(originalFwd) * math_LengthSquared(forward)) + dot;
+            m_localData[id].rotation = math_Normalize(math_Quat(qw, cross));
+        }
+        SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
+    }
+
     math_Vec3
     game_TransformManager::GetLocalPosition(const game_TransformId& id) const
     {

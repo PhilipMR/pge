@@ -80,6 +80,8 @@ public:
             movement.x += 1;
         }
 
+        const pge::game_TransformId tid = m_transformManager->GetTransformId(m_entity);
+
         static bool wasMoving = false;
         if (pge::math_LengthSquared(movement) > 0) {
             movement = pge::math_Normalize(movement);
@@ -87,6 +89,7 @@ public:
                 m_animManager->Trigger("move_start");
                 wasMoving = true;
             }
+            m_transformManager->SetLocalForward(tid, pge::math_Normalize(movement), pge::math_Vec3(0, 0, 1));
         } else if (wasMoving) {
             m_animManager->Trigger("move_stop");
             wasMoving = false;
@@ -94,7 +97,6 @@ public:
 
         const float MOVEMENT_SPEED = 0.1f;
         movement *= MOVEMENT_SPEED;
-        pge::game_TransformId tid = m_transformManager->GetTransformId(m_entity);
         m_transformManager->Translate(tid, movement);
     }
 };
@@ -138,7 +140,7 @@ main()
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
         game_Entity e1 = world.GetEntityManager()->CreateEntity();
-        world.GetTransformManager()->CreateTransform(e1, math_Vec3::Zero(), math_Quat(), math_Vec3::One() * 0.01f);
+        world.GetTransformManager()->CreateTransform(e1);
         world.GetEntityMetaDataManager()->CreateMetaData(e1, game_EntityMetaData(e1, "Vampire"));
         world.GetStaticMeshManager()->CreateStaticMesh(e1,
                                                        resources.GetMesh("data\\Vampire\\Vampire.mesh"),

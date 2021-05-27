@@ -465,6 +465,59 @@ namespace pge
         return true;
     }
 
+    inline math_Quat
+    math_QuatFromMatrix(const math_Mat4x4& mat)
+    {
+        //        const float qw     = 0.5f * sqrtf(1 + mat[0][0] + mat[1][1] + mat[2][2]);
+        //        const float qw4Inv = 1.0f / (4 * qw);
+        //        // clang-format off
+        //        return math_Quat(
+        //            qw,
+        //            qw4Inv * (mat[2][1] - mat[1][2]),
+        //            qw4Inv * (mat[0][2] - mat[2][0]),
+        //            qw4Inv * (mat[1][0] - mat[0][1])
+        //        );
+        //        // clang-format on
+
+
+        const float trace = mat[0][0] + mat[1][1] + mat[2][2];
+        if (trace > 0) {
+            float s = sqrtf(trace + 1.0f) * 2;
+            // clang-format off
+            return math_Quat(0.25f * s,
+                             (mat[2][1] - mat[1][2]) / s,
+                             (mat[0][2] - mat[2][0]) / s,
+                             (mat[1][0] - mat[0][1]) / s);
+            // clang-format on
+        } else {
+            if (mat[0][0] > mat[1][1] && mat[0][0] > mat[2][2]) {
+                float s = 2.0f * sqrtf(1.0f + mat[0][0] - mat[1][1] - mat[2][2]);
+                // clang-format off
+                return math_Quat((mat[2][1] - mat[1][2] ) / s,
+                        0.25f * s,
+                        (mat[0][1] + mat[1][0] ) / s,
+                        (mat[0][2] + mat[2][0] ) / s);
+                // clang-format on
+            } else if (mat[1][1] > mat[2][2]) {
+                float s = 2.0f * sqrtf(1.0f + mat[1][1] - mat[0][0] - mat[2][2]);
+                // clang-format off
+                return math_Quat((mat[0][2] - mat[2][0] ) / s,
+                                (mat[0][1] + mat[1][0] ) / s,
+                                0.25f * s,
+                                (mat[1][2] + mat[2][1] ) / s);
+                // clang-format on
+            } else {
+                float s = 2.0f * sqrtf(1.0f + mat[2][2] - mat[0][0] - mat[1][1]);
+                // clang-format off
+                return math_Quat((mat[1][0] - mat[0][1]) / s,
+                                (mat[0][2] + mat[2][0]) / s,
+                                (mat[1][2] + mat[2][1]) / s,
+                                0.25f * s);
+                // clang-format on
+            }
+        }
+    }
+
 } // namespace pge
 
 #endif

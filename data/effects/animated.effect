@@ -1,0 +1,119 @@
+Properties {
+	float4 			MainColor 
+	Texture2D 	DiffuseMap 
+}
+
+VertexShader {
+	cbuffer CBTransforms : register(b0)
+	{
+	  row_major float4x4 ModelMatrix;
+	  row_major float4x4 ViewMatrix;
+	  row_major float4x4 ProjMatrix;
+	};
+	
+	#define MAX_BONES 100
+	cbuffer CBBones : register(b1)
+	{
+        row_major float4x4 Bones[MAX_BONES];
+	};
+	
+	struct VertexIn
+	{
+		float3 position 			: POSITION;
+		float3 normal 			: NORMAL;
+		float2 texcoord 		: TEXTURECOORD;
+		float4 boneWeights : BONEWEIGHTS;
+		int4 boneIndices 		: BONEINDICES;
+	};
+
+	struct PixelIn
+	{
+		float4 positionNDC 	: SV_POSITION;
+		float3 viewPos 		    : VIEWPOS;
+		float3 normal 			: NORMAL;
+		float2 texcoord 		: TEXTURECOORD;
+	};
+
+	PixelIn VSMain(VertexIn vertex)
+	{
+		float4x4 boneTransform = { 0,0,0,0,  0,0,0,0,  0,0,0,0,  0,0,0,0 };
+		for (int i = 0; i < 4; ++i) {
+			boneTransform += Bones[vertex.boneIndices[i]] * vertex.boneWeights[i];
+		}
+	
+		PixelIn outp;
+		outp.positionNDC = mul(ProjMatrix, mul(ViewMatrix, mul(ModelMatrix,  mul(boneTransform, float4(vertex.position, 1.0f)))));
+		outp.viewPos = mul(ViewMatrix, mul(ModelMatrix, mul(boneTransform, float4(vertex.position, 1.0f))));
+		outp.normal = mul(ViewMatrix, mul(ModelMatrix, mul(boneTransform, float4(vertex.normal, 0.0f))));
+		outp.texcoord = vertex.texcoord;
+		return outp;
+	};
+}
+
+PixelShader {
+	Texture2D 		DiffuseMap  : register(t0);
+	SamplerState 	DiffuseSampler : register(s0);
+
+	cbuffer CBProperties : register(b0)
+	{
+	   float4 	MainColor;
+	};
+	
+	#define MAX_DIRLIGHTS 10
+	#define MAX_POINTLIGHTS 10
+	cbuffer CBLights : register(b1)
+	{
+			struct {
+				float4 direction;
+				float4 color; // alpha = strength
+			} DirLights[MAX_DIRLIGHTS];
+			struct {
+			    float4  position;
+                float3 color;
+                float   radius;
+            } PointLights[MAX_POINTLIGHTS];
+	};
+
+	struct PixelIn
+	{
+		float4 positionNDC 	: SV_POSITION;
+		float3 viewPos 		    : VIEWPOS;
+		float3 normal 				: NORMAL;
+		float2 texcoord 			: TEXTURECOORD;
+	};
+
+	float4 tex2Dmultisample(float2 uv)
+	{
+		float2 dx = ddx(uv) * 0.25;
+		float2 dy = ddy(uv) * 0.25;
+		float4 sample0 = DiffuseMap.Sample(DiffuseSampler, uv + dx + dy);
+		float4 sample1 = DiffuseMap.Sample(DiffuseSampler, uv + dx - dy);
+		float4 sample2 = DiffuseMap.Sample(DiffuseSampler, uv - dx + dy);
+		float4 sample3 = DiffuseMap.Sample(DiffuseSampler, uv - dx - dy);
+		return (sample0 + sample1 + sample2 + sample3) * 0.25;
+	}
+
+	float4 PSMain(PixelIn pixel) : SV_TARGET
+	{
+	    float3 lightColors = float3(0,0,0);
+	  
+		// Directional lights
+		for (int i = 0; i < MAX_DIRLIGHTS; ++i) {
+			float inner = dot(normalize(pixel.normal), -DirLights[i].direction.xyz);
+			lightColors += DirLights[i].color.rgb * DirLights[i].color.a * max(0, inner);
+		}
+	  
+		// Point lights
+		for (int i = 0; i < MAX_POINTLIGHTS; ++i) {
+		    float3 lightDiff = PointLights[i].position.xyz - pixel.viewPos;
+			float3 lightDir = normalize(lightDiff);
+			float inner = dot(normalize(pixel.normal), lightDir);
+			float falloff =  max(PointLights[i].radius / length(lightDiff), 0);
+		    lightColors += PointLights[i].color * max(0,inner) * falloff;
+		}
+	
+		float4 diffuseTex = DiffuseMap.Sample(DiffuseSampler, pixel.texcoord); //tex2Dmultisample(pixel.texcoord);
+		float4 finalColor = MainColor * diffuseTex * float4(lightColors, 1);
+		return finalColor;
+	};
+}

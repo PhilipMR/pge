@@ -172,23 +172,13 @@ namespace pge
     size_t
     res_SerializedMesh::GetVertexStride() const
     {
-        gfx_VertexAttribute attributes[(int)res_SerializedVertexAttribute::TOTAL_MESH_ATTRIBUTES];
-        size_t              numAttributes = 0;
-        uint16_t            attribFlags   = GetAttributeFlags();
-        for (unsigned i = 0; i < (int)res_SerializedVertexAttribute::TOTAL_MESH_ATTRIBUTES; ++i) {
-            if (attribFlags & (1 << i))
-                attributes[numAttributes++] = res_SerializedVertexAttribute_GetVertexAttribute((res_SerializedVertexAttribute)i);
-        }
-        size_t stride = 0;
-        for (size_t i = 0; i < numAttributes; ++i)
-            stride += gfx_VertexAttributeType_GetSize(attributes[i].Type());
-        return stride;
+        return m_vertexDataSize / m_numVertices;
     }
 
     math_AABB
     res_SerializedMesh::GetAABB() const
     {
-        size_t vertexStride = m_vertexDataSize / m_numVertices;
+        size_t vertexStride = GetVertexStride();
         return math_AABB(m_vertexData.get(), m_numVertices, vertexStride, 0);
     }
 

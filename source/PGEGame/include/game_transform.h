@@ -51,6 +51,7 @@ namespace pge
         void SetLocalPosition(const game_TransformId& id, const math_Vec3& position);
         void SetLocalRotation(const game_TransformId& id, const math_Quat& rotation);
         void SetLocalScale(const game_TransformId& id, const math_Vec3& scale);
+        void SetLocalForward(const game_TransformId& id, const math_Vec3& forward, const math_Vec3& up);
 
         math_Vec3   GetLocalPosition(const game_TransformId& id) const;
         math_Quat   GetLocalRotation(const game_TransformId& id) const;

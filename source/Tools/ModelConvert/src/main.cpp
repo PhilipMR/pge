@@ -18,7 +18,7 @@
 #include <Windows.h>
 
 void
-ExtractMesh(const aiMesh* mesh, const char* targetPath, const pge::anim_Skeleton* skeleton)
+ExtractMesh(const aiMesh* mesh, const char* targetPath, const pge::anim_Skeleton* skeleton, const aiMatrix4x4 importTransform)
 {
     using namespace pge;
 
@@ -59,13 +59,6 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath, const pge::anim_Skeleton
     }
 
     // Pre-transform the vertices
-    aiMatrix4x4 rotation;
-    aiMatrix4x4::RotationX(0.5f * math_PI, rotation);
-
-    aiMatrix4x4 scale;
-    aiMatrix4x4::Scaling(aiVector3t<float>(2, 2, 2), scale);
-
-    aiMatrix4x4             importTransform = aiMatrix4x4(); //rotation * scale;
     std::vector<aiVector3D> importVertices, importNormals;
     importVertices.reserve(mesh->mNumVertices);
     importNormals.reserve(mesh->mNumVertices);
@@ -87,13 +80,15 @@ ExtractMesh(const aiMesh* mesh, const char* targetPath, const pge::anim_Skeleton
         boneIndices.resize(mesh->mNumVertices);
         std::for_each(boneIndices.begin(), boneIndices.end(), [](math_Vec4i& idx) { idx = math_Vec4i(-1, -1, -1, -1); });
 
+        aiMatrix4x4  importTransformInv = importTransform;
+        importTransformInv.Inverse();
         for (unsigned i = 0; i < mesh->mNumBones; ++i) {
             const aiBone* aiBone    = mesh->mBones[i];
             const int     boneIndex = skeleton->GetBoneIndex(aiBone->mName.C_Str());
             core_Assert(boneIndex >= 0);
             core_Assert(boneIndex < skeleton->GetBoneCount());
 
-            boneOffsetMatrices[boneIndex] = aiBone->mOffsetMatrix;
+            boneOffsetMatrices[boneIndex] = aiBone->mOffsetMatrix * importTransformInv;
 
             for (unsigned j = 0; j < aiBone->mNumWeights; ++j) {
                 const aiVertexWeight& aiWeight = aiBone->mWeights[j];
@@ -193,24 +188,28 @@ ExtractMaterial(aiMaterial* material, const char* targetPath)
 
 
 void
-ExtractBoneData(std::vector<pge::res_Bone>* data, const aiNode* node, int parentIdx)
+ExtractBoneData(std::vector<pge::res_Bone>* data, const aiNode* node, int parentIdx, const aiNode* rootNode, const aiMatrix4x4 importTransform)
 {
     pge::res_Bone bone;
     bone.name = node->mName.C_Str();
-    memcpy(&bone.transform, &node->mTransformation, sizeof(bone.transform));
+    aiMatrix4x4 transform = node->mTransformation;
+    if (node == rootNode) {
+        transform = node->mTransformation * importTransform;
+    }
+    memcpy(&bone.transform, &transform, sizeof(bone.transform));
     bone.parent = parentIdx;
     data->push_back(bone);
     const int index = data->size() - 1;
     for (size_t i = 0; i < node->mNumChildren; ++i) {
-        ExtractBoneData(data, node->mChildren[i], index);
+        ExtractBoneData(data, node->mChildren[i], index, rootNode, importTransform);
     }
 }
 
 pge::res_Skeleton
-ExtractSkeleton(const aiNode* rootNode, const char* targetPath)
+ExtractSkeleton(const aiNode* rootNode, const char* targetPath, const aiMatrix4x4 importTransform)
 {
     std::vector<pge::res_Bone> boneData;
-    ExtractBoneData(&boneData, rootNode, -1);
+    ExtractBoneData(&boneData, rootNode, -1, rootNode, importTransform);
     pge::res_Skeleton skeleton(&boneData[0], boneData.size());
     std::stringstream ss;
     ss << targetPath << "\\" << boneData[0].name << ".skel";
@@ -285,7 +284,7 @@ ExtractAnimation(const aiAnimation* animation, const char* targetPath)
 }
 
 void
-ConvertModel(const char* sourcePath, const char* targetPath)
+ConvertModel(const char* sourcePath, const char* targetPath, const aiMatrix4x4& importTransform = aiMatrix4x4())
 {
     unsigned importFlags = 0;
     //    importFlags |= aiProcess_CalcTangentSpace;
@@ -318,11 +317,11 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 
     std::unique_ptr<pge::res_Skeleton> skeleton;
     if (SceneHasSkeleton(scene)) {
-        skeleton = std::make_unique<pge::res_Skeleton>(ExtractSkeleton(scene->mRootNode, targetPath));
+        skeleton = std::make_unique<pge::res_Skeleton>(ExtractSkeleton(scene->mRootNode, targetPath, importTransform));
         printf("Done extracting skeleton\n");
     }
     for (unsigned i = 0; i < scene->mNumMeshes; ++i) {
-        ExtractMesh(scene->mMeshes[i], targetPath, skeleton.get() == nullptr ? nullptr : skeleton->GetSkeleton());
+        ExtractMesh(scene->mMeshes[i], targetPath, skeleton.get() == nullptr ? nullptr : skeleton->GetSkeleton(), importTransform);
         printf("Done extracting mesh %d: %s\n", i + 1, scene->mMeshes[i]->mName.C_Str());
     }
     for (unsigned i = 0; i < scene->mNumTextures; ++i) {
@@ -344,17 +343,29 @@ ConvertModel(const char* sourcePath, const char* targetPath)
 int
 main()
 {
-//    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
-//    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
-//    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
-//    for (const auto& modelItem : models) {
-//        if (modelItem.type != pge::core_FSItemType::FILE)
-//            continue;
-//        const char* modelPath = modelItem.path.c_str();
-//        ConvertModel(modelPath, outPath);
-//    }
+    //    const char* inPath  = R"(C:\Users\phili\Desktop\Dungeon Pack)";
+    //    const char* outPath = R"(D:\Projects\pge\data\Dungeon Pack Export)";
+    //    auto        models  = pge::core_FSItemsWithExtension(inPath, "fbx", false);
+    //    for (const auto& modelItem : models) {
+    //        if (modelItem.type != pge::core_FSItemType::FILE)
+    //            continue;
+    //        const char* modelPath = modelItem.path.c_str();
+    //        ConvertModel(modelPath, outPath);
+    //    }
 
-    ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(C:\Users\phili\Desktop\Walking)");
-//    ConvertModel(R"(C:\Users\phili\Desktop\Idle.fbx)", R"(D:\Projects\pge\data\Vampire\Idle)");
+    // Pre-transform the vertices
+    aiMatrix4x4 rotationX, rotationZ;
+    aiMatrix4x4::RotationX(0.5f * pge::math_PI, rotationX);
+    aiMatrix4x4::RotationZ(pge::math_PI, rotationZ);
+
+    aiMatrix4x4 scale;
+    const aiVector3D dungeonScale(2, 2, 2);
+    const aiVector3D mixamoScale(0.01f, 0.01f, 0.01f);
+    aiMatrix4x4::Scaling(mixamoScale, scale);
+
+    aiMatrix4x4 importTransform = rotationZ * rotationX * scale;
+
+    ConvertModel(R"(C:\Users\phili\Desktop\Walking.fbx)", R"(C:\Users\phili\Desktop\Walking)", importTransform);
+    //    ConvertModel(R"(C:\Users\phili\Desktop\Idle.fbx)", R"(D:\Projects\pge\data\Vampire\Idle)");
     return 0;
 }

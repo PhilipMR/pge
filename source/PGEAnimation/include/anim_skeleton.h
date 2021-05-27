@@ -110,8 +110,11 @@ namespace pge
         int                      GetBoneIndex(const char* name) const;
     };
 
-    void
-    anim_DebugDraw_Skeleton(const anim_Skeleton& skeleton, const math_Mat4x4& modelMatrix, const math_Vec3& color, float lineWidth, bool hasDepth);
+    void anim_DebugDraw_Skeleton(const anim_Skeleton& skeleton,
+                                 const math_Mat4x4&   modelMatrix = math_Mat4x4::Identity(),
+                                 const math_Vec3&     color       = math_Vec3::One(),
+                                 float                lineWidth   = 0.01f,
+                                 bool                 hasDepth    = true);
 
 } // namespace pge
 

@@ -313,7 +313,9 @@ namespace pge
 
             eulerRot += stepSize * axisVecs[i];
         }
-        tm->SetLocalRotation(tid, math_QuatFromEulerAngles(eulerRot));
+        if (numAxisVecs > 0) {
+            tm->SetLocalRotation(tid, math_QuatFromEulerAngles(eulerRot));
+        }
     }
 
     edit_TransformGizmo::edit_TransformGizmo(game_TransformManager* tm, edit_CommandStack* cstack)
