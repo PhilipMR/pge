@@ -84,12 +84,11 @@ namespace pge
             game_Camera_UpdateFPS(m_world->GetCamera(), .1f);
         }
         bool ishovering = DrawGameView(target);
-
+        DrawLog();
         if (m_editMode == EDITOR_MODE_EDIT) {
             DrawGizmos();
             DrawEntityTree();
             DrawInspector();
-            DrawLog();
             DrawResources();
         }
 

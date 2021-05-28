@@ -62,12 +62,27 @@ namespace pge
     void
     anim_Animator::Trigger(const char* trigger)
     {
-        for (const auto& transition : m_config->m_transitions) {
-            if (transition.from != m_currentState)
-                continue;
-            if (transition.trigger == trigger) {
-                m_currentTrans = &transition;
-                m_transitTime  = 0;
+        if (m_currentTrans != nullptr) {
+            // If currently transitioning, allow transitions on trigger for destination node
+            for (const auto& transition : m_config->m_transitions) {
+                if (transition.from != m_currentTrans->to)
+                    continue;
+                if (transition.trigger == trigger) {
+                    float prevTransProg = m_transitTime / m_currentTrans->duration;
+                    m_currentTrans      = &transition;
+                    m_transitTime       = m_currentTrans->duration * (1 - prevTransProg);
+                    m_currentState      = m_currentTrans->from;
+                }
+            }
+        } else {
+            // If not currently transitioning, check for new transitions on trigger
+            for (const auto& transition : m_config->m_transitions) {
+                if (transition.from != m_currentState)
+                    continue;
+                if (transition.trigger == trigger) {
+                    m_currentTrans = &transition;
+                    m_transitTime  = 0;
+                }
             }
         }
     }
@@ -77,12 +92,14 @@ namespace pge
     {
         if (m_currentTrans == nullptr) {
             m_currentAnimTime += dt;
+
             if (m_currentState->looping && m_currentAnimTime >= m_currentState->animation->GetDuration()) {
                 m_currentAnimTime = 0;
             }
         } else {
             m_currentAnimTime += dt;
             m_transitTime += dt;
+
             if (m_transitTime >= m_currentTrans->duration) {
                 m_currentState    = m_currentTrans->to;
                 m_currentAnimTime = 0;
