@@ -121,6 +121,18 @@ namespace pge
         return m_impl->m_srv;
     }
 
+    unsigned
+    gfx_RenderTarget::GetWidth() const
+    {
+        return m_impl->m_width;
+    }
+
+    unsigned
+    gfx_RenderTarget::GetHeight() const
+    {
+        return m_impl->m_height;
+    }
+
     void
     gfx_RenderTarget_BindMainRTV(gfx_GraphicsAdapter* graphicsAdapter)
     {

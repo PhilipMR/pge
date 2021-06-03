@@ -1,5 +1,5 @@
 #include "../include/game_light.h"
-#include <math_rect.h>
+#include <math_raycasting.h>
 #include <core_assert.h>
 #include <iostream>
 
@@ -183,29 +183,7 @@ namespace pge
             if (depth > closestDepth)
                 continue;
 
-            math_Vec4 screenPos = proj * viewPos;
-            math_Vec2 screenPosXY(screenPos.x / screenPos.w, -screenPos.y / screenPos.w);
-            // Map from [-1,1] to [0,1] to match hoverPosNorm
-            screenPosXY += math_Vec2::One();
-            screenPosXY /= 2;
-
-            const math_Vec2 hsize      = rectSize / 2;
-            math_Vec4       topLeft    = proj * (viewPos + math_Vec4(-hsize.x, -hsize.y, 0, 0));
-            math_Vec4       topLeftHom = topLeft / topLeft.w;
-            topLeftHom += math_Vec4::One();
-            topLeftHom /= 2;
-
-            math_Vec4 botRight    = proj * (viewPos + math_Vec4(hsize.x, hsize.y, 0, 0));
-            math_Vec4 botRightHom = botRight / botRight.w;
-            botRightHom += math_Vec4::One();
-            botRightHom /= 2;
-
-            math_Vec2 screenRectSize(botRightHom.x - topLeftHom.x, botRightHom.y - topLeftHom.y);
-            math_Vec2 hscreenRectSize = screenRectSize / 2;
-            math_Vec2 screenRectPos   = screenPosXY - hscreenRectSize;
-            math_Rect billboard(screenRectPos, screenRectSize);
-
-            if (billboard.Intersects(math_Vec2(hoverPosNorm.x, hoverPosNorm.y))) {
+            if (math_Raycast_IntersectsViewRect(worldPos, rectSize, hoverPosNorm, view, proj)) {
                 closestEntity = (i < m_numDirLights) ? m_dirLights[i].entity : m_pointLights[i - m_numDirLights].entity;
                 closestDepth  = depth;
             }

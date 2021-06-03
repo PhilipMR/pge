@@ -136,7 +136,6 @@ main()
         edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
         // editor.LoadWorld("test.world");
         game_World& world = editor.GetWorld();
-        world.GetCamera()->SetLookAt(math_Vec3(10, 10, 10), math_Vec3(0, 0, 0));
         gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
 
         game_Entity e1 = world.GetEntityManager()->CreateEntity();
@@ -153,6 +152,11 @@ main()
         world.GetTransformManager()->CreateTransform(e2);
         world.GetEntityMetaDataManager()->CreateMetaData(e2, game_EntityMetaData(e2, "DirLight"));
         world.GetLightManager()->CreateDirectionalLight(e2, game_DirectionalLight());
+
+        game_Entity e3 = world.GetEntityManager()->CreateEntity();
+        world.GetEntityMetaDataManager()->CreateMetaData(e3, game_EntityMetaData(e3, "Camera"));
+        world.GetCameraManager()->CreateCamera(e3);
+        world.GetCameraManager()->SetLookAt(e3, math_Vec3(-5, -5, -5), math_Vec3(0, 0, 0));
 
 
         const res_Effect*         screenTexEffect     = resources.GetEffect("data\\effects\\screentex.effect");
@@ -189,12 +193,6 @@ main()
             rtGame.Bind();
             rtGame.Clear();
             world.Draw();
-
-            gfx_DebugDraw_SetView(world.GetCamera()->GetViewMatrix());
-            gfx_DebugDraw_SetProjection(world.GetCamera()->GetProjectionMatrix());
-
-
-            gfx_DebugDraw_Flush();
 
             // Redraw screen to intermediate texture (additional multisampling)
             gfx_Texture2D_Unbind(&graphicsAdapter, 0);

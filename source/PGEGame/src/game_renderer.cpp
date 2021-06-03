@@ -11,9 +11,10 @@ namespace pge
     {}
 
     void
-    game_Renderer::SetCamera(const game_Camera* camera)
+    game_Renderer::SetCamera(const math_Mat4x4& cameraView, const math_Mat4x4& cameraProj)
     {
-        m_camera = camera;
+        m_cameraView = cameraView;
+        m_cameraProj = cameraProj;
     }
 
     void
@@ -30,7 +31,7 @@ namespace pge
                 }
                 game_TransformId tid      = tmanager.GetTransformId(dlights[i].entity);
                 math_Quat        rotation = tid == game_TransformId_Invalid ? math_Quat() : tmanager.GetLocalRotation(tid);
-                dlight.direction          = m_camera->GetViewMatrix() * math_Rotate(math_Vec4(dlights[i].direction, 0), rotation);
+                dlight.direction          = m_cameraView * math_Rotate(math_Vec4(dlights[i].direction, 0), rotation);
                 dlight.color              = math_Vec4(dlights[i].color, dlights[i].strength);
             }
             for (size_t i = dirCount; i < MAX_DIRLIGHTS; ++i) {
@@ -54,10 +55,9 @@ namespace pge
                     continue;
                 }
                 game_TransformId tid = tmanager.GetTransformId(plights[i].entity);
-                plight.position      = m_camera->GetViewMatrix()
-                                  * math_Vec4((tid == game_TransformId_Invalid) ? math_Vec3::Zero() : tmanager.GetWorldPosition(tid), 1);
-                plight.color  = plights[i].color;
-                plight.radius = plights[i].radius;
+                plight.position = m_cameraView * math_Vec4((tid == game_TransformId_Invalid) ? math_Vec3::Zero() : tmanager.GetWorldPosition(tid), 1);
+                plight.color    = plights[i].color;
+                plight.radius   = plights[i].radius;
             }
             for (size_t i = pointCount; i < MAX_POINTLIGHTS; ++i) {
                 auto& plight    = m_cbLightsData.pointLights[i];
@@ -75,7 +75,7 @@ namespace pge
     {
         core_Assert(slot < MAX_DIRLIGHTS);
         auto& dlight     = m_cbLightsData.dirLights[slot];
-        dlight.direction = m_camera->GetViewMatrix() * math_Vec4(light.direction, 0);
+        dlight.direction = m_cameraView * math_Vec4(light.direction, 0);
         dlight.color     = math_Vec4(light.color, light.strength);
         m_cbLights.Update(&m_cbLightsData, sizeof(CBLights));
     }
@@ -96,8 +96,8 @@ namespace pge
     {
         core_Assert(mesh != nullptr && material != nullptr);
 
-        m_cbTransformData.viewMatrix  = m_camera->GetViewMatrix();
-        m_cbTransformData.projMatrix  = m_camera->GetProjectionMatrix();
+        m_cbTransformData.viewMatrix  = m_cameraView;
+        m_cbTransformData.projMatrix  = m_cameraProj;
         m_cbTransformData.modelMatrix = modelMatrix;
         m_cbTransform.Update(&m_cbTransformData, sizeof(CBTransform));
 
@@ -109,20 +109,18 @@ namespace pge
         m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
     }
 
-    void game_Renderer::DrawSkeletalMesh(const res_Mesh*      mesh,
-                                         const res_Material*  material,
-                                         const math_Mat4x4&   modelMatrix,
-                                         const anim_Skeleton& skeleton)
+    void
+    game_Renderer::DrawSkeletalMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const anim_Skeleton& skeleton)
     {
         core_Assert(mesh != nullptr && material != nullptr);
 
-        m_cbTransformData.viewMatrix  = m_camera->GetViewMatrix();
-        m_cbTransformData.projMatrix  = m_camera->GetProjectionMatrix();
+        m_cbTransformData.viewMatrix  = m_cameraView;
+        m_cbTransformData.projMatrix  = m_cameraProj;
         m_cbTransformData.modelMatrix = modelMatrix;
         m_cbTransform.Update(&m_cbTransformData, sizeof(CBTransform));
 
         const auto& boneOffsetMatrices = mesh->GetBoneOffsetMatrices();
-        unsigned numBones = skeleton.GetBoneCount();
+        unsigned    numBones           = skeleton.GetBoneCount();
         for (unsigned i = 0; i < numBones; ++i) {
             m_cbBonesData.bones[i] = skeleton.GetBone(i).worldTransform * boneOffsetMatrices[i];
         }

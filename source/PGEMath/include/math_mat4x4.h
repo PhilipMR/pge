@@ -518,6 +518,31 @@ namespace pge
         }
     }
 
+    inline void
+    math_DecomposeMatrix(const math_Mat4x4& matrix, math_Vec3* position, math_Quat* rotation, math_Vec3* scale)
+    {
+        const math_Vec3 c0(matrix[0][0], matrix[1][0], matrix[2][0]);
+        const math_Vec3 c1(matrix[0][1], matrix[1][1], matrix[2][1]);
+        const math_Vec3 c2(matrix[0][2], matrix[1][2], matrix[2][2]);
+        const math_Vec3 c3(matrix[0][3], matrix[1][3], matrix[2][3]);
+        *position = c3;
+
+        *scale = math_Vec3(math_Length(c0), math_Length(c1), math_Length(c2));
+
+        math_Mat4x4 rotMatrix;
+        rotMatrix[0] = math_Vec4(math_Normalize(c0), 0);
+        rotMatrix[1] = math_Vec4(math_Normalize(c1), 0);
+        rotMatrix[2] = math_Vec4(math_Normalize(c2), 0);
+        rotMatrix = math_Transpose(rotMatrix);  // Set c0,c1,c2 as columns instead of rows by transposing the matrix
+
+        math_Vec3 cross = math_Cross(c0, c1);
+        if (math_Dot(cross, c2) < 0) {
+            rotMatrix *= -1.f;
+            *scale *= -1.f;
+        }
+        *rotation = math_QuatFromMatrix(rotMatrix);
+    }
+
 } // namespace pge
 
 #endif

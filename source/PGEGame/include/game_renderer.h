@@ -16,7 +16,8 @@ namespace pge
     class game_Renderer {
         gfx_GraphicsDevice* m_graphicsDevice;
 
-        const game_Camera* m_camera;
+        math_Mat4x4 m_cameraView;
+        math_Mat4x4 m_cameraProj;
 
         struct CBTransform {
             math_Mat4x4 modelMatrix;
@@ -49,7 +50,7 @@ namespace pge
     public:
         game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice);
 
-        void SetCamera(const game_Camera* camera);
+        void SetCamera(const math_Mat4x4& cameraView, const math_Mat4x4& cameraProj);
 
         void UpdateLights(const game_LightManager& lmanager, const game_TransformManager& tmanager, const game_EntityManager& emanager);
         void SetDirectionalLight(size_t slot, const game_DirectionalLight& light);

@@ -1,53 +1,174 @@
 #include "../include/game_camera.h"
+
+#include <math_raycasting.h>
 #include <input_keyboard.h>
 #include <input_mouse.h>
+#include <algorithm>
 
 namespace pge
 {
-    game_Camera::game_Camera()
+    game_CameraManager::game_CameraManager(game_TransformManager* tmanager)
+        : m_tmanager(tmanager)
+        , m_activeCamera(game_EntityId_Invalid)
+    {}
+
+    void
+    game_CameraManager::CreateCamera(const game_Entity& entity)
     {
-        SetPerspectiveFov(math_DegToRad(60.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
+        core_Assert(!HasCamera(entity));
+        m_cameras[entity] = Camera{math_Mat4x4()};
+        if (!m_tmanager->HasTransform(entity)) {
+            m_tmanager->CreateTransform(entity);
+        }
+        SetPerspectiveFov(entity, math_DegToRad(60.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
+        if (m_activeCamera == game_EntityId_Invalid) {
+            m_activeCamera = entity;
+        }
     }
 
     void
-    game_Camera::SetPerspectiveFov(float fov, float aspect, float nearClip, float farClip)
+    game_CameraManager::DestroyCamera(const game_Entity& camera)
     {
-        m_projectionMatrix = math_PerspectiveFovRH(fov, aspect, nearClip, farClip);
+        core_Assert(HasCamera(camera));
+        m_cameras.erase(m_cameras.find(camera));
+    }
+
+    bool
+    game_CameraManager::HasCamera(const game_Entity& entity) const
+    {
+        return m_cameras.find(entity) != m_cameras.end();
     }
 
     void
-    game_Camera::SetLookAt(const math_Vec3& position, const math_Vec3& target)
+    game_CameraManager::GarbageCollect(const game_EntityManager& entityManager)
     {
-        math_Vec3 forward = target - position;
-        m_viewMatrix      = math_LookAt(position, position + forward);
+        for (auto it = m_cameras.begin(); it != m_cameras.end();) {
+            if (!entityManager.IsEntityAlive(it->first)) {
+                m_cameras.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    void
+    game_CameraManager::SetPerspectiveFov(const game_Entity& camera, float fov, float aspect, float nearClip, float farClip)
+    {
+        core_Assert(HasCamera(camera));
+        m_cameras.at(camera).projectionMatrix = math_PerspectiveFovRH(fov, aspect, nearClip, farClip);
+        m_cameras.at(camera).fov              = fov;
+        m_cameras.at(camera).aspect           = aspect;
+        m_cameras.at(camera).nearClip         = nearClip;
+        m_cameras.at(camera).farClip          = farClip;
+    }
+
+    const math_Mat4x4
+    game_CameraManager::GetViewMatrix(const game_Entity& camera) const
+    {
+        core_Assert(HasCamera(camera));
+        auto        tid = m_tmanager->GetTransformId(camera);
+        math_Mat4x4 viewMatrix;
+        core_Verify(math_Invert(m_tmanager->GetWorld(tid), &viewMatrix));
+        return viewMatrix;
     }
 
     const math_Mat4x4&
-    game_Camera::GetViewMatrix() const
+    game_CameraManager::GetProjectionMatrix(const game_Entity& camera) const
     {
-        return m_viewMatrix;
-    }
-
-    const math_Mat4x4&
-    game_Camera::GetProjectionMatrix() const
-    {
-        return m_projectionMatrix;
+        core_Assert(HasCamera(camera));
+        return m_cameras.at(camera).projectionMatrix;
     }
 
     void
-    game_Camera_UpdateFPS(game_Camera* camera, float speed)
+    game_CameraManager::GetPerspectiveFov(const game_Entity& camera, float* fov, float* aspect, float* nearClip, float* farClip) const
     {
+        core_Assert(HasCamera(camera));
+        const auto& cam = m_cameras.at(camera);
+        *fov            = cam.fov;
+        *aspect         = cam.aspect;
+        *nearClip       = cam.nearClip;
+        *farClip        = cam.farClip;
+    }
+
+    void
+    game_CameraManager::SetLookAt(const game_Entity& camera, const math_Vec3& position, const math_Vec3& target)
+    {
+        core_Assert(HasCamera(camera));
+        core_Assert(m_tmanager->HasTransform(camera));
+
+        const math_Vec3 forward    = target - position;
+        math_Mat4x4     viewMatrix = math_LookAt(position, position + forward);
+        math_Mat4x4     modelMatrix;
+        core_Verify(math_Invert(viewMatrix, &modelMatrix));
+
+        math_Vec3 newPos;
+        math_Vec3 newScale;
+        math_Quat newRot;
+        math_DecomposeMatrix(modelMatrix, &newPos, &newRot, &newScale);
+        m_tmanager->SetLocal(m_tmanager->GetTransformId(camera), newPos, newRot, newScale);
+    }
+
+    void
+    game_CameraManager::Activate(const game_Entity& camera)
+    {
+        core_Assert(HasCamera(camera));
+        m_activeCamera = camera;
+    }
+
+    const game_Entity&
+    game_CameraManager::GetActiveCamera() const
+    {
+        return m_activeCamera;
+    }
+
+    game_Entity
+    game_CameraManager::HoverSelect(const math_Vec2&   hoverPosNorm,
+                                    const math_Vec2&   rectSize,
+                                    const math_Mat4x4& view,
+                                    const math_Mat4x4& proj,
+                                    float*             distanceOut) const
+    {
+        game_Entity closestEntity(game_EntityId_Invalid);
+        float       closestDepth = std::numeric_limits<float>::max();
+
+        for (const auto& kv : m_cameras) {
+            const auto& camera = kv.first;
+            if (m_activeCamera == camera)
+                continue;
+
+            math_Vec3 worldPos = m_tmanager->GetWorldPosition(m_tmanager->GetTransformId(camera));
+            math_Vec4 viewPos  = view * math_Vec4(worldPos, 1);
+            float     depth    = -viewPos.z;
+            if (depth > closestDepth)
+                continue;
+
+            if (math_Raycast_IntersectsViewRect(worldPos, rectSize, hoverPosNorm, view, proj)) {
+                closestEntity = camera;
+                closestDepth  = depth;
+            }
+        }
+
+        if (distanceOut != nullptr)
+            *distanceOut = closestDepth;
+        return closestEntity;
+    }
+
+    void
+    game_CameraManager::UpdateFPS(const game_Entity& camera)
+    {
+        float speed = 0.1f;
+
         if (!input_MouseButtonDown(input_MouseButton::RIGHT))
             return;
 
         if (input_KeyboardDown(input_KeyboardKey::SHIFT))
             speed *= 2;
 
-        const math_Mat4x4& viewMatrix = camera->GetViewMatrix();
-        const math_Mat4x4& projMatrix = camera->GetProjectionMatrix();
+        const math_Mat4x4& viewMatrix = GetViewMatrix(camera);
+        const math_Mat4x4& projMatrix = GetProjectionMatrix(camera);
 
-        math_Mat4x4 xform;
-        core_Verify(math_Invert(viewMatrix, &xform));
+        math_Mat4x4 xform = m_tmanager->GetWorld(m_tmanager->GetTransformId(camera));
+        // core_Verify(math_Invert(viewMatrix, &xform));
         math_Vec3 right    = math_Vec3(xform[0][0], xform[1][0], xform[2][0]);
         math_Vec3 up       = math_Vec3(xform[0][1], xform[1][1], xform[2][1]);
         math_Vec3 forward  = -math_Vec3(xform[0][2], xform[1][2], xform[2][2]);
@@ -78,12 +199,17 @@ namespace pge
             float pitch = (forward.z >= 0.f ? 1.f : -1.f) * acosf(math_Clamp(math_Dot(up, math_Vec3(0, 0, 1)), -1, 1));
 
             const float rotSpeed = 0.005f;
-            yaw -= rotation.x * rotSpeed;
-            pitch -= rotation.y * rotSpeed;
+            const float dyaw     = -rotation.x * rotSpeed;
+            const float dpitch   = -rotation.y * rotSpeed;
+
+            yaw += dyaw;
+            pitch += dpitch;
 
             forward = math_Vec3(sinf(yaw) * cosf(pitch), -cosf(yaw) * cosf(pitch), sinf(pitch));
         }
 
-        camera->SetLookAt(position, position + forward);
+        if (math_LengthSquared(velocity) + math_LengthSquared(rotation) > 0) {
+            SetLookAt(camera, position, position + forward);
+        }
     }
 } // namespace pge

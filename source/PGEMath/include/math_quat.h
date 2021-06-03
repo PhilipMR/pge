@@ -234,18 +234,14 @@ namespace pge
     }
 
     inline math_Quat
-    math_QuatFromEulerAngles(const math_Vec3& euler)
+    math_QuatFromEulerAngles(float pitch, float yaw, float roll)
     {
-        const float roll  = euler.x;
-        const float pitch = euler.y;
-        const float yaw   = euler.z;
-
-        const float cy = cosf(yaw * 0.5f);
-        const float sy = sinf(yaw * 0.5f);
-        const float cp = cosf(pitch * 0.5f);
-        const float sp = sinf(pitch * 0.5f);
-        const float cr = cosf(roll * 0.5f);
-        const float sr = sinf(roll * 0.5f);
+        const float cy = cosf(roll * 0.5f);
+        const float sy = sinf(roll * 0.5f);
+        const float cp = cosf(yaw * 0.5f);
+        const float sp = sinf(yaw * 0.5f);
+        const float cr = cosf(pitch * 0.5f);
+        const float sr = sinf(pitch * 0.5f);
 
         math_Quat q;
         q.w = cr * cp * cy + sr * sp * sy;
@@ -255,6 +251,13 @@ namespace pge
 
         return q;
     }
+
+    inline math_Quat
+    math_QuatFromEulerAngles(const math_Vec3& euler)
+    {
+        return math_QuatFromEulerAngles(euler.x, euler.y, euler.z);
+    }
+
 
     inline math_Vec3
     math_EulerAnglesFromQuaternion(const math_Quat& quat)
@@ -267,7 +270,7 @@ namespace pge
         // roll (x-axis rotation)
         float sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
         float cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-        angles.roll      = std::atan2f(sinr_cosp, cosr_cosp);
+        angles.roll     = std::atan2f(sinr_cosp, cosr_cosp);
 
         // pitch (y-axis rotation)
         float sinp = 2 * (q.w * q.y - q.z * q.x);
@@ -279,7 +282,7 @@ namespace pge
         // yaw (z-axis rotation)
         float siny_cosp = 2 * (q.w * q.z + q.x * q.y);
         float cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-        angles.yaw       = std::atan2f(siny_cosp, cosy_cosp);
+        angles.yaw      = std::atan2f(siny_cosp, cosy_cosp);
 
         return math_Vec3(angles.roll, angles.pitch, angles.yaw);
     }
@@ -297,6 +300,13 @@ namespace pge
     {
         math_Quat qinv = math_Invert(quat);
         return (quat * math_Vec4(vec, 1) * qinv).xyz;
+    }
+
+    constexpr math_Vec3
+    math_Rotate(const math_Vec3& vec, const math_Vec3& axis, float degrees)
+    {
+        math_Quat rotation = math_QuatFromAxisAngle(axis, degrees);
+        return math_Rotate(vec, rotation);
     }
 
     constexpr math_Quat

@@ -1,4 +1,5 @@
 #include "../include/game_world.h"
+#include <gfx_debug_draw.h>
 
 namespace pge
 {
@@ -9,6 +10,7 @@ namespace pge
         , m_lightManager(100)
         , m_scriptManager(100)
         , m_behaviourManager()
+        , m_cameraManager(&m_transformManager)
         , m_renderer(graphicsAdapter, graphicsDevice)
     {}
 
@@ -21,6 +23,7 @@ namespace pge
         m_transformManager.GarbageCollect(m_entityManager);
         m_lightManager.GarbageCollect(m_entityManager);
         m_scriptManager.GarbageCollect(m_entityManager);
+        m_cameraManager.GarbageCollect(m_entityManager);
     }
 
     void
@@ -35,9 +38,16 @@ namespace pge
     {
         m_scriptManager.UpdateScripts();
 
-        m_renderer.SetCamera(&m_camera);
+        const game_Entity& camera     = m_cameraManager.GetActiveCamera();
+        const math_Mat4x4& cameraView = m_cameraManager.GetViewMatrix(camera);
+        const math_Mat4x4& cameraProj = m_cameraManager.GetProjectionMatrix(camera);
+        m_renderer.SetCamera(cameraView, cameraProj);
         m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
         m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager, m_animationManager, m_entityManager);
+
+        gfx_DebugDraw_SetView(cameraView);
+        gfx_DebugDraw_SetProjection(cameraProj);
+        gfx_DebugDraw_Flush();
     }
 
     game_EntityManager*
@@ -88,6 +98,12 @@ namespace pge
         return &m_behaviourManager;
     }
 
+    game_CameraManager*
+    game_World::GetCameraManager()
+    {
+        return &m_cameraManager;
+    }
+
 
     const game_EntityManager*
     game_World::GetEntityManager() const
@@ -136,6 +152,13 @@ namespace pge
     {
         return &m_behaviourManager;
     }
+
+    const game_CameraManager*
+    game_World::GetCameraManager() const
+    {
+        return &m_cameraManager;
+    }
+
 
 
     constexpr unsigned SERIALIZE_VERSION             = 1;

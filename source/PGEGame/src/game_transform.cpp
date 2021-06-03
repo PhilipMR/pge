@@ -157,6 +157,16 @@ namespace pge
     }
 
     void
+    game_TransformManager::SetLocal(const game_TransformId& id, const math_Vec3& position, const math_Quat& rotation, const math_Vec3& scale)
+    {
+        core_Assert(id < m_entityMap.size());
+        m_localData[id].position = position;
+        m_localData[id].rotation = rotation;
+        m_localData[id].scale    = scale;
+        SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
+    }
+
+    void
     game_TransformManager::SetLocalPosition(const game_TransformId& id, const math_Vec3& position)
     {
         core_Assert(id < m_entityMap.size());
@@ -195,8 +205,7 @@ namespace pge
         if (dot >= 1) {
             // 1. Same direction, keep rotation as default.
             m_localData[id].rotation = math_Quat();
-        }
-        else if (dot <= -1) {
+        } else if (dot <= -1) {
             // 2. Opposite direction, rotate 180 degrees.
             m_localData[id].rotation = math_QuatFromAxisAngle(up, 180.0f);
         } else {
@@ -205,6 +214,22 @@ namespace pge
             m_localData[id].rotation = math_Normalize(math_Quat(qw, cross));
         }
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
+    }
+
+    void
+    game_TransformManager::SetLocalLookAt(const game_TransformId& id, const math_Vec3& position, const math_Vec3& target, const math_Vec3& up)
+    {
+        core_Assert(id < m_entityMap.size());
+        m_localData[id].position = position;
+        m_localData[id].scale    = math_Vec3::One();
+        SetLocalForward(id, math_Normalize(target - position), up);
+    }
+
+    math_Mat4x4
+    game_TransformManager::GetLocal(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        return m_local[id];
     }
 
     math_Vec3
@@ -228,11 +253,28 @@ namespace pge
         return m_localData[id].scale;
     }
 
-    math_Mat4x4
-    game_TransformManager::GetLocal(const game_TransformId& id) const
+    math_Vec3
+    game_TransformManager::GetLocalRight(const game_TransformId& id) const
     {
         core_Assert(id < m_entityMap.size());
-        return m_local[id];
+        const math_Mat4x4& world = m_world[id];
+        return math_Vec3(world[0][0], world[1][0], world[2][0]);
+    }
+
+    math_Vec3
+    game_TransformManager::GetLocalUp(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        const math_Mat4x4& world = m_world[id];
+        return math_Vec3(world[0][1], world[1][1], world[2][1]);
+    }
+
+    math_Vec3
+    game_TransformManager::GetLocalForward(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        const math_Mat4x4& world = m_world[id];
+        return -math_Vec3(world[0][2], world[1][2], world[2][2]);
     }
 
     math_Vec3

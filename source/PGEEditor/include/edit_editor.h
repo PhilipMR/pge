@@ -33,9 +33,11 @@ namespace pge
             ImTextureID          playButton;
             ImTextureID          pauseButton;
             const gfx_Texture2D* pointLight;
+            const gfx_Texture2D* camera;
         } m_icons;
 
-        enum {
+        enum
+        {
             EDITOR_MODE_EDIT,
             EDITOR_MODE_PLAY
         } m_editMode;
@@ -54,6 +56,8 @@ namespace pge
         math_Vec2         m_gameWindowPos;
         math_Vec2         m_gameWindowSize;
         edit_CommandStack m_commandStack;
+
+        game_Entity m_editCamera;
 
         constexpr static const math_Vec2 PREVIEW_RESOLUTION = math_Vec2(600.f, 600.f);
         gfx_RenderTarget                 m_previewRT;

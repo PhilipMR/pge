@@ -14,14 +14,16 @@ namespace pge
     public:
         gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter, unsigned width, unsigned height, bool hasDepth, bool multisample);
         ~gfx_RenderTarget();
-        void Clear();
-        void Bind() const;
-        void BindTexture(unsigned slot) const;
-        void* GetNativeTexture() const;
+        void     Clear();
+        void     Bind() const;
+        void     BindTexture(unsigned slot) const;
+        void*    GetNativeTexture() const;
+        unsigned GetWidth() const;
+        unsigned GetHeight() const;
     };
 
     void gfx_RenderTarget_BindMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
     void gfx_RenderTarget_ClearMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
-}
+} // namespace pge
 
 #endif

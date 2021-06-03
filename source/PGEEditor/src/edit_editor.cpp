@@ -1,7 +1,9 @@
 #include "../include/edit_editor.h"
+
 #include "../include/edit_mesh.h"
 #include "../include/edit_light.h"
 #include "../include/edit_script.h"
+#include "../include/edit_camera.h"
 #include <anim_skeleton.h>
 #include <input_mouse.h>
 #include <input_keyboard.h>
@@ -49,6 +51,12 @@ namespace pge
         m_icons.playButton        = GetImTexture("data/icons/btn_play.png");
         m_icons.pauseButton       = GetImTexture("data/icons/btn_pause.png");
         m_icons.pointLight        = resources->GetTexture("data/icons/light_point.png")->GetTexture();
+        m_icons.camera            = resources->GetTexture("data/icons/camera.png")->GetTexture();
+
+        m_editCamera = m_world->GetEntityManager()->CreateEntity();
+        m_world->GetCameraManager()->CreateCamera(m_editCamera);
+        m_world->GetCameraManager()->SetLookAt(m_editCamera, math_Vec3(0, -10, 0), math_Vec3(0, 0, 0));
+        m_world->GetCameraManager()->Activate(m_editCamera);
     }
 
     void
@@ -81,7 +89,7 @@ namespace pge
             //            m_world->Update();
             m_world->GetBehaviourManager()->Update(1.0f / 60.0f);
         } else {
-            game_Camera_UpdateFPS(m_world->GetCamera(), .1f);
+            m_world->GetCameraManager()->UpdateFPS(m_editCamera);
         }
         bool ishovering = DrawGameView(target);
         DrawLog();
@@ -100,8 +108,10 @@ namespace pge
     game_Entity
     edit_Editor::SelectEntity() const
     {
-        auto*             scene    = m_world.get();
-        const math_Mat4x4 viewProj = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix();
+        auto*              scene      = m_world.get();
+        const math_Mat4x4& viewMatrix = m_world->GetCameraManager()->GetViewMatrix(m_editCamera);
+        const math_Mat4x4& projMatrix = m_world->GetCameraManager()->GetProjectionMatrix(m_editCamera);
+        const math_Mat4x4  viewProj   = projMatrix * viewMatrix;
 
         // Static Mesh select
         const math_Ray ray = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
@@ -122,19 +132,44 @@ namespace pge
         game_Entity lightSelectEntity = scene->GetLightManager()->HoverSelect(*m_world->GetTransformManager(),
                                                                               hoverPosNorm,
                                                                               billboardSize,
-                                                                              scene->GetCamera()->GetViewMatrix(),
-                                                                              scene->GetCamera()->GetProjectionMatrix(),
+                                                                              viewMatrix,
+                                                                              projMatrix,
                                                                               &lightSelectDistance);
 
+        float       cameraSelectDistance;
+        game_Entity cameraSelectEntity
+            = scene->GetCameraManager()->HoverSelect(hoverPosNorm, billboardSize, viewMatrix, projMatrix, &cameraSelectDistance);
+
+
+        struct Intersection {
+            game_Entity entity;
+            float       distance;
+        };
+        Intersection meshIntersect{meshSelectEntity, meshSelectDistance};
+        Intersection lightIntersect{lightSelectEntity, lightSelectDistance};
+        Intersection cameraIntersect{cameraSelectEntity, cameraSelectDistance};
+
+        auto ClosestIntersection2 = [](const Intersection& a, const Intersection& b) {
+            return a.distance <= b.distance ? a.entity : b.entity;
+        };
+        auto ClosestIntersection3 = [](const Intersection& a, const Intersection& b, const Intersection& c) {
+            return a.distance <= b.distance ? (a.distance <= c.distance ? a.entity : c.entity) : (b.distance <= c.distance ? b.entity : c.entity);
+        };
 
         // Choose the closest one
-        game_Entity whichOne[]     = {game_EntityId_Invalid,
+        game_Entity whichOne[] = {game_EntityId_Invalid,
                                   meshSelectEntity,
                                   lightSelectEntity,
-                                  meshSelectDistance <= lightSelectDistance ? meshSelectEntity : lightSelectEntity};
-        unsigned    selectMeshBit  = unsigned(meshSelectEntity != game_EntityId_Invalid);
-        unsigned    selectLightBit = unsigned(lightSelectEntity != game_EntityId_Invalid) << 1;
-        return whichOne[selectMeshBit | selectLightBit];
+                                  ClosestIntersection2(lightIntersect, meshIntersect),
+                                  cameraSelectEntity,
+                                  ClosestIntersection2(cameraIntersect, meshIntersect),
+                                  ClosestIntersection2(cameraIntersect, lightIntersect),
+                                  ClosestIntersection3(cameraIntersect, lightIntersect, meshIntersect)};
+
+        unsigned selectMeshBit   = unsigned(meshSelectEntity != game_EntityId_Invalid);
+        unsigned selectLightBit  = unsigned(lightSelectEntity != game_EntityId_Invalid) << 1;
+        unsigned selectCameraBit = unsigned(cameraSelectEntity != game_EntityId_Invalid) << 2;
+        return whichOne[selectMeshBit | selectLightBit | selectCameraBit];
     }
 
     void
@@ -156,7 +191,9 @@ namespace pge
         ImGuizmo::Enable(m_drawGizmos);
         if (m_drawGizmos) {
             ImGuizmo::SetRect(m_gameWindowPos.x, m_gameWindowPos.y, m_gameWindowSize.x, m_gameWindowSize.y);
-            m_transformGizmo.TransformEntity(m_selectedEntity, m_world->GetCamera()->GetViewMatrix(), m_world->GetCamera()->GetProjectionMatrix());
+            const math_Mat4x4& viewMatrix = m_world->GetCameraManager()->GetViewMatrix(m_editCamera);
+            const math_Mat4x4& projMatrix = m_world->GetCameraManager()->GetProjectionMatrix(m_editCamera);
+            m_transformGizmo.TransformEntity(m_selectedEntity, viewMatrix, projMatrix);
 
             // Selected entity AABB
             if (scene->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && scene->GetTransformManager()->HasTransform(m_selectedEntity)) {
@@ -172,21 +209,70 @@ namespace pge
             }
 
 
-            // Light billboards
-            auto* mm = scene->GetEntityMetaDataManager();
-            for (auto it = mm->Begin(); it != mm->End(); ++it) {
+            // Light and Camera billboards
+            const auto* mm = scene->GetEntityMetaDataManager();
+            for (auto it = mm->CBegin(); it != mm->CEnd(); ++it) {
                 const auto& entity = it->first;
 
-                bool isDirLight   = scene->GetLightManager()->HasDirectionalLight(entity);
-                bool isPointLight = scene->GetLightManager()->HasPointLight(entity);
+                const bool isDirLight   = scene->GetLightManager()->HasDirectionalLight(entity);
+                const bool isPointLight = scene->GetLightManager()->HasPointLight(entity);
                 core_Assert(!(isDirLight && isPointLight));
-                if (isDirLight || isPointLight) {
-                    math_Vec3 plightPos;
-                    if (scene->GetTransformManager()->HasTransform(entity)) {
-                        auto tid = scene->GetTransformManager()->GetTransformId(entity);
-                        plightPos += scene->GetTransformManager()->GetWorldPosition(tid);
+                const bool isCamera = scene->GetCameraManager()->HasCamera(entity);
+                if (isDirLight || isPointLight || isCamera) {
+                    const auto      tid      = scene->GetTransformManager()->GetTransformId(entity);
+                    const math_Vec3 worldPos = scene->GetTransformManager()->GetWorldPosition(tid);
+                    gfx_DebugDraw_Billboard(worldPos, math_Vec2(2, 2), isCamera ? m_icons.camera : m_icons.pointLight);
+                    if (isCamera && entity == m_selectedEntity) {
+                        // Draw frustum
+                        float fov, aspect, nearClip, farClip;
+                        scene->GetCameraManager()->GetPerspectiveFov(entity, &fov, &aspect, &nearClip, &farClip);
+
+                        const math_Vec3 camRight   = scene->GetTransformManager()->GetLocalRight(tid);
+                        const math_Vec3 camUp      = scene->GetTransformManager()->GetLocalUp(tid);
+                        const math_Vec3 camForward = scene->GetTransformManager()->GetLocalForward(tid);
+
+                        const float hh = tanf(math_RadToDeg(fov) / 2) * nearClip;
+                        const float hw = hh * aspect;
+
+                        const math_Vec3 nw = math_Normalize(-hw * camRight + hh * camUp + camForward);
+                        const math_Vec3 ne = math_Normalize(hw * camRight + hh * camUp + camForward);
+                        const math_Vec3 se = math_Normalize(hw * camRight - hh * camUp + camForward);
+                        const math_Vec3 sw = math_Normalize(-hw * camRight - hh * camUp + camForward);
+
+                        // The edges
+                        {
+                            gfx_DebugDraw_Line(worldPos, worldPos + nw * farClip);
+                            gfx_DebugDraw_Line(worldPos, worldPos + ne * farClip);
+                            gfx_DebugDraw_Line(worldPos, worldPos + se * farClip);
+                            gfx_DebugDraw_Line(worldPos, worldPos + sw * farClip);
+                        }
+
+                        // Near rect
+                        {
+                            const math_Vec3 nearNW = nw * nearClip;
+                            const math_Vec3 nearNE = ne * nearClip;
+                            const math_Vec3 nearSE = se * nearClip;
+                            const math_Vec3 nearSW = sw * nearClip;
+
+                            gfx_DebugDraw_Line(worldPos + nearNW, worldPos + nearNE);
+                            gfx_DebugDraw_Line(worldPos + nearNW, worldPos + nearSW);
+                            gfx_DebugDraw_Line(worldPos + nearSE, worldPos + nearSW);
+                            gfx_DebugDraw_Line(worldPos + nearSE, worldPos + nearNE);
+                        }
+
+                        // Far rect
+                        {
+                            const math_Vec3 farNW = nw * farClip;
+                            const math_Vec3 farNE = ne * farClip;
+                            const math_Vec3 farSE = se * farClip;
+                            const math_Vec3 farSW = sw * farClip;
+
+                            gfx_DebugDraw_Line(worldPos + farNW, worldPos + farNE);
+                            gfx_DebugDraw_Line(worldPos + farNW, worldPos + farSW);
+                            gfx_DebugDraw_Line(worldPos + farSE, worldPos + farSW);
+                            gfx_DebugDraw_Line(worldPos + farSE, worldPos + farNE);
+                        }
                     }
-                    gfx_DebugDraw_Billboard(plightPos, math_Vec2(2, 2), m_icons.pointLight);
                 }
             }
         }
@@ -460,6 +546,9 @@ namespace pge
             if (m_world->GetLightManager()->HasDirectionalLight(m_selectedEntity) || m_world->GetLightManager()->HasPointLight(m_selectedEntity)) {
                 edit_TransformEditor(m_world->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
                 edit_LightEditor(m_world->GetLightManager()).UpdateAndDraw(m_selectedEntity);
+            } else if (m_world->GetCameraManager()->HasCamera(m_selectedEntity)) {
+                edit_TransformEditor(m_world->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
+                edit_CameraEditor(m_world->GetCameraManager(), m_graphicsAdapter, m_world.get()).UpdateAndDraw(m_selectedEntity);
             } else {
                 for (auto& compEditor : m_componentEditors) {
                     compEditor->UpdateAndDraw(m_selectedEntity);
@@ -658,13 +747,12 @@ namespace pge
         light.strength  = 1;
         light.direction = math_Vec3(-1, 0, -1);
 
-        game_Camera camera;
-        camera.SetPerspectiveFov(math_DegToRad(60.0f), PREVIEW_RESOLUTION.x / PREVIEW_RESOLUTION.y, 0.01f, 100.0f);
-        const float meshSize = math_Length(mesh->GetAABB().max - mesh->GetAABB().min);
-        camera.SetLookAt(math_Vec3(1, 1, 1.5f) * meshSize, math_Vec3::Zero());
+        const float       meshSize   = math_Length(mesh->GetAABB().max - mesh->GetAABB().min);
+        const math_Mat4x4 cameraView = math_LookAt(math_Vec3(1, 1, 1.5f) * meshSize, math_Vec3::Zero());
+        const math_Mat4x4 cameraProj = math_PerspectiveFovRH(math_DegToRad(60.0f), PREVIEW_RESOLUTION.x / PREVIEW_RESOLUTION.y, 0.01f, 100.0f);
 
         game_Renderer renderer(m_graphicsAdapter, m_graphicsDevice);
-        renderer.SetCamera(&camera);
+        renderer.SetCamera(cameraView, cameraProj);
         renderer.SetDirectionalLight(0, light);
 
         m_previewRT.Bind();

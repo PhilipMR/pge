@@ -3,6 +3,7 @@
 
 #include "math_mat4x4.h"
 #include "math_aabb.h"
+#include "math_rect.h"
 #include <limits>
 
 namespace pge
@@ -26,7 +27,7 @@ namespace pge
         if (math_LengthSquared(ray.direction) == 0)
             return false;
 
-        int  sign[3] = {};
+        int       sign[3] = {};
         math_Vec3 invdir{1.0f / ray.direction.x, 1.0f / ray.direction.y, 1.0f / ray.direction.z};
         sign[0] = (invdir.x < 0);
         sign[1] = (invdir.y < 0);
@@ -79,6 +80,40 @@ namespace pge
         math_Vec3 tmp    = math_Raycast_Unproject(math_Vec3(pixel.x, windowSize.y - pixel.y, 1.0f), windowSize, viewProjInv);
         math_Vec3 dir    = math_Normalize(origin - tmp);
         return math_Ray(origin, dir);
+    }
+
+    inline bool
+    math_Raycast_IntersectsViewRect(const math_Vec3&   worldPos,
+                                    const math_Vec2&   rectSize,
+                                    const math_Vec2&   hoverPosNorm,
+                                    const math_Mat4x4& viewMatrix,
+                                    const math_Mat4x4& projMatrix)
+    {
+        math_Vec4 viewPos = viewMatrix * math_Vec4(worldPos, 1);
+
+        math_Vec4 screenPos = projMatrix * viewPos;
+        math_Vec2 screenPosXY(screenPos.x / screenPos.w, -screenPos.y / screenPos.w);
+        // Map from [-1,1] to [0,1] to match hoverPosNorm
+        screenPosXY += math_Vec2::One();
+        screenPosXY /= 2;
+
+        const math_Vec2 hsize      = rectSize / 2;
+        math_Vec4       topLeft    = projMatrix * (viewPos + math_Vec4(-hsize.x, -hsize.y, 0, 0));
+        math_Vec4       topLeftHom = topLeft / topLeft.w;
+        topLeftHom += math_Vec4::One();
+        topLeftHom /= 2;
+
+        math_Vec4 botRight    = projMatrix * (viewPos + math_Vec4(hsize.x, hsize.y, 0, 0));
+        math_Vec4 botRightHom = botRight / botRight.w;
+        botRightHom += math_Vec4::One();
+        botRightHom /= 2;
+
+        math_Vec2 screenRectSize(botRightHom.x - topLeftHom.x, botRightHom.y - topLeftHom.y);
+        math_Vec2 hscreenRectSize = screenRectSize / 2;
+        math_Vec2 screenRectPos   = screenPosXY - hscreenRectSize;
+        math_Rect billboard(screenRectPos, screenRectSize);
+
+        return billboard.Intersects(math_Vec2(hoverPosNorm.x, hoverPosNorm.y));
     }
 } // namespace pge
 

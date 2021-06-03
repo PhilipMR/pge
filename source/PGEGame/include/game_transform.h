@@ -48,15 +48,21 @@ namespace pge
         void Rotate(const game_TransformId& id, const math_Vec3& axis, float degrees);
         void Scale(const game_TransformId& id, const math_Vec3& scale);
 
+        void SetLocal(const game_TransformId& id, const math_Vec3& position, const math_Quat& rotation, const math_Vec3& scale);
         void SetLocalPosition(const game_TransformId& id, const math_Vec3& position);
         void SetLocalRotation(const game_TransformId& id, const math_Quat& rotation);
         void SetLocalScale(const game_TransformId& id, const math_Vec3& scale);
         void SetLocalForward(const game_TransformId& id, const math_Vec3& forward, const math_Vec3& up);
+        void SetLocalLookAt(const game_TransformId& id, const math_Vec3& position, const math_Vec3& target, const math_Vec3& up);
 
+
+        math_Mat4x4 GetLocal(const game_TransformId& id) const;
         math_Vec3   GetLocalPosition(const game_TransformId& id) const;
         math_Quat   GetLocalRotation(const game_TransformId& id) const;
         math_Vec3   GetLocalScale(const game_TransformId& id) const;
-        math_Mat4x4 GetLocal(const game_TransformId& id) const;
+        math_Vec3   GetLocalRight(const game_TransformId& id) const;
+        math_Vec3   GetLocalUp(const game_TransformId& id) const;
+        math_Vec3   GetLocalForward(const game_TransformId& id) const;
 
         math_Vec3   GetWorldPosition(const game_TransformId& id) const;
         math_Quat   GetWorldRotation(const game_TransformId& id) const;

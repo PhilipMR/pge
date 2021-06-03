@@ -25,7 +25,7 @@ namespace pge
         game_LightManager          m_lightManager;
         game_ScriptManager         m_scriptManager;
         game_BehaviourManager      m_behaviourManager;
-        game_Camera                m_camera;
+        game_CameraManager         m_cameraManager;
         game_Renderer              m_renderer;
 
     public:
@@ -42,6 +42,7 @@ namespace pge
         game_LightManager*          GetLightManager();
         game_ScriptManager*         GetScriptManager();
         game_BehaviourManager*      GetBehaviourManager();
+        game_CameraManager*         GetCameraManager();
 
         const game_EntityManager*         GetEntityManager() const;
         const game_EntityMetaDataManager* GetEntityMetaDataManager() const;
@@ -51,19 +52,8 @@ namespace pge
         const game_LightManager*          GetLightManager() const;
         const game_ScriptManager*         GetScriptManager() const;
         const game_BehaviourManager*      GetBehaviourManager() const;
+        const game_CameraManager*         GetCameraManager() const;
 
-
-        inline game_Camera*
-        GetCamera()
-        {
-            return &m_camera;
-        }
-
-        inline const game_Camera*
-        GetCamera() const
-        {
-            return &m_camera;
-        }
 
         game_SerializedEntity SerializeEntity(const game_Entity& entity);
         void                  InsertSerializedEntity(const game_SerializedEntity& sentity, const game_Entity& entity);
