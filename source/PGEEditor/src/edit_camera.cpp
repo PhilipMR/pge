@@ -32,6 +32,7 @@ namespace pge
         }
 
         // Push render target
+        const auto* prevRT = gfx_RenderTarget_GetActiveRTV();
         m_camPreviewRT.Bind();
         m_camPreviewRT.Clear();
 
@@ -46,7 +47,11 @@ namespace pge
         m_cameraManager->Activate(prevCamera);
 
         // Pop render target
-        gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
+        if (prevRT == nullptr) {
+             gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
+        } else {
+            prevRT->Bind();
+        }
 
         auto previewTex = reinterpret_cast<ImTextureID>(m_camPreviewRT.GetNativeTexture());
         ImGui::Image(previewTex, ImVec2(m_camPreviewRT.GetWidth(), m_camPreviewRT.GetHeight()));

@@ -97,6 +97,7 @@ namespace pge
         }
     }
 
+    static const gfx_RenderTarget* s_activeTarget = nullptr;
     void
     gfx_RenderTarget::Bind() const
     {
@@ -107,6 +108,7 @@ namespace pge
         viewport.MaxDepth       = 1.0f;
         m_impl->m_deviceContext->RSSetViewports(1, &viewport);
         m_impl->m_deviceContext->OMSetRenderTargets(1, &m_impl->m_rtv, m_impl->m_dsv);
+        s_activeTarget = this;
     }
 
     void
@@ -133,9 +135,16 @@ namespace pge
         return m_impl->m_height;
     }
 
+    const gfx_RenderTarget*
+    gfx_RenderTarget_GetActiveRTV()
+    {
+        return s_activeTarget;
+    }
+
     void
     gfx_RenderTarget_BindMainRTV(gfx_GraphicsAdapter* graphicsAdapter)
     {
+        s_activeTarget                               = nullptr;
         auto                    graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
         ID3D11RenderTargetView* rtv                  = graphicsAdapterD3D11->GetMainRTV();
         ID3D11DepthStencilView* dsv                  = graphicsAdapterD3D11->GetDepthStencil();

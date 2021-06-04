@@ -1,9 +1,7 @@
 #include "../include/edit_editor.h"
 
 #include "../include/edit_mesh.h"
-#include "../include/edit_light.h"
 #include "../include/edit_script.h"
-#include "../include/edit_camera.h"
 #include <anim_skeleton.h>
 #include <input_mouse.h>
 #include <input_keyboard.h>
@@ -36,6 +34,9 @@ namespace pge
         , m_drawGrid(true)
         , m_drawGizmos(true)
         , m_gameWindowSize(1600, 900)
+        , m_transformEditor(m_world->GetTransformManager())
+        , m_lightEditor(m_world->GetLightManager())
+        , m_cameraEditor(m_world->GetCameraManager(), m_graphicsAdapter, m_world.get())
         , m_previewRT(graphicsAdapter, PREVIEW_RESOLUTION.x, PREVIEW_RESOLUTION.y, true, false)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
@@ -91,7 +92,6 @@ namespace pge
         } else {
             m_world->GetCameraManager()->UpdateFPS(m_editCamera);
         }
-        bool ishovering = DrawGameView(target);
         DrawLog();
         if (m_editMode == EDITOR_MODE_EDIT) {
             DrawGizmos();
@@ -99,6 +99,7 @@ namespace pge
             DrawInspector();
             DrawResources();
         }
+        bool ishovering = DrawGameView(target);
 
         edit_EndFrame();
         return ishovering;
@@ -544,11 +545,11 @@ namespace pge
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
             if (m_world->GetLightManager()->HasDirectionalLight(m_selectedEntity) || m_world->GetLightManager()->HasPointLight(m_selectedEntity)) {
-                edit_TransformEditor(m_world->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
-                edit_LightEditor(m_world->GetLightManager()).UpdateAndDraw(m_selectedEntity);
+                m_transformEditor.UpdateAndDraw(m_selectedEntity);
+                m_lightEditor.UpdateAndDraw(m_selectedEntity);
             } else if (m_world->GetCameraManager()->HasCamera(m_selectedEntity)) {
-                edit_TransformEditor(m_world->GetTransformManager()).UpdateAndDraw(m_selectedEntity);
-                edit_CameraEditor(m_world->GetCameraManager(), m_graphicsAdapter, m_world.get()).UpdateAndDraw(m_selectedEntity);
+                m_transformEditor.UpdateAndDraw(m_selectedEntity);
+                m_cameraEditor.UpdateAndDraw(m_selectedEntity);
             } else {
                 for (auto& compEditor : m_componentEditors) {
                     compEditor->UpdateAndDraw(m_selectedEntity);

@@ -3,13 +3,17 @@
 
 #include "edit_transform.h"
 #include "edit_entity.h"
-#include <math_vec2.h>
+#include "edit_camera.h"
+#include "edit_light.h"
+
 #include <gfx_render_target.h>
+#include <math_vec2.h>
 #include <game_light.h>
 #include <game_world.h>
+
+#include <imgui/imgui.h>
 #include <memory>
 #include <vector>
-#include <imgui/imgui.h>
 
 namespace pge
 {
@@ -56,6 +60,8 @@ namespace pge
         math_Vec2         m_gameWindowPos;
         math_Vec2         m_gameWindowSize;
         edit_CommandStack m_commandStack;
+
+
 
         game_Entity m_editCamera;
 

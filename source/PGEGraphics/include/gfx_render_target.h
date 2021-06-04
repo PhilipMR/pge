@@ -22,8 +22,9 @@ namespace pge
         unsigned GetHeight() const;
     };
 
-    void gfx_RenderTarget_BindMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
-    void gfx_RenderTarget_ClearMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
+    const gfx_RenderTarget* gfx_RenderTarget_GetActiveRTV();
+    void                    gfx_RenderTarget_BindMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
+    void                    gfx_RenderTarget_ClearMainRTV(gfx_GraphicsAdapter* graphicsAdapter);
 } // namespace pge
 
 #endif
