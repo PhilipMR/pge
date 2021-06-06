@@ -160,7 +160,7 @@ See: [Frequently Asked Questions (FAQ)](https://github.com/ocornut/imgui/blob/ma
 
 See: [Wiki](https://github.com/ocornut/imgui/wiki) for many links, references, articles.
 
-See: [Articles about the IMGUI paradigm](https://github.com/ocornut/imgui/wiki#about-the-imgui-paradigm) to read/learn about the Immediate Mode GUI paradigm.
+See: [Articles about the IMGUI paradigm](https://github.com/ocornut/imgui/wiki#about-the-imgui-paradigm) to read/learn about the Immediate OpMode GUI paradigm.
 
 If you are new to Dear ImGui and have issues with: compiling, linking, adding fonts, wiring inputs, running or displaying Dear ImGui: you can use [Discord server](http://discord.dearimgui.org).
 

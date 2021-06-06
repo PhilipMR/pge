@@ -61,7 +61,9 @@ namespace pge
         math_Vec2         m_gameWindowSize;
         edit_CommandStack m_commandStack;
 
-
+        edit_TransformEditor* m_transformEditor;
+        edit_LightEditor      m_lightEditor;
+        edit_CameraEditor     m_cameraEditor;
 
         game_Entity m_editCamera;
 

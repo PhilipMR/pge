@@ -23,10 +23,22 @@ namespace pge
         m_cameraManager->GetPerspectiveFov(entity, &fov, &aspect, &nearClip, &farClip);
         fov          = math_RadToDeg(fov);
         bool changed = false;
-        changed |= ImGui::DragFloat("FoV", &fov, 1.0f, 60.0f, 120.0f);
-        changed |= ImGui::DragFloat("Aspect", &aspect, 0.1f, (4.0f / 3.0f), (16.0f / 9.0f));
-        changed |= ImGui::DragFloat("Near-clip", &nearClip, 0.01f, 0.01f, farClip);
-        changed |= ImGui::DragFloat("Far-clip", &farClip, 0.01f, nearClip);
+
+
+        struct DragFloatConfig {
+            float speed;
+            float min;
+            float max;
+        };
+        constexpr DragFloatConfig    DRAG_FOV{1.0f, 0, 0};
+        constexpr DragFloatConfig    DRAG_ASPECT{0.1f, 4.0f / 3.0f, 16.0f / 9.0f};
+        static const DragFloatConfig DRAG_NEAR_CLIP{0.1f, 0.1f, farClip};
+        static const DragFloatConfig DRAG_FAR_CLIP{0.1f, nearClip, 0};
+
+        changed |= ImGui::DragFloat("FoV", &fov, DRAG_FOV.speed, DRAG_FOV.min, DRAG_FOV.max);
+        changed |= ImGui::DragFloat("Aspect", &aspect, DRAG_ASPECT.speed, DRAG_ASPECT.min, DRAG_ASPECT.max);
+        changed |= ImGui::DragFloat("Near-clip", &nearClip, DRAG_NEAR_CLIP.speed, DRAG_NEAR_CLIP.min, DRAG_NEAR_CLIP.max);
+        changed |= ImGui::DragFloat("Far-clip", &farClip, DRAG_FAR_CLIP.speed, DRAG_FAR_CLIP.min, DRAG_FAR_CLIP.max);
         if (changed) {
             m_cameraManager->SetPerspectiveFov(entity, math_DegToRad(fov), aspect, nearClip, farClip);
         }
@@ -48,7 +60,7 @@ namespace pge
 
         // Pop render target
         if (prevRT == nullptr) {
-             gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
+            gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
         } else {
             prevRT->Bind();
         }

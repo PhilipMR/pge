@@ -193,6 +193,7 @@ main()
             rtGame.Bind();
             rtGame.Clear();
             world.Draw();
+            gfx_DebugDraw_Flush();
 
             // Redraw screen to intermediate texture (additional multisampling)
             gfx_Texture2D_Unbind(&graphicsAdapter, 0);

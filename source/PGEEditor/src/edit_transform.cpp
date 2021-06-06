@@ -253,8 +253,8 @@ namespace pge
         size_t    numAxisVecs = 0;
         GetAxisVectors(axis, axisVecs, &numAxisVecs);
         for (size_t i = 0; i < numAxisVecs; ++i) {
-            math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
-            auto      taxlen = math_Length(taxis);
+            math_Vec4 taxis    = viewProj * math_Vec4(axisVecs[i], 0);
+            auto      taxlen   = math_Length(taxis);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             pos += stepSize * axisVecs[i];
@@ -279,8 +279,8 @@ namespace pge
         size_t    numAxisVecs = 0;
         GetAxisVectors(axis, axisVecs, &numAxisVecs);
         for (size_t i = 0; i < numAxisVecs; ++i) {
-            math_Vec4 taxis  = viewProj * math_Vec4(axisVecs[i], 0);
-            auto      taxlen = math_Length(taxis);
+            math_Vec4 taxis    = viewProj * math_Vec4(axisVecs[i], 0);
+            auto      taxlen   = math_Length(taxis);
             math_Vec2 axisDir  = math_Normalize(math_Vec2(taxis.x, taxis.y));
             float     stepSize = deltaMag * math_Dot(axisDir, deltaDir) * taxlen * 0.03f;
             scl += stepSize * axisVecs[i];
@@ -319,7 +319,8 @@ namespace pge
     }
 
     edit_TransformGizmo::edit_TransformGizmo(game_TransformManager* tm, edit_CommandStack* cstack)
-        : m_mode(MODE_NONE)
+        : m_opMode(OPMODE_NONE)
+        , m_relMode(RELMODE_WORLD)
         , m_tmanager(tm)
         , m_cstack(cstack)
         , m_axis(edit_Axis::NONE)
@@ -330,7 +331,7 @@ namespace pge
     bool
     edit_TransformGizmo::IsVisible() const
     {
-        return m_mode != MODE_NONE && m_entity != game_EntityId_Invalid;
+        return m_opMode != OPMODE_NONE && m_entity != game_EntityId_Invalid;
     }
 
     bool
@@ -340,11 +341,12 @@ namespace pge
     }
 
     void
-    edit_TransformGizmo::Begin(const Mode& mode, const game_Entity& entity)
+    edit_TransformGizmo::Begin(const OpMode& opMode, const RelMode& relMode, const game_Entity& entity)
     {
         core_Assert(!HasBegun());
-        m_mode   = mode;
-        m_entity = entity;
+        m_opMode  = opMode;
+        m_relMode = relMode;
+        m_entity  = entity;
 
         auto tid           = m_tmanager->GetTransformId(m_entity);
         m_initial.position = m_tmanager->GetLocalPosition(tid);
@@ -363,7 +365,7 @@ namespace pge
         m_tmanager->SetLocalScale(tid, m_initial.scale);
         m_tmanager->SetLocalRotation(tid, m_initial.rotation);
 
-        m_mode   = MODE_NONE;
+        m_opMode = OPMODE_NONE;
         m_entity = game_EntityId_Invalid;
     }
 
@@ -372,25 +374,26 @@ namespace pge
     edit_TransformGizmo::Complete()
     {
         core_Assert(HasBegun());
-        core_Assert(m_mode != MODE_NONE);
+        core_Assert(m_opMode != OPMODE_NONE);
+
         auto tid = m_tmanager->GetTransformId(m_entity);
-        switch (m_mode) {
-            case MODE_TRANSLATE: {
+        switch (m_opMode) {
+            case OPMODE_TRANSLATE: {
                 m_cstack->Add(edit_CommandTranslate::Create(m_entity, m_tmanager->GetLocalPosition(tid) - m_initial.position, m_tmanager));
             } break;
-            case MODE_SCALE: {
+            case OPMODE_SCALE: {
                 math_Vec3 localScl = m_tmanager->GetLocalScale(tid);
                 math_Vec3 scl;
                 for (size_t i = 0; i < 3; ++i)
                     scl[i] = localScl[i] / m_initial.scale[i];
                 m_cstack->Add(edit_CommandScale::Create(m_entity, scl, m_tmanager));
             }; break;
-            case MODE_ROTATE: {
+            case OPMODE_ROTATE: {
                 m_cstack->Add(edit_CommandSetRotation::Create(m_entity, m_initial.rotation, m_tmanager->GetLocalRotation(tid), m_tmanager));
             } break;
         }
 
-        m_mode   = MODE_NONE;
+        m_opMode = OPMODE_NONE;
         m_entity = game_EntityId_Invalid;
     }
 
@@ -410,35 +413,43 @@ namespace pge
         }
 
         // Handle mode transition
-        if (m_mode != MODE_TRANSLATE) {
-            if (input_KeyboardPressed(input_KeyboardKey::G)) {
-                Cancel();
-                Begin(MODE_TRANSLATE, entity);
-                m_axis = edit_Axis::NONE;
+        if (input_KeyboardPressed(input_KeyboardKey::G)) {
+            // If already in operation, 'G' toggles relative mode
+            if (m_opMode == OPMODE_TRANSLATE) {
+                m_relMode = m_relMode != RELMODE_LOCAL ? RELMODE_LOCAL : RELMODE_WORLD;
             }
+            Cancel();
+            Begin(OPMODE_TRANSLATE, m_relMode, entity);
+            m_axis = edit_Axis::NONE;
         }
-        if (m_mode != MODE_SCALE) {
-            if (input_KeyboardPressed(input_KeyboardKey::S) && !input_MouseButtonDown(input_MouseButton::RIGHT)) {
-                Cancel();
-                Begin(MODE_SCALE, entity);
-                m_axis = edit_Axis::NONE;
+
+        if (input_KeyboardPressed(input_KeyboardKey::S) && !input_MouseButtonDown(input_MouseButton::RIGHT)) {
+            // If already in operation, 'S' toggles relative mode
+            if (m_opMode == OPMODE_SCALE) {
+                m_relMode = m_relMode != RELMODE_LOCAL ? RELMODE_LOCAL : RELMODE_WORLD;
             }
+            Cancel();
+            Begin(OPMODE_SCALE, m_relMode, entity);
+            m_axis = edit_Axis::NONE;
         }
-        if (m_mode != MODE_ROTATE) {
-            if (input_KeyboardPressed(input_KeyboardKey::R)) {
-                Cancel();
-                Begin(MODE_ROTATE, entity);
-                m_axis = edit_Axis::NONE;
+
+        if (input_KeyboardPressed(input_KeyboardKey::R)) {
+            // If already in operation, 'R' toggles relative mode
+            if (m_opMode == OPMODE_ROTATE) {
+                m_relMode = m_relMode != RELMODE_LOCAL ? RELMODE_LOCAL : RELMODE_WORLD;
             }
+            Cancel();
+            Begin(OPMODE_ROTATE, m_relMode, entity);
+            m_axis = edit_Axis::NONE;
         }
 
 
         // Update and draw gizmo
-        if (m_mode != MODE_NONE) {
+        if (m_opMode != OPMODE_NONE) {
             game_TransformId          tid = m_tmanager->GetTransformId(entity);
             const ImGuizmo::OPERATION guizmoOp
-                = (m_mode == MODE_TRANSLATE) ? (ImGuizmo::TRANSLATE) : (m_mode == MODE_ROTATE ? (ImGuizmo::ROTATE) : (ImGuizmo::SCALE));
-            const ImGuizmo::MODE guizmoMode = ImGuizmo::WORLD;
+                = (m_opMode == OPMODE_TRANSLATE) ? (ImGuizmo::TRANSLATE) : (m_opMode == OPMODE_ROTATE ? (ImGuizmo::ROTATE) : (ImGuizmo::SCALE));
+            const ImGuizmo::MODE guizmoMode = m_relMode == RELMODE_LOCAL ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
             math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
             const math_Mat4x4 viewT  = math_Transpose(view);
@@ -454,9 +465,9 @@ namespace pge
                 m_tmanager->SetLocalScale(tid, newScale);
             } else {
                 if (m_isManipulating) {
-                    edit_TransformGizmo::Mode mode = m_mode;
+                    const OpMode opMode = m_opMode;
                     Complete();
-                    Begin(mode, entity);
+                    Begin(opMode, m_relMode, entity);
                     m_isManipulating = false;
                 }
                 if (HasBegun()) {
@@ -464,14 +475,14 @@ namespace pge
                     DrawAxis(m_tmanager, entity, m_axis);
                     const math_Mat4x4 viewProj = proj * view;
                     const math_Vec2   delta    = input_MouseDelta();
-                    switch (m_mode) {
-                        case MODE_TRANSLATE: {
+                    switch (m_opMode) {
+                        case OPMODE_TRANSLATE: {
                             TranslateEntity(m_tmanager, entity, m_axis, viewProj, delta);
                         } break;
-                        case MODE_ROTATE: {
+                        case OPMODE_ROTATE: {
                             RotateEntity(m_tmanager, entity, m_axis, viewProj, delta);
                         } break;
-                        case MODE_SCALE: {
+                        case OPMODE_SCALE: {
                             ScaleEntity(m_tmanager, entity, m_axis, viewProj, delta);
                         } break;
                     }

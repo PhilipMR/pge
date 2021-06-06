@@ -71,13 +71,20 @@ namespace pge
     };
 
     class edit_TransformGizmo {
-        enum Mode
+        enum OpMode
         {
-            MODE_NONE,
-            MODE_TRANSLATE,
-            MODE_ROTATE,
-            MODE_SCALE
-        } m_mode;
+            OPMODE_NONE,
+            OPMODE_TRANSLATE,
+            OPMODE_ROTATE,
+            OPMODE_SCALE
+        } m_opMode;
+
+        enum RelMode
+        {
+            RELMODE_WORLD,
+            RELMODE_LOCAL
+        } m_relMode;
+
         game_TransformManager* m_tmanager;
         edit_CommandStack*     m_cstack;
         edit_Axis              m_axis;
@@ -91,7 +98,7 @@ namespace pge
         game_Entity m_entity;
 
         bool HasBegun() const;
-        void Begin(const Mode& mode, const game_Entity& entity);
+        void Begin(const OpMode& opMode, const RelMode& relMode, const game_Entity& entity);
         void Cancel();
         void Complete();
 

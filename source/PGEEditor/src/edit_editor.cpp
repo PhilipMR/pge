@@ -34,13 +34,13 @@ namespace pge
         , m_drawGrid(true)
         , m_drawGizmos(true)
         , m_gameWindowSize(1600, 900)
-        , m_transformEditor(m_world->GetTransformManager())
         , m_lightEditor(m_world->GetLightManager())
         , m_cameraEditor(m_world->GetCameraManager(), m_graphicsAdapter, m_world.get())
         , m_previewRT(graphicsAdapter, PREVIEW_RESOLUTION.x, PREVIEW_RESOLUTION.y, true, false)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_world->GetTransformManager())));
+        m_transformEditor = static_cast<edit_TransformEditor*>(m_componentEditors.back().get());
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_world->GetStaticMeshManager(), resources)));
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_ScriptEditor(m_world->GetScriptManager())));
 
@@ -232,7 +232,7 @@ namespace pge
                         const math_Vec3 camUp      = scene->GetTransformManager()->GetLocalUp(tid);
                         const math_Vec3 camForward = scene->GetTransformManager()->GetLocalForward(tid);
 
-                        const float hh = tanf(math_RadToDeg(fov) / 2) * nearClip;
+                        const float hh = tanf(fov / 2);
                         const float hw = hh * aspect;
 
                         const math_Vec3 nw = math_Normalize(-hw * camRight + hh * camUp + camForward);
@@ -545,10 +545,10 @@ namespace pge
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
         if (m_selectedEntity.id != game_EntityId_Invalid) {
             if (m_world->GetLightManager()->HasDirectionalLight(m_selectedEntity) || m_world->GetLightManager()->HasPointLight(m_selectedEntity)) {
-                m_transformEditor.UpdateAndDraw(m_selectedEntity);
+                m_transformEditor->UpdateAndDraw(m_selectedEntity);
                 m_lightEditor.UpdateAndDraw(m_selectedEntity);
             } else if (m_world->GetCameraManager()->HasCamera(m_selectedEntity)) {
-                m_transformEditor.UpdateAndDraw(m_selectedEntity);
+                m_transformEditor->UpdateAndDraw(m_selectedEntity);
                 m_cameraEditor.UpdateAndDraw(m_selectedEntity);
             } else {
                 for (auto& compEditor : m_componentEditors) {

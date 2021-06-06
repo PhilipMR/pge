@@ -47,7 +47,6 @@ namespace pge
 
         gfx_DebugDraw_SetView(cameraView);
         gfx_DebugDraw_SetProjection(cameraProj);
-        gfx_DebugDraw_Flush();
     }
 
     game_EntityManager*
