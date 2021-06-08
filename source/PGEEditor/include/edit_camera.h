@@ -2,6 +2,7 @@
 #define PGE_EDITOR_EDIT_CAMERA_H
 
 #include "edit_component.h"
+#include "edit_command.h"
 #include <game_camera.h>
 #include <game_world.h>
 #include <gfx_render_target.h>
@@ -17,6 +18,19 @@ namespace pge
     public:
         edit_CameraEditor(game_CameraManager* cm, gfx_GraphicsAdapter* graphicsAdapter, game_World* world);
         virtual void UpdateAndDraw(const game_Entity& entity) override;
+    };
+
+    class edit_CommandCreateCamera : public edit_Command {
+        game_World*           m_world;
+        game_Entity           m_createdEntity;
+        game_SerializedEntity m_sentity;
+
+    public:
+        edit_CommandCreateCamera(game_World* world);
+
+        virtual void                         Do() override;
+        virtual void                         Undo() override;
+        static std::unique_ptr<edit_Command> Create(game_World* world);
     };
 } // namespace pge
 

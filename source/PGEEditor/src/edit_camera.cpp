@@ -2,9 +2,13 @@
 
 #include <core_assert.h>
 #include <imgui/imgui.h>
+#include <sstream>
 
 namespace pge
 {
+    // =========================================
+    // edit_CameraEditor
+    // =========================================
     edit_CameraEditor::edit_CameraEditor(game_CameraManager* cm, gfx_GraphicsAdapter* graphicsAdapter, game_World* world)
         : m_cameraManager(cm)
         , m_graphicsAdapter(graphicsAdapter)
@@ -32,8 +36,8 @@ namespace pge
         };
         constexpr DragFloatConfig    DRAG_FOV{1.0f, 0, 0};
         constexpr DragFloatConfig    DRAG_ASPECT{0.1f, 4.0f / 3.0f, 16.0f / 9.0f};
-        static const DragFloatConfig DRAG_NEAR_CLIP{0.1f, 0.1f, farClip};
-        static const DragFloatConfig DRAG_FAR_CLIP{0.1f, nearClip, 0};
+        static const DragFloatConfig DRAG_NEAR_CLIP{0.1f, 0.1f, 10.0f};
+        static const DragFloatConfig DRAG_FAR_CLIP{0.1f, 10.0f, 1000.0f};
 
         changed |= ImGui::DragFloat("FoV", &fov, DRAG_FOV.speed, DRAG_FOV.min, DRAG_FOV.max);
         changed |= ImGui::DragFloat("Aspect", &aspect, DRAG_ASPECT.speed, DRAG_ASPECT.min, DRAG_ASPECT.max);
@@ -67,5 +71,49 @@ namespace pge
 
         auto previewTex = reinterpret_cast<ImTextureID>(m_camPreviewRT.GetNativeTexture());
         ImGui::Image(previewTex, ImVec2(m_camPreviewRT.GetWidth(), m_camPreviewRT.GetHeight()));
+    }
+
+
+    // =========================================
+    // edit_CommandCreateCamera
+    // =========================================
+    edit_CommandCreateCamera::edit_CommandCreateCamera(game_World* world)
+        : m_world(world)
+        , m_createdEntity(game_EntityId_Invalid)
+    {}
+
+    void
+    edit_CommandCreateCamera::Do()
+    {
+        if (m_createdEntity != game_EntityId_Invalid) {
+            core_Assert(!m_world->GetEntityManager()->IsEntityAlive(m_createdEntity));
+            m_world->GetEntityManager()->CreateEntity(m_createdEntity);
+            m_world->InsertSerializedEntity(m_sentity, m_createdEntity);
+        } else {
+            m_createdEntity = m_world->GetEntityManager()->CreateEntity();
+
+            game_EntityMetaData meta;
+            meta.entity = m_createdEntity;
+            std::stringstream ss;
+            ss << "Camera [" << m_createdEntity.id << "]";
+            strcpy_s(meta.name, ss.str().c_str());
+            m_world->GetEntityMetaDataManager()->CreateMetaData(m_createdEntity, meta);
+
+            m_world->GetCameraManager()->CreateCamera(m_createdEntity);
+        }
+    }
+
+    void
+    edit_CommandCreateCamera::Undo()
+    {
+        core_Assert(m_createdEntity != game_EntityId_Invalid);
+        m_sentity = m_world->SerializeEntity(m_createdEntity);
+        m_world->GetEntityManager()->DestroyEntity(m_createdEntity);
+    }
+
+    std::unique_ptr<edit_Command>
+    edit_CommandCreateCamera::Create(game_World* world)
+    {
+        return std::unique_ptr<edit_Command>(new edit_CommandCreateCamera(world));
     }
 } // namespace pge

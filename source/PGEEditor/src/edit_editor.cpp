@@ -223,55 +223,74 @@ namespace pge
                     const auto      tid      = scene->GetTransformManager()->GetTransformId(entity);
                     const math_Vec3 worldPos = scene->GetTransformManager()->GetWorldPosition(tid);
                     gfx_DebugDraw_Billboard(worldPos, math_Vec2(2, 2), isCamera ? m_icons.camera : m_icons.pointLight);
+
+                    if (isDirLight) {
+                        auto                         lid   = scene->GetLightManager()->GetDirectionalLightId(entity);
+                        const game_DirectionalLight& light = scene->GetLightManager()->GetDirectionalLight(lid);
+                        constexpr float DIR_DRAW_LENGTH = 5.0f;
+                        const math_Vec3 lightDir = math_Normalize((scene->GetTransformManager()->GetWorld(tid) * math_Vec4(light.direction, 0)).xyz);
+                        gfx_DebugDraw_Line(worldPos, worldPos + lightDir * DIR_DRAW_LENGTH, light.color);
+                    }
+
                     if (isCamera && entity == m_selectedEntity) {
                         // Draw frustum
                         float fov, aspect, nearClip, farClip;
                         scene->GetCameraManager()->GetPerspectiveFov(entity, &fov, &aspect, &nearClip, &farClip);
 
-                        const math_Vec3 camRight   = scene->GetTransformManager()->GetLocalRight(tid);
-                        const math_Vec3 camUp      = scene->GetTransformManager()->GetLocalUp(tid);
-                        const math_Vec3 camForward = scene->GetTransformManager()->GetLocalForward(tid);
-
-                        const float hh = tanf(fov / 2);
-                        const float hw = hh * aspect;
-
-                        const math_Vec3 nw = math_Normalize(-hw * camRight + hh * camUp + camForward);
-                        const math_Vec3 ne = math_Normalize(hw * camRight + hh * camUp + camForward);
-                        const math_Vec3 se = math_Normalize(hw * camRight - hh * camUp + camForward);
-                        const math_Vec3 sw = math_Normalize(-hw * camRight - hh * camUp + camForward);
+                        const math_Vec3& camPos     = worldPos;
+                        const math_Vec3  camRight   = scene->GetTransformManager()->GetLocalRight(tid);
+                        const math_Vec3  camUp      = scene->GetTransformManager()->GetLocalUp(tid);
+                        const math_Vec3  camForward = scene->GetTransformManager()->GetLocalForward(tid);
 
                         // The edges
                         {
-                            gfx_DebugDraw_Line(worldPos, worldPos + nw * farClip);
-                            gfx_DebugDraw_Line(worldPos, worldPos + ne * farClip);
-                            gfx_DebugDraw_Line(worldPos, worldPos + se * farClip);
-                            gfx_DebugDraw_Line(worldPos, worldPos + sw * farClip);
+                            const float hh = tanf(fov / 2) * farClip;
+                            const float hw = hh * aspect;
+
+                            const math_Vec3 center = worldPos + farClip * camForward;
+                            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
+                            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
+                            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
+                            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
+
+                            gfx_DebugDraw_Line(worldPos, nw);
+                            gfx_DebugDraw_Line(worldPos, ne);
+                            gfx_DebugDraw_Line(worldPos, se);
+                            gfx_DebugDraw_Line(worldPos, sw);
                         }
 
                         // Near rect
                         {
-                            const math_Vec3 nearNW = nw * nearClip;
-                            const math_Vec3 nearNE = ne * nearClip;
-                            const math_Vec3 nearSE = se * nearClip;
-                            const math_Vec3 nearSW = sw * nearClip;
+                            const float hh = tanf(fov / 2) * nearClip;
+                            const float hw = hh * aspect;
 
-                            gfx_DebugDraw_Line(worldPos + nearNW, worldPos + nearNE);
-                            gfx_DebugDraw_Line(worldPos + nearNW, worldPos + nearSW);
-                            gfx_DebugDraw_Line(worldPos + nearSE, worldPos + nearSW);
-                            gfx_DebugDraw_Line(worldPos + nearSE, worldPos + nearNE);
+                            const math_Vec3 center = worldPos + nearClip * camForward;
+                            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
+                            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
+                            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
+                            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
+
+                            gfx_DebugDraw_Line(nw, ne);
+                            gfx_DebugDraw_Line(nw, sw);
+                            gfx_DebugDraw_Line(se, sw);
+                            gfx_DebugDraw_Line(se, ne);
                         }
 
                         // Far rect
                         {
-                            const math_Vec3 farNW = nw * farClip;
-                            const math_Vec3 farNE = ne * farClip;
-                            const math_Vec3 farSE = se * farClip;
-                            const math_Vec3 farSW = sw * farClip;
+                            const float hh = tanf(fov / 2) * farClip;
+                            const float hw = hh * aspect;
 
-                            gfx_DebugDraw_Line(worldPos + farNW, worldPos + farNE);
-                            gfx_DebugDraw_Line(worldPos + farNW, worldPos + farSW);
-                            gfx_DebugDraw_Line(worldPos + farSE, worldPos + farSW);
-                            gfx_DebugDraw_Line(worldPos + farSE, worldPos + farNE);
+                            const math_Vec3 center = worldPos + farClip * camForward;
+                            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
+                            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
+                            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
+                            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
+
+                            gfx_DebugDraw_Line(nw, ne);
+                            gfx_DebugDraw_Line(nw, sw);
+                            gfx_DebugDraw_Line(se, sw);
+                            gfx_DebugDraw_Line(se, ne);
                         }
                     }
                 }
@@ -526,6 +545,9 @@ namespace pge
         if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("WorldContextMenu")) {
             if (ImGui::Selectable("Create entity")) {
                 m_commandStack.Do(edit_CommandCreateEntity::Create(world));
+            }
+            if (ImGui::Selectable("Create camera")) {
+                m_commandStack.Do(edit_CommandCreateCamera::Create(world));
             }
             if (ImGui::Selectable("Create light (directional)")) {
                 m_commandStack.Do(edit_CommandCreateDirectionalLight::Create(world));

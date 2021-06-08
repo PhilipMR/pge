@@ -159,7 +159,6 @@ namespace pge
     }
 
 
-
     constexpr unsigned SERIALIZE_VERSION             = 1;
     constexpr size_t   SERIALIZED_ENTITY_BUFFER_SIZE = 512;
 
@@ -169,6 +168,7 @@ namespace pge
     constexpr size_t SERIALIZE_TYPE_MESH      = 3;
     constexpr size_t SERIALIZE_TYPE_LIGHT     = 4;
     constexpr size_t SERIALIZE_TYPE_SCRIPT    = 5;
+    constexpr size_t SERIALIZE_TYPE_CAMERA    = 6;
 
     game_SerializedEntity
     game_World::SerializeEntity(const game_Entity& entity)
@@ -208,6 +208,10 @@ namespace pge
         if (m_scriptManager.HasScript(entity)) {
             sentitystream.write((const char*)&SERIALIZE_TYPE_SCRIPT, sizeof(SERIALIZE_TYPE_SCRIPT));
             m_scriptManager.SerializeEntity(sentitystream, entity);
+        }
+        if (m_cameraManager.HasCamera(entity)) {
+            sentitystream.write((const char*)&SERIALIZE_TYPE_CAMERA, sizeof(SERIALIZE_TYPE_CAMERA));
+            m_cameraManager.SerializeEntity(sentitystream, entity);
         }
         sentitystream.write((const char*)&SERIALIZE_TYPE_COMPLETE, sizeof(SERIALIZE_TYPE_COMPLETE));
 
@@ -254,6 +258,9 @@ namespace pge
                 case SERIALIZE_TYPE_SCRIPT: {
                     m_scriptManager.InsertSerializedEntity(sentitystream, entity);
                 } break;
+                case SERIALIZE_TYPE_CAMERA: {
+                    m_cameraManager.InsertSerializedEntity(sentitystream, entity);
+                } break;
                 default: {
                     core_AssertWithReason(false, "Unrecognized component type (data may be corrupted)");
                 } break;
@@ -278,6 +285,7 @@ namespace pge
         os << scene.m_transformManager;
         os << scene.m_staticMeshManager;
         os << scene.m_lightManager;
+        os << scene.m_cameraManager;
         return os;
     }
 
@@ -291,6 +299,7 @@ namespace pge
         is >> scene.m_transformManager;
         is >> scene.m_staticMeshManager;
         is >> scene.m_lightManager;
+        is >> scene.m_cameraManager;
         return is;
     }
 } // namespace pge

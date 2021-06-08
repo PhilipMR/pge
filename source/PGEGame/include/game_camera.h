@@ -25,6 +25,8 @@ namespace pge
         game_CameraManager(game_TransformManager* tmanager);
 
         void CreateCamera(const game_Entity& entity);
+        void CreateCamera(const game_Entity& entity, float fov, float aspect, float nearClip, float farClip);
+
         void DestroyCamera(const game_Entity& camera);
         bool HasCamera(const game_Entity& entity) const;
         void GarbageCollect(const game_EntityManager& entityManager);
@@ -45,6 +47,12 @@ namespace pge
                                 float*             distanceOut) const;
 
         void UpdateFPS(const game_Entity& camera);
+
+        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
+        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
+
+        friend std::ostream& operator<<(std::ostream& os, const game_CameraManager& cm);
+        friend std::istream& operator>>(std::istream& is, game_CameraManager& cm);
     };
 
     //    void game_CameraManager_UpdateFPS(const game_Entity& entity, game_TransformManager* tmanager);
