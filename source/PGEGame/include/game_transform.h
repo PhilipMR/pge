@@ -60,9 +60,6 @@ namespace pge
         math_Vec3   GetLocalPosition(const game_TransformId& id) const;
         math_Quat   GetLocalRotation(const game_TransformId& id) const;
         math_Vec3   GetLocalScale(const game_TransformId& id) const;
-        math_Vec3   GetLocalRight(const game_TransformId& id) const;
-        math_Vec3   GetLocalUp(const game_TransformId& id) const;
-        math_Vec3   GetLocalForward(const game_TransformId& id) const;
 
         math_Vec3   GetWorldPosition(const game_TransformId& id) const;
         math_Quat   GetWorldRotation(const game_TransformId& id) const;

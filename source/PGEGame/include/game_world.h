@@ -33,6 +33,9 @@ namespace pge
         void Update();
         void Draw();
 
+        game_Entity
+        FindEntityAtCursor(const math_Vec2& cursor, const math_Vec2& viewSize, const math_Mat4x4& viewMat, const math_Mat4x4& projMat) const;
+
         game_EntityManager*         GetEntityManager();
         game_TransformManager*      GetTransformManager();
         game_StaticMeshManager*     GetStaticMeshManager();

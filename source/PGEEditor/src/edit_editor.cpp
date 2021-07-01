@@ -79,6 +79,9 @@ namespace pge
     bool
     edit_Editor::UpdateAndDraw()
     {
+        gfx_RenderTarget_ClearMainRTV(m_graphicsAdapter);
+        m_world->GarbageCollect();
+
         edit_BeginFrame();
 
         HandleEvents();
@@ -109,70 +112,14 @@ namespace pge
 
 
     game_Entity
-    edit_Editor::SelectEntity() const
+    edit_Editor::EntityAtCursor() const
     {
         auto*              scene      = m_world.get();
         const math_Mat4x4& viewMatrix = m_world->GetCameraManager()->GetViewMatrix(m_editCamera);
         const math_Mat4x4& projMatrix = m_world->GetCameraManager()->GetProjectionMatrix(m_editCamera);
-        const math_Mat4x4  viewProj   = projMatrix * viewMatrix;
 
-        // Static Mesh select
-        const math_Ray ray = math_Raycast_RayFromPixel(input_MousePosition() - m_gameWindowPos, m_gameWindowSize, viewProj);
-        float          meshSelectDistance;
-        game_Entity    meshSelectEntity
-            = scene->GetStaticMeshManager()->RaycastSelect(*scene->GetTransformManager(), ray, viewProj, &meshSelectDistance);
-
-
-        // Point Light select
-        math_Vec2 hoverPosNorm(input_MousePosition());
-        hoverPosNorm.x -= m_gameWindowPos.x;
-        hoverPosNorm.y -= m_gameWindowPos.y;
-        hoverPosNorm.x /= m_gameWindowSize.x;
-        hoverPosNorm.y /= m_gameWindowSize.y;
-
-        math_Vec2   billboardSize(2, 2);
-        float       lightSelectDistance;
-        game_Entity lightSelectEntity = scene->GetLightManager()->HoverSelect(*m_world->GetTransformManager(),
-                                                                              hoverPosNorm,
-                                                                              billboardSize,
-                                                                              viewMatrix,
-                                                                              projMatrix,
-                                                                              &lightSelectDistance);
-
-        float       cameraSelectDistance;
-        game_Entity cameraSelectEntity
-            = scene->GetCameraManager()->HoverSelect(hoverPosNorm, billboardSize, viewMatrix, projMatrix, &cameraSelectDistance);
-
-
-        struct Intersection {
-            game_Entity entity;
-            float       distance;
-        };
-        Intersection meshIntersect{meshSelectEntity, meshSelectDistance};
-        Intersection lightIntersect{lightSelectEntity, lightSelectDistance};
-        Intersection cameraIntersect{cameraSelectEntity, cameraSelectDistance};
-
-        auto ClosestIntersection2 = [](const Intersection& a, const Intersection& b) {
-            return a.distance <= b.distance ? a.entity : b.entity;
-        };
-        auto ClosestIntersection3 = [](const Intersection& a, const Intersection& b, const Intersection& c) {
-            return a.distance <= b.distance ? (a.distance <= c.distance ? a.entity : c.entity) : (b.distance <= c.distance ? b.entity : c.entity);
-        };
-
-        // Choose the closest one
-        game_Entity whichOne[] = {game_EntityId_Invalid,
-                                  meshSelectEntity,
-                                  lightSelectEntity,
-                                  ClosestIntersection2(lightIntersect, meshIntersect),
-                                  cameraSelectEntity,
-                                  ClosestIntersection2(cameraIntersect, meshIntersect),
-                                  ClosestIntersection2(cameraIntersect, lightIntersect),
-                                  ClosestIntersection3(cameraIntersect, lightIntersect, meshIntersect)};
-
-        unsigned selectMeshBit   = unsigned(meshSelectEntity != game_EntityId_Invalid);
-        unsigned selectLightBit  = unsigned(lightSelectEntity != game_EntityId_Invalid) << 1;
-        unsigned selectCameraBit = unsigned(cameraSelectEntity != game_EntityId_Invalid) << 2;
-        return whichOne[selectMeshBit | selectLightBit | selectCameraBit];
+        math_Vec2 cursor = input_MousePosition() - m_gameWindowPos;
+        return m_world->FindEntityAtCursor(cursor, m_gameWindowSize, viewMatrix, projMatrix);
     }
 
     void
@@ -232,65 +179,9 @@ namespace pge
                     }
 
                     if (isCamera && entity == m_selectedEntity) {
-                        // Draw frustum
-                        float fov, aspect, nearClip, farClip;
-                        scene->GetCameraManager()->GetPerspectiveFov(entity, &fov, &aspect, &nearClip, &farClip);
-
-                        const math_Vec3& camPos     = worldPos;
-                        const math_Vec3  camRight   = scene->GetTransformManager()->GetLocalRight(tid);
-                        const math_Vec3  camUp      = scene->GetTransformManager()->GetLocalUp(tid);
-                        const math_Vec3  camForward = scene->GetTransformManager()->GetLocalForward(tid);
-
-                        // The edges
-                        {
-                            const float hh = tanf(fov / 2) * farClip;
-                            const float hw = hh * aspect;
-
-                            const math_Vec3 center = worldPos + farClip * camForward;
-                            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
-                            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
-                            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
-                            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
-
-                            gfx_DebugDraw_Line(worldPos, nw);
-                            gfx_DebugDraw_Line(worldPos, ne);
-                            gfx_DebugDraw_Line(worldPos, se);
-                            gfx_DebugDraw_Line(worldPos, sw);
-                        }
-
-                        // Near rect
-                        {
-                            const float hh = tanf(fov / 2) * nearClip;
-                            const float hw = hh * aspect;
-
-                            const math_Vec3 center = worldPos + nearClip * camForward;
-                            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
-                            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
-                            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
-                            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
-
-                            gfx_DebugDraw_Line(nw, ne);
-                            gfx_DebugDraw_Line(nw, sw);
-                            gfx_DebugDraw_Line(se, sw);
-                            gfx_DebugDraw_Line(se, ne);
-                        }
-
-                        // Far rect
-                        {
-                            const float hh = tanf(fov / 2) * farClip;
-                            const float hw = hh * aspect;
-
-                            const math_Vec3 center = worldPos + farClip * camForward;
-                            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
-                            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
-                            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
-                            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
-
-                            gfx_DebugDraw_Line(nw, ne);
-                            gfx_DebugDraw_Line(nw, sw);
-                            gfx_DebugDraw_Line(se, sw);
-                            gfx_DebugDraw_Line(se, ne);
-                        }
+                        game_PerspectiveInfo perspective = scene->GetCameraManager()->GetPerspectiveFov(entity);
+                        const math_Mat4x4    camMatrix   = scene->GetTransformManager()->GetLocal(tid);
+                        game_DebugDraw_Frustum(perspective, worldPos, camMatrix);
                     }
                 }
             }
@@ -337,7 +228,7 @@ namespace pge
         // Left mouse click to (de-)select entity
         if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
             if (!ImGuizmo::IsOver() || !m_transformGizmo.IsVisible()) {
-                m_selectedEntity = SelectEntity();
+                m_selectedEntity = EntityAtCursor();
             }
         }
     }
@@ -439,11 +330,11 @@ namespace pge
         static double       downStartTime          = 0;
         static const double deleteClickTime        = 0.5;
         if (input_MouseButtonPressed(input_MouseButton::RIGHT)) {
-            entDown       = SelectEntity();
+            entDown       = EntityAtCursor();
             downStartTime = ImGui::GetTime();
         }
         if (input_MouseButtonReleased(input_MouseButton::RIGHT) && (ImGui::GetTime() - downStartTime) <= deleteClickTime) {
-            game_Entity selected   = SelectEntity();
+            game_Entity selected   = EntityAtCursor();
             hoveringSelectedEntity = (selected.id != game_EntityId_Invalid) && (selected.id == entDown.id) && (selected.id == m_selectedEntity.id);
         }
         hoveringSelectedEntity = hoveringSelectedEntity && math_FloatEqual(math_LengthSquared(input_MouseDelta()), 0);

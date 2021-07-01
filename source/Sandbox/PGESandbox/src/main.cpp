@@ -77,16 +77,11 @@ main()
     edit_Initialize(&display, &graphicsAdapter);
 
     edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-    game_World& world = editor.GetWorld();
     while (!display.IsCloseRequested()) {
         input_KeyboardClearDelta();
         input_MouseClearDelta();
         display.HandleEvents();
 
-        world.GarbageCollect();
-
-        gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
-        gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
         bool isHovered = editor.UpdateAndDraw();
         if (s_hoveringGameWindow && !isHovered) {
             input_KeyboardClearState();

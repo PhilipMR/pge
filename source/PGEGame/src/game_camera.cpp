@@ -3,6 +3,7 @@
 #include <math_raycasting.h>
 #include <input_keyboard.h>
 #include <input_mouse.h>
+#include <gfx_debug_draw.h>
 #include <algorithm>
 #include <iostream>
 
@@ -21,17 +22,23 @@ namespace pge
         if (!m_tmanager->HasTransform(entity)) {
             m_tmanager->CreateTransform(entity);
         }
-        SetPerspectiveFov(entity, math_DegToRad(60.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
+        game_PerspectiveInfo perspective;
+        perspective.fov      = math_DegToRad(60.0f);
+        perspective.aspect   = 16.0f / 9.0f;
+        perspective.nearClip = 0.01f;
+        perspective.farClip  = 1000.0f;
+
+        SetPerspectiveFov(entity, perspective);
         if (m_activeCamera == game_EntityId_Invalid) {
             m_activeCamera = entity;
         }
     }
 
     void
-    game_CameraManager::CreateCamera(const game_Entity& entity, float fov, float aspect, float nearClip, float farClip)
+    game_CameraManager::CreateCamera(const game_Entity& entity, const game_PerspectiveInfo& perspective)
     {
         CreateCamera(entity);
-        SetPerspectiveFov(entity, fov, aspect, nearClip, farClip);
+        SetPerspectiveFov(entity, perspective);
     }
 
     void
@@ -60,14 +67,11 @@ namespace pge
     }
 
     void
-    game_CameraManager::SetPerspectiveFov(const game_Entity& camera, float fov, float aspect, float nearClip, float farClip)
+    game_CameraManager::SetPerspectiveFov(const game_Entity& camera, const game_PerspectiveInfo& perspective)
     {
         core_Assert(HasCamera(camera));
-        m_cameras.at(camera).projectionMatrix = math_PerspectiveFovRH(fov, aspect, nearClip, farClip);
-        m_cameras.at(camera).fov              = fov;
-        m_cameras.at(camera).aspect           = aspect;
-        m_cameras.at(camera).nearClip         = nearClip;
-        m_cameras.at(camera).farClip          = farClip;
+        m_cameras.at(camera).projectionMatrix = math_PerspectiveFovRH(perspective.fov, perspective.aspect, perspective.nearClip, perspective.farClip);
+        m_cameras.at(camera).perspective      = perspective;
     }
 
     const math_Mat4x4
@@ -87,15 +91,11 @@ namespace pge
         return m_cameras.at(camera).projectionMatrix;
     }
 
-    void
-    game_CameraManager::GetPerspectiveFov(const game_Entity& camera, float* fov, float* aspect, float* nearClip, float* farClip) const
+    game_PerspectiveInfo
+    game_CameraManager::GetPerspectiveFov(const game_Entity& camera) const
     {
         core_Assert(HasCamera(camera));
-        const auto& cam = m_cameras.at(camera);
-        *fov            = cam.fov;
-        *aspect         = cam.aspect;
-        *nearClip       = cam.nearClip;
-        *farClip        = cam.farClip;
+        return m_cameras.at(camera).perspective;
     }
 
     void
@@ -130,11 +130,11 @@ namespace pge
     }
 
     game_Entity
-    game_CameraManager::HoverSelect(const math_Vec2&   hoverPosNorm,
-                                    const math_Vec2&   rectSize,
-                                    const math_Mat4x4& view,
-                                    const math_Mat4x4& proj,
-                                    float*             distanceOut) const
+    game_CameraManager::FindEntityAtCursor(const math_Vec2&   cursorNorm,
+                                           const math_Vec2&   rectSize,
+                                           const math_Mat4x4& view,
+                                           const math_Mat4x4& proj,
+                                           float*             distanceOut) const
     {
         game_Entity closestEntity(game_EntityId_Invalid);
         float       closestDepth = std::numeric_limits<float>::max();
@@ -150,7 +150,7 @@ namespace pge
             if (depth > closestDepth)
                 continue;
 
-            if (math_Raycast_IntersectsViewRect(worldPos, rectSize, hoverPosNorm, view, proj)) {
+            if (math_Raycast_IntersectsViewRect(worldPos, rectSize, cursorNorm, view, proj)) {
                 closestEntity = camera;
                 closestDepth  = depth;
             }
@@ -227,21 +227,15 @@ namespace pge
         if (!HasCamera(entity))
             return;
         const Camera& camera = m_cameras.at(entity);
-        os.write((const char*)&camera.fov, sizeof(camera.fov));
-        os.write((const char*)&camera.aspect, sizeof(camera.aspect));
-        os.write((const char*)&camera.nearClip, sizeof(camera.nearClip));
-        os.write((const char*)&camera.farClip, sizeof(camera.farClip));
+        os.write((const char*)&camera.perspective, sizeof(camera.perspective));
     }
 
     void
     game_CameraManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
     {
-        float fov, aspect, nearClip, farClip;
-        is.read((char*)&fov, sizeof(fov));
-        is.read((char*)&aspect, sizeof(aspect));
-        is.read((char*)&nearClip, sizeof(nearClip));
-        is.read((char*)&farClip, sizeof(farClip));
-        CreateCamera(entity, fov, aspect, nearClip, farClip);
+        game_PerspectiveInfo perspective;
+        is.read((char*)&perspective, sizeof(perspective));
+        CreateCamera(entity, perspective);
     }
 
     std::ostream&
@@ -269,5 +263,64 @@ namespace pge
         return is;
     }
 
+
+    void
+    game_DebugDraw_Frustum(const game_PerspectiveInfo& perspective, const math_Vec3& position, const math_Mat4x4& modelMatrix, const math_Vec3& color)
+    {
+        const math_Vec3 camRight = modelMatrix.Right();
+        const math_Vec3 camUp    = modelMatrix.Up();
+        const math_Vec3 camFwd   = modelMatrix.Forward();
+
+        // The edges
+        {
+            const float     hh     = tanf(perspective.fov / 2) * perspective.farClip;
+            const float     hw     = hh * perspective.aspect;
+            const math_Vec3 center = position + perspective.farClip * camFwd;
+
+            const math_Vec3 nw = center - (camRight * hw) + (camUp * hh);
+            const math_Vec3 ne = center + (camRight * hw) + (camUp * hh);
+            const math_Vec3 se = center + (camRight * hw) - (camUp * hh);
+            const math_Vec3 sw = center - (camRight * hw) - (camUp * hh);
+
+            gfx_DebugDraw_Line(position, nw, color);
+            gfx_DebugDraw_Line(position, ne, color);
+            gfx_DebugDraw_Line(position, se, color);
+            gfx_DebugDraw_Line(position, sw, color);
+        }
+
+        // Near rect
+        {
+            const float hh = tanf(perspective.fov / 2) * perspective.nearClip;
+            const float hw = hh * perspective.aspect;
+
+            const math_Vec3 center = position + perspective.nearClip * camFwd;
+            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
+            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
+            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
+            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
+
+            gfx_DebugDraw_Line(nw, ne, color);
+            gfx_DebugDraw_Line(nw, sw, color);
+            gfx_DebugDraw_Line(se, sw, color);
+            gfx_DebugDraw_Line(se, ne, color);
+        }
+
+        // Far rect
+        {
+            const float hh = tanf(perspective.fov / 2) * perspective.farClip;
+            const float hw = hh * perspective.aspect;
+
+            const math_Vec3 center = position + perspective.farClip * camFwd;
+            const math_Vec3 nw     = center - (camRight * hw) + (camUp * hh);
+            const math_Vec3 ne     = center + (camRight * hw) + (camUp * hh);
+            const math_Vec3 se     = center + (camRight * hw) - (camUp * hh);
+            const math_Vec3 sw     = center - (camRight * hw) - (camUp * hh);
+
+            gfx_DebugDraw_Line(nw, ne, color);
+            gfx_DebugDraw_Line(nw, sw, color);
+            gfx_DebugDraw_Line(se, sw, color);
+            gfx_DebugDraw_Line(se, ne, color);
+        }
+    }
 
 } // namespace pge

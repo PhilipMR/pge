@@ -81,7 +81,7 @@ namespace pge
         bool        UpdateAndDraw();
 
     private:
-        game_Entity SelectEntity() const;
+        game_Entity EntityAtCursor() const;
         void        DrawGizmos();
 
         void        HandleEvents();

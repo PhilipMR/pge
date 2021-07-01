@@ -254,30 +254,6 @@ namespace pge
     }
 
     math_Vec3
-    game_TransformManager::GetLocalRight(const game_TransformId& id) const
-    {
-        core_Assert(id < m_entityMap.size());
-        const math_Mat4x4& world = m_world[id];
-        return math_Vec3(world[0][0], world[1][0], world[2][0]);
-    }
-
-    math_Vec3
-    game_TransformManager::GetLocalUp(const game_TransformId& id) const
-    {
-        core_Assert(id < m_entityMap.size());
-        const math_Mat4x4& world = m_world[id];
-        return math_Vec3(world[0][1], world[1][1], world[2][1]);
-    }
-
-    math_Vec3
-    game_TransformManager::GetLocalForward(const game_TransformId& id) const
-    {
-        core_Assert(id < m_entityMap.size());
-        const math_Mat4x4& world = m_world[id];
-        return -math_Vec3(world[0][2], world[1][2], world[2][2]);
-    }
-
-    math_Vec3
     game_TransformManager::GetWorldPosition(const game_TransformId& id) const
     {
         core_Assert(id < m_entityMap.size());

@@ -69,6 +69,24 @@ namespace pge
         {
             return rows[index];
         }
+
+        constexpr const math_Vec3
+        Right() const
+        {
+            return math_Vec3(rows[0][0], rows[1][0], rows[2][0]);
+        }
+
+        constexpr const math_Vec3
+        Up() const
+        {
+            return math_Vec3(rows[0][1], rows[1][1], rows[2][1]);
+        }
+
+        constexpr const math_Vec3
+        Forward() const
+        {
+            return -math_Vec3(rows[0][2], rows[1][2], rows[2][2]);
+        }
     };
 
     constexpr bool
@@ -533,7 +551,7 @@ namespace pge
         rotMatrix[0] = math_Vec4(math_Normalize(c0), 0);
         rotMatrix[1] = math_Vec4(math_Normalize(c1), 0);
         rotMatrix[2] = math_Vec4(math_Normalize(c2), 0);
-        rotMatrix = math_Transpose(rotMatrix);  // Set c0,c1,c2 as columns instead of rows by transposing the matrix
+        rotMatrix    = math_Transpose(rotMatrix); // Set c0,c1,c2 as columns instead of rows by transposing the matrix
 
         math_Vec3 cross = math_Cross(c0, c1);
         if (math_Dot(cross, c2) < 0) {

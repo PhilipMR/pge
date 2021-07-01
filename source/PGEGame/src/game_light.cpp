@@ -5,8 +5,9 @@
 
 namespace pge
 {
-    game_LightManager::game_LightManager(size_t capacity)
-        : m_dirLights(new game_DirectionalLight[capacity])
+    game_LightManager::game_LightManager(game_TransformManager* tmanager, size_t capacity)
+        : m_transformManager(tmanager)
+        , m_dirLights(new game_DirectionalLight[capacity])
         , m_numDirLights(0)
         , m_pointLights(new game_PointLight[capacity])
         , m_numPointLights(0)
@@ -40,6 +41,9 @@ namespace pge
     game_LightManager::CreateDirectionalLight(const game_Entity& entity, const game_DirectionalLight& light)
     {
         core_Assert(!HasDirectionalLight(entity));
+        if (!m_transformManager->HasTransform(entity)) {
+            m_transformManager->CreateTransform(entity);
+        }
         game_DirectionalLightId lid = m_numDirLights++;
         m_dirLightMap.insert(std::make_pair(entity, lid));
         m_dirLights[lid]        = light;
@@ -154,12 +158,11 @@ namespace pge
     }
 
     game_Entity
-    game_LightManager::HoverSelect(const game_TransformManager& tm,
-                                   const math_Vec2&             hoverPosNorm,
-                                   const math_Vec2&             rectSize,
-                                   const math_Mat4x4&           view,
-                                   const math_Mat4x4&           proj,
-                                   float*                       distanceOut) const
+    game_LightManager::FindEntityAtCursor(const math_Vec2&   cursorNorm,
+                                          const math_Vec2&   rectSize,
+                                          const math_Mat4x4& view,
+                                          const math_Mat4x4& proj,
+                                          float*             distanceOut) const
     {
         game_Entity closestEntity(game_EntityId_Invalid);
         float       closestDepth = std::numeric_limits<float>::max();
@@ -168,14 +171,14 @@ namespace pge
             game_TransformId tid = game_TransformId_Invalid;
             if (i < m_numDirLights) {
                 const game_DirectionalLight& dlight = m_dirLights[i];
-                tid                                 = tm.GetTransformId(dlight.entity);
+                tid                                 = m_transformManager->GetTransformId(dlight.entity);
             } else {
                 const game_PointLight& plight = m_pointLights[i - m_numDirLights];
-                tid                           = tm.GetTransformId(plight.entity);
+                tid                           = m_transformManager->GetTransformId(plight.entity);
             }
             math_Vec3 worldPos;
             if (tid != game_TransformId_Invalid) {
-                worldPos = tm.GetWorldPosition(tid);
+                worldPos = m_transformManager->GetWorldPosition(tid);
             }
 
             math_Vec4 viewPos = view * math_Vec4(worldPos, 1);
@@ -183,7 +186,7 @@ namespace pge
             if (depth > closestDepth)
                 continue;
 
-            if (math_Raycast_IntersectsViewRect(worldPos, rectSize, hoverPosNorm, view, proj)) {
+            if (math_Raycast_IntersectsViewRect(worldPos, rectSize, cursorNorm, view, proj)) {
                 closestEntity = (i < m_numDirLights) ? m_dirLights[i].entity : m_pointLights[i - m_numDirLights].entity;
                 closestDepth  = depth;
             }

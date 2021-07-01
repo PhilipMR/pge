@@ -31,6 +31,8 @@ namespace pge
 
     class game_TransformManager;
     class game_LightManager {
+        game_TransformManager* m_transformManager;
+
         std::unordered_map<game_Entity, game_DirectionalLightId> m_dirLightMap;
         std::unique_ptr<game_DirectionalLight[]>                 m_dirLights;
         size_t                                                   m_numDirLights;
@@ -40,7 +42,7 @@ namespace pge
         size_t                                             m_numPointLights;
 
     public:
-        explicit game_LightManager(size_t capacity);
+        explicit game_LightManager(game_TransformManager* tmanager, size_t capacity);
         void GarbageCollect(const game_EntityManager& entityManager);
 
 
@@ -60,12 +62,11 @@ namespace pge
         const game_PointLight* GetPointLights(size_t* count) const;
         void                   SetPointLight(const game_PointLightId& id, const game_PointLight& light);
 
-        game_Entity HoverSelect(const game_TransformManager& tm,
-                                const math_Vec2&             hoverPosNorm,
-                                const math_Vec2&             rectSize,
-                                const math_Mat4x4&           view,
-                                const math_Mat4x4&           proj,
-                                float*                       distanceOut) const;
+        game_Entity FindEntityAtCursor(const math_Vec2&   cursorNorm,
+                                       const math_Vec2&   rectSize,
+                                       const math_Mat4x4& view,
+                                       const math_Mat4x4& proj,
+                                       float*             distanceOut) const;
 
         void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
         void InsertSerializedEntity(std::istream& is, const game_Entity& entity);

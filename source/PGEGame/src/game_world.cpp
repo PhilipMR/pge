@@ -7,7 +7,7 @@ namespace pge
         : m_transformManager(100)
         , m_staticMeshManager(100, resources)
         , m_animationManager(100)
-        , m_lightManager(100)
+        , m_lightManager(&m_transformManager, 100)
         , m_scriptManager(100)
         , m_behaviourManager()
         , m_cameraManager(&m_transformManager)
@@ -46,6 +46,58 @@ namespace pge
 
         gfx_DebugDraw_SetView(cameraView);
         gfx_DebugDraw_SetProjection(cameraProj);
+    }
+
+
+    game_Entity
+    game_World::FindEntityAtCursor(const math_Vec2& cursor, const math_Vec2& viewSize, const math_Mat4x4& viewMat, const math_Mat4x4& projMat) const
+    {
+        math_Vec2 billboardSize(2, 2);
+
+        // Static Mesh select
+        const math_Mat4x4 viewProj = projMat * viewMat;
+        const math_Ray    ray      = math_Raycast_RayFromPixel(cursor, viewSize, viewProj);
+        float             meshSelectDistance;
+        game_Entity       meshSelectEntity = m_staticMeshManager.RaycastSelect(m_transformManager, ray, viewProj, &meshSelectDistance);
+
+        // Point Light select
+        math_Vec2 cursorNorm(cursor.x / viewSize.x, cursor.y / viewSize.y);
+
+        float       lightSelectDistance;
+        game_Entity lightSelectEntity = m_lightManager.FindEntityAtCursor(cursorNorm, billboardSize, viewMat, projMat, &lightSelectDistance);
+
+        float       cameraSelectDistance;
+        game_Entity cameraSelectEntity = m_cameraManager.FindEntityAtCursor(cursorNorm, billboardSize, viewMat, projMat, &cameraSelectDistance);
+
+        struct Intersection {
+            game_Entity entity;
+            float       distance;
+        };
+        Intersection meshIntersect{meshSelectEntity, meshSelectDistance};
+        Intersection lightIntersect{lightSelectEntity, lightSelectDistance};
+        Intersection cameraIntersect{cameraSelectEntity, cameraSelectDistance};
+
+        auto ClosestIntersection2 = [](const Intersection& a, const Intersection& b) {
+            return a.distance <= b.distance ? a.entity : b.entity;
+        };
+        auto ClosestIntersection3 = [](const Intersection& a, const Intersection& b, const Intersection& c) {
+            return a.distance <= b.distance ? (a.distance <= c.distance ? a.entity : c.entity) : (b.distance <= c.distance ? b.entity : c.entity);
+        };
+
+        // Choose the closest one
+        game_Entity whichOne[] = {game_EntityId_Invalid,
+                                  meshSelectEntity,
+                                  lightSelectEntity,
+                                  ClosestIntersection2(lightIntersect, meshIntersect),
+                                  cameraSelectEntity,
+                                  ClosestIntersection2(cameraIntersect, meshIntersect),
+                                  ClosestIntersection2(cameraIntersect, lightIntersect),
+                                  ClosestIntersection3(cameraIntersect, lightIntersect, meshIntersect)};
+
+        unsigned selectMeshBit   = unsigned(meshSelectEntity != game_EntityId_Invalid);
+        unsigned selectLightBit  = unsigned(lightSelectEntity != game_EntityId_Invalid) << 1;
+        unsigned selectCameraBit = unsigned(cameraSelectEntity != game_EntityId_Invalid) << 2;
+        return whichOne[selectMeshBit | selectLightBit | selectCameraBit];
     }
 
     game_EntityManager*

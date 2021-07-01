@@ -395,6 +395,7 @@ namespace pge
         }
     }
 
+
     /**
      * @brief Calculates vertices in modelview space for s_points.
      *
