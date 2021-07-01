@@ -16,6 +16,7 @@ namespace pge
 
     core_Display::~core_Display() = default;
 
+
     core_DisplayWin32::core_DisplayWin32(const char* title, int width, int height, WNDPROC wndProc)
     {
         m_impl->m_width          = width;

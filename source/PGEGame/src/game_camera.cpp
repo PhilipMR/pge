@@ -27,7 +27,8 @@ namespace pge
         }
     }
 
-    void game_CameraManager::CreateCamera(const game_Entity& entity, float fov, float aspect, float nearClip, float farClip)
+    void
+    game_CameraManager::CreateCamera(const game_Entity& entity, float fov, float aspect, float nearClip, float farClip)
     {
         CreateCamera(entity);
         SetPerspectiveFov(entity, fov, aspect, nearClip, farClip);
@@ -246,14 +247,11 @@ namespace pge
     std::ostream&
     operator<<(std::ostream& os, const game_CameraManager& cm)
     {
-        unsigned numCameras = static_cast<unsigned>(cm.m_cameras.size());
+        auto numCameras = static_cast<unsigned>(cm.m_cameras.size());
         os.write((const char*)&numCameras, sizeof(numCameras));
         for (const auto& kv : cm.m_cameras) {
             os.write((const char*)&kv.first, sizeof(kv.first));
-            os.write((const char*)&kv.second.fov, sizeof(kv.second.fov));
-            os.write((const char*)&kv.second.aspect, sizeof(kv.second.aspect));
-            os.write((const char*)&kv.second.nearClip, sizeof(kv.second.nearClip));
-            os.write((const char*)&kv.second.farClip, sizeof(kv.second.farClip));
+            cm.SerializeEntity(os, kv.first);
         }
         return os;
     }
@@ -265,13 +263,8 @@ namespace pge
         is.read((char*)&numCameras, sizeof(numCameras));
         for (unsigned i = 0; i < numCameras; ++i) {
             game_Entity entity;
-            float fov, aspect, nearClip, farClip;
             is.read((char*)&entity, sizeof(entity));
-            is.read((char*)&fov, sizeof(fov));
-            is.read((char*)&aspect, sizeof(aspect));
-            is.read((char*)&nearClip, sizeof(nearClip));
-            is.read((char*)&farClip, sizeof(farClip));
-            cm.CreateCamera(entity, fov, aspect, nearClip, farClip);
+            cm.InsertSerializedEntity(is, entity);
         }
         return is;
     }

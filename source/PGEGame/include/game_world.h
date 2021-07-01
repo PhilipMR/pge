@@ -18,7 +18,6 @@ namespace pge
     using game_SerializedEntity = std::unique_ptr<char[]>;
     class game_World {
         game_EntityManager         m_entityManager;
-        game_EntityMetaDataManager m_entityMetaManager;
         game_TransformManager      m_transformManager;
         game_StaticMeshManager     m_staticMeshManager;
         game_AnimationManager      m_animationManager;
@@ -35,7 +34,6 @@ namespace pge
         void Draw();
 
         game_EntityManager*         GetEntityManager();
-        game_EntityMetaDataManager* GetEntityMetaDataManager();
         game_TransformManager*      GetTransformManager();
         game_StaticMeshManager*     GetStaticMeshManager();
         game_AnimationManager*      GetAnimationManager();
@@ -43,9 +41,9 @@ namespace pge
         game_ScriptManager*         GetScriptManager();
         game_BehaviourManager*      GetBehaviourManager();
         game_CameraManager*         GetCameraManager();
+        game_Renderer*              GetRenderer();
 
         const game_EntityManager*         GetEntityManager() const;
-        const game_EntityMetaDataManager* GetEntityMetaDataManager() const;
         const game_TransformManager*      GetTransformManager() const;
         const game_StaticMeshManager*     GetStaticMeshManager() const;
         const game_AnimationManager*      GetAnimationManager() const;

@@ -17,7 +17,6 @@ namespace pge
     void
     game_World::GarbageCollect()
     {
-        m_entityMetaManager.GarbageCollect(m_entityManager);
         m_staticMeshManager.GarbageCollect(m_entityManager);
         m_animationManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);
@@ -53,12 +52,6 @@ namespace pge
     game_World::GetEntityManager()
     {
         return &m_entityManager;
-    }
-
-    game_EntityMetaDataManager*
-    game_World::GetEntityMetaDataManager()
-    {
-        return &m_entityMetaManager;
     }
 
     game_TransformManager*
@@ -103,17 +96,17 @@ namespace pge
         return &m_cameraManager;
     }
 
+    game_Renderer*
+    game_World::GetRenderer()
+    {
+        return &m_renderer;
+    }
+
 
     const game_EntityManager*
     game_World::GetEntityManager() const
     {
         return &m_entityManager;
-    }
-
-    const game_EntityMetaDataManager*
-    game_World::GetEntityMetaDataManager() const
-    {
-        return &m_entityMetaManager;
     }
 
     const game_TransformManager*
@@ -163,7 +156,7 @@ namespace pge
     constexpr size_t   SERIALIZED_ENTITY_BUFFER_SIZE = 512;
 
     constexpr size_t SERIALIZE_TYPE_COMPLETE  = 0;
-    constexpr size_t SERIALIZE_TYPE_META      = 1;
+    constexpr size_t SERIALIZE_TYPE_NAME      = 1;
     constexpr size_t SERIALIZE_TYPE_TRANSFORM = 2;
     constexpr size_t SERIALIZE_TYPE_MESH      = 3;
     constexpr size_t SERIALIZE_TYPE_LIGHT     = 4;
@@ -189,9 +182,9 @@ namespace pge
 
         GarbageCollect();
 
-        if (m_entityMetaManager.HasMetaData(entity)) {
-            sentitystream.write((const char*)&SERIALIZE_TYPE_META, sizeof(SERIALIZE_TYPE_META));
-            m_entityMetaManager.SerializeEntity(sentitystream, entity);
+        if (m_entityManager.IsEntityAlive(entity)) {
+            sentitystream.write((const char*)&SERIALIZE_TYPE_NAME, sizeof(SERIALIZE_TYPE_NAME));
+            //            m_entityManager.SerializeEntity(sentitystream, entity);
         }
         if (m_transformManager.HasTransform(entity)) {
             sentitystream.write((const char*)&SERIALIZE_TYPE_TRANSFORM, sizeof(SERIALIZE_TYPE_TRANSFORM));
@@ -243,9 +236,9 @@ namespace pge
                 case SERIALIZE_TYPE_COMPLETE: {
                     readingStream = false;
                 } break;
-                case SERIALIZE_TYPE_META: {
-                    m_entityMetaManager.InsertSerializedEntity(sentitystream, entity);
-                } break;
+                    //                case SERIALIZE_TYPE_NAME: {
+                    //                    m_entityManager.InsertSerializedEntity(sentitystream, entity);
+                    //                } break;
                 case SERIALIZE_TYPE_TRANSFORM: {
                     m_transformManager.InsertSerializedEntity(sentitystream, entity);
                 } break;
@@ -281,7 +274,6 @@ namespace pge
     {
         os << SERIALIZE_VERSION;
         os << scene.m_entityManager;
-        os << scene.m_entityMetaManager;
         os << scene.m_transformManager;
         os << scene.m_staticMeshManager;
         os << scene.m_lightManager;
@@ -295,7 +287,6 @@ namespace pge
         unsigned version = 0;
         is >> version;
         is >> scene.m_entityManager;
-        is >> scene.m_entityMetaManager;
         is >> scene.m_transformManager;
         is >> scene.m_staticMeshManager;
         is >> scene.m_lightManager;

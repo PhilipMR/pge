@@ -76,12 +76,11 @@ namespace pge
                    const res_EffectProperty* properties,
                    size_t                    numProperties);
 
-        const gfx_VertexShader* VertexShader() const;
-        const gfx_PixelShader*  PixelShader() const;
-        size_t                  GetPropertyOffset(const char* name) const;
-        size_t                  GetPropertySize(const char* name) const;
-        size_t                  PropertiesCBSize() const;
-        size_t                  GetTextureSlot(const char* name) const;
+        void   Bind() const;
+        size_t GetPropertyOffset(const char* name) const;
+        size_t GetPropertySize(const char* name) const;
+        size_t GetPropertiesCBSize() const;
+        size_t GetTextureSlot(const char* name) const;
     };
 
     class res_EffectCache {
@@ -92,6 +91,6 @@ namespace pge
         explicit res_EffectCache(gfx_GraphicsAdapter* graphicsAdapter);
         res_Effect* Load(const char* path);
     };
-}
+} // namespace pge
 
 #endif

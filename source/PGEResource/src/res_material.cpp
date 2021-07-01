@@ -13,9 +13,9 @@ namespace pge
         , m_effect(effect)
         , m_sampler(graphicsAdapter)
     {
-        if (effect->PropertiesCBSize() > 0)
-            m_cbProperties = std::make_unique<gfx_ConstantBuffer>(graphicsAdapter, nullptr, effect->PropertiesCBSize(), gfx_BufferUsage::DYNAMIC);
-        m_cbData = std::unique_ptr<char[]>(new char[effect->PropertiesCBSize()]);
+        if (effect->GetPropertiesCBSize() > 0)
+            m_cbProperties = std::make_unique<gfx_ConstantBuffer>(graphicsAdapter, nullptr, effect->GetPropertiesCBSize(), gfx_BufferUsage::DYNAMIC);
+        m_cbData = std::unique_ptr<char[]>(new char[effect->GetPropertiesCBSize()]);
         for (auto& m_texture : m_textures)
             m_texture = nullptr;
     }
@@ -32,9 +32,9 @@ namespace pge
 
         m_effect = effectCache->Load(effectPath);
         core_Assert(m_effect != nullptr);
-        if (m_effect->PropertiesCBSize() > 0)
-            m_cbProperties = std::make_unique<gfx_ConstantBuffer>(graphicsAdapter, nullptr, m_effect->PropertiesCBSize(), gfx_BufferUsage::DYNAMIC);
-        m_cbData = std::unique_ptr<char[]>(new char[m_effect->PropertiesCBSize()]);
+        if (m_effect->GetPropertiesCBSize() > 0)
+            m_cbProperties = std::make_unique<gfx_ConstantBuffer>(graphicsAdapter, nullptr, m_effect->GetPropertiesCBSize(), gfx_BufferUsage::DYNAMIC);
+        m_cbData = std::unique_ptr<char[]>(new char[m_effect->GetPropertiesCBSize()]);
         for (auto& m_texture : m_textures)
             m_texture = nullptr;
 
@@ -88,9 +88,9 @@ namespace pge
     res_Material::Bind() const
     {
         m_sampler.Bind(0);
-        m_cbProperties->BindPS(0);
-        m_effect->VertexShader()->Bind();
-        m_effect->PixelShader()->Bind();
+        if (m_cbProperties.get() != nullptr)
+            m_cbProperties->BindPS(0);
+        m_effect->Bind();
 
         size_t numTextures = 0;
         while (m_textures[numTextures] != nullptr)

@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <unordered_map>
+#include <string>
+#include <iterator>
 
 namespace pge
 {
@@ -30,25 +32,6 @@ namespace pge
     {
         return lhs.id != rhs.id;
     }
-
-
-    class game_EntityManager {
-        std::vector<unsigned> m_generation;
-        std::vector<unsigned> m_freeIndices;
-
-    public:
-        game_EntityManager();
-        game_EntityManager(const game_Entity* entities, size_t numEntities);
-
-        game_Entity CreateEntity();
-        void        CreateEntity(const game_Entity& entity);
-        void        CreateEntities(game_Entity* destBuf, size_t numEntities);
-        void        DestroyEntity(const game_Entity& entity);
-        bool        IsEntityAlive(const game_Entity& entity) const;
-
-        friend std::ostream& operator<<(std::ostream& os, const game_EntityManager& em);
-        friend std::istream& operator>>(std::istream& is, game_EntityManager& em);
-    };
 } // namespace pge
 
 namespace std
@@ -64,49 +47,50 @@ namespace std
     };
 } // namespace std
 
-// NOTE: This needs to be placed after the hash declaration above, because of the
-//         use of game_Entity in the game_EntityDataManager's unordered_map.
 namespace pge
 {
-    struct game_EntityMetaData {
-        game_Entity entity;
-        char        name[32];
-
-        game_EntityMetaData()
-            : entity(game_EntityId_Invalid)
-        {}
-
-        game_EntityMetaData(const game_Entity& entity, const char* name)
-            : entity(entity)
-        {
-            strcpy_s(this->name, name);
-        }
-    };
-
-    using game_EntityMetaDataIterator      = std::unordered_map<game_Entity, game_EntityMetaData>::iterator;
-    using game_EntityMetaDataConstIterator = std::unordered_map<game_Entity, game_EntityMetaData>::const_iterator;
-    class game_EntityMetaDataManager {
-        std::unordered_map<game_Entity, game_EntityMetaData> m_entityMap;
+    class game_EntityManager {
+        std::vector<unsigned>                        m_generation;
+        std::vector<unsigned>                        m_freeIndices;
+        std::unordered_map<game_Entity, std::string> m_names;
 
     public:
-        void                CreateMetaData(const game_Entity& entity, const game_EntityMetaData& data);
-        void                DestroyMetaData(const game_Entity& entity);
-        void                GarbageCollect(const game_EntityManager& manager);
-        bool                HasMetaData(const game_Entity& entity) const;
-        game_EntityMetaData GetMetaData(const game_Entity& entity) const;
-        void                SetMetaData(const game_Entity& entity, const game_EntityMetaData& data);
+        class game_EntityIterator : public std::iterator<std::forward_iterator_tag, game_Entity> {
+            const game_EntityManager* m_manager;
+            unsigned                  m_idx;
 
-        game_EntityMetaDataIterator      Begin();
-        game_EntityMetaDataIterator      End();
-        game_EntityMetaDataConstIterator CBegin() const;
-        game_EntityMetaDataConstIterator CEnd() const;
+        public:
+            game_EntityIterator(const game_EntityManager* manager, unsigned idx);
+            const game_Entity operator*() const;
 
-        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
-        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
+            game_EntityIterator& operator++();    // Prefix increment
+            game_EntityIterator  operator++(int); // Postfix increment
 
-        friend std::ostream& operator<<(std::ostream& os, const game_EntityMetaDataManager& mm);
-        friend std::istream& operator>>(std::istream& is, game_EntityMetaDataManager& mm);
+            friend bool operator==(const game_EntityIterator& a, const game_EntityIterator& b);
+            friend bool operator!=(const game_EntityIterator& a, const game_EntityIterator& b);
+        };
+
+        game_EntityManager();
+        game_EntityManager(const game_Entity* entities, size_t numEntities);
+
+        game_Entity CreateEntity();
+        game_Entity CreateEntity(const char* name);
+        void        CreateEntity(const game_Entity& entity);
+        void        CreateEntities(game_Entity* destBuf, size_t numEntities);
+        void        DestroyEntity(const game_Entity& entity);
+        bool        IsEntityAlive(const game_Entity& entity) const;
+
+        std::string GetName(const game_Entity& entity) const;
+        void        SetName(const game_Entity& entity, const char* name);
+
+        game_EntityIterator begin() const;
+        game_EntityIterator end() const;
+
+        friend std::ostream& operator<<(std::ostream& os, const game_EntityManager& em);
+        friend std::istream& operator>>(std::istream& is, game_EntityManager& em);
     };
+
+
 } // namespace pge
 
 #endif

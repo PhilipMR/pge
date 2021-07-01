@@ -1,5 +1,6 @@
 #include "../include/gfx_render_target.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
+#include "../include/gfx_texture.h"
 #include <core_assert.h>
 #include <d3d11.h>
 #include <comdef.h>
