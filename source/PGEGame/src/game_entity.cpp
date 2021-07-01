@@ -1,6 +1,7 @@
 #include "../include/game_entity.h"
 #include <core_assert.h>
 #include <iostream>
+#include <sstream>
 
 namespace pge
 {
@@ -41,6 +42,54 @@ namespace pge
 
 
     // -------------------------------------------------------
+    // game_EntityIterator
+    // -------------------------------------------------------
+    game_EntityManager::game_EntityIterator::game_EntityIterator(const game_EntityManager* manager, unsigned idx)
+        : m_manager(manager)
+        , m_idx(idx)
+    {}
+
+    const game_Entity
+    game_EntityManager::game_EntityIterator::operator*() const
+    {
+        return game_Entity(m_idx, m_manager->m_generation.at(m_idx));
+    }
+
+    // Prefix increment
+    game_EntityManager::game_EntityIterator&
+    game_EntityManager::game_EntityIterator::operator++()
+    {
+        auto nextIdx = m_idx + 1;
+        while (std::find(m_manager->m_freeIndices.begin(), m_manager->m_freeIndices.end(), nextIdx) != m_manager->m_freeIndices.end()) {
+            nextIdx++;
+        }
+        m_idx = nextIdx;
+        return *this;
+    }
+
+    // Postfix increment
+    game_EntityManager::game_EntityIterator
+    game_EntityManager::game_EntityIterator::operator++(int)
+    {
+        game_EntityIterator tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+
+    bool
+    operator==(const game_EntityManager::game_EntityIterator& a, const game_EntityManager::game_EntityIterator& b)
+    {
+        return a.m_idx == b.m_idx;
+    };
+
+    bool
+    operator!=(const game_EntityManager::game_EntityIterator& a, const game_EntityManager::game_EntityIterator& b)
+    {
+        return a.m_idx != b.m_idx;
+    };
+
+
+    // -------------------------------------------------------
     // game_EntityManager
     // -------------------------------------------------------
     game_EntityManager::game_EntityManager() = default;
@@ -68,6 +117,14 @@ namespace pge
         return game_Entity(idx, m_generation[idx]);
     }
 
+    game_Entity
+    game_EntityManager::CreateEntity(const char* name)
+    {
+        game_Entity entity = CreateEntity();
+        SetName(entity, name);
+        return entity;
+    }
+
     void
     game_EntityManager::CreateEntity(const game_Entity& entity)
     {
@@ -93,12 +150,50 @@ namespace pge
         unsigned idx = entity.GetIndex();
         m_generation[idx]++;
         m_freeIndices.push_back(idx);
+
+        auto it = m_names.find(entity);
+        if (it != m_names.end()) {
+            m_names.erase(it);
+        }
     }
 
     bool
     game_EntityManager::IsEntityAlive(const game_Entity& entity) const
     {
         return m_generation[entity.GetIndex()] == entity.GetGeneration();
+    }
+
+    std::string
+    game_EntityManager::GetName(const game_Entity& entity) const
+    {
+        core_Assert(IsEntityAlive(entity));
+        auto it = m_names.find(entity);
+        if (it == m_names.end()) {
+            std::stringstream ss;
+            ss << "Entity [" << entity.id << "]";
+            return ss.str();
+        } else {
+            return it->second;
+        }
+    }
+
+    void
+    game_EntityManager::SetName(const game_Entity& entity, const char* name)
+    {
+        core_Assert(IsEntityAlive(entity));
+        m_names[entity] = name;
+    }
+
+    game_EntityManager::game_EntityIterator
+    game_EntityManager::begin() const
+    {
+        return game_EntityIterator(this, 0);
+    }
+
+    game_EntityManager::game_EntityIterator
+    game_EntityManager::end() const
+    {
+        return game_EntityIterator(this, m_generation.size());
     }
 
     std::ostream&
@@ -134,139 +229,6 @@ namespace pge
             while (entity.GetIndex() >= em.m_generation.size())
                 em.m_generation.push_back(0);
             em.m_generation[entity.GetIndex()] = entity.GetGeneration();
-        }
-        return is;
-    }
-
-    // -------------------------------------------------------
-    // game_EntityMetaDataManager
-    // -------------------------------------------------------
-    void
-    game_EntityMetaDataManager::CreateMetaData(const game_Entity& entity, const game_EntityMetaData& data)
-    {
-        core_Assert(!HasMetaData(entity));
-        m_entityMap.insert(std::make_pair(entity, data));
-    }
-
-    void
-    game_EntityMetaDataManager::DestroyMetaData(const game_Entity& entity)
-    {
-        core_Assert(HasMetaData(entity));
-        m_entityMap.erase(entity);
-    }
-
-    void
-    game_EntityMetaDataManager::GarbageCollect(const game_EntityManager& manager)
-    {
-        std::vector<game_Entity> entitiesToRemove;
-        for (size_t aliveStreak = 0; !m_entityMap.empty() && aliveStreak < 4;) {
-            unsigned randIdx = rand() % m_entityMap.size();
-            auto     kv      = m_entityMap.begin();
-            for (size_t i = 0; i < randIdx; i++)
-                kv++;
-
-            if (manager.IsEntityAlive(kv->first)) {
-                aliveStreak++;
-            } else {
-                m_entityMap.erase(kv->first);
-                aliveStreak = 0;
-            }
-            if (aliveStreak >= 4)
-                return;
-        }
-    }
-
-    bool
-    game_EntityMetaDataManager::HasMetaData(const game_Entity& entity) const
-    {
-        return m_entityMap.find(entity) != m_entityMap.end();
-    }
-
-    game_EntityMetaData
-    game_EntityMetaDataManager::GetMetaData(const game_Entity& entity) const
-    {
-        core_Assert(HasMetaData(entity));
-        return m_entityMap.find(entity)->second;
-    }
-
-    void
-    game_EntityMetaDataManager::SetMetaData(const game_Entity& entity, const game_EntityMetaData& data)
-    {
-        core_Assert(HasMetaData(entity));
-        m_entityMap.find(entity)->second = data;
-    }
-
-    game_EntityMetaDataIterator
-    game_EntityMetaDataManager::Begin()
-    {
-        return m_entityMap.begin();
-    }
-
-    game_EntityMetaDataIterator
-    game_EntityMetaDataManager::End()
-    {
-        return m_entityMap.end();
-    }
-
-    game_EntityMetaDataConstIterator
-    game_EntityMetaDataManager::CBegin() const
-    {
-        return m_entityMap.cbegin();
-    }
-
-    game_EntityMetaDataConstIterator
-    game_EntityMetaDataManager::CEnd() const
-    {
-        return m_entityMap.cend();
-    }
-
-    constexpr unsigned SERIALIZE_META_VERSION = 1;
-
-    void
-    game_EntityMetaDataManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
-    {
-        const game_EntityMetaData& data = m_entityMap.at(entity);
-        os.write(data.name, sizeof(data.name));
-    }
-
-    void
-    game_EntityMetaDataManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
-    {
-        if (!HasMetaData(entity)) {
-            CreateMetaData(entity, game_EntityMetaData());
-        }
-        game_EntityMetaData& data = m_entityMap.at(entity);
-        data.entity = entity;
-        is.read(data.name, sizeof(data.name));
-    }
-
-    std::ostream&
-    operator<<(std::ostream& os, const game_EntityMetaDataManager& mm)
-    {
-        unsigned version = SERIALIZE_META_VERSION;
-        os.write((const char*)&version, sizeof(version));
-        unsigned numComponents = mm.m_entityMap.size();
-        os.write((const char*)&numComponents, sizeof(numComponents));
-        for (const auto& kv : mm.m_entityMap) {
-            os.write((const char*)&kv.second, sizeof(kv.second));
-        }
-        return os;
-    }
-
-    std::istream&
-    operator>>(std::istream& is, game_EntityMetaDataManager& mm)
-    {
-        mm.m_entityMap.clear();
-
-        unsigned version = 0;
-        is.read((char*)&version, sizeof(version));
-
-        unsigned numComponents = 0;
-        is.read((char*)&numComponents, sizeof(numComponents));
-        for (unsigned i = 0; i < numComponents; ++i) {
-            game_EntityMetaData meta;
-            is.read((char*)&meta, sizeof(meta));
-            mm.m_entityMap.insert(std::make_pair<>(meta.entity, meta));
         }
         return is;
     }

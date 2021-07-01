@@ -23,7 +23,6 @@ namespace pge
         style->FrameRounding = 4;
         style->IndentSpacing = 12.0f;
 
-
         ImGui::StyleColorsDark();
         ImVec4* colors = style->Colors;
 
@@ -77,7 +76,6 @@ namespace pge
         colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.000f, 0.391f, 0.000f, 1.000f);
         colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.000f, 0.000f, 0.000f, 0.586f);
         colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.000f, 0.000f, 0.000f, 0.586f);
-
 
 #ifdef IMGUI_HAS_DOCK
         style->TabBorderSize = 1;

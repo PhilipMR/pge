@@ -12,15 +12,13 @@
 #include <core_display_win32.h>
 #include <gfx_graphics_adapter_d3d11.h>
 #include <gfx_graphics_device.h>
-#include <gfx_render_target.h>
+#include <gfx_debug_draw.h>
 #include <res_resource_manager.h>
-#include <game_world.h>
-#include <input_events_win32.h>
 #include <edit_events_win32.h>
 #include <edit_editor.h>
-#include <gfx_debug_draw.h>
 #include <input_keyboard.h>
 #include <input_mouse.h>
+#include <input_events_win32.h>
 
 static bool                           s_hoveringGameWindow = false;
 static pge::gfx_GraphicsAdapterD3D11* s_graphicsAdapter    = nullptr;
@@ -51,56 +49,6 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-class EntityBehaviour : public pge::game_Behaviour {
-    pge::game_Entity            m_entity;
-    pge::game_TransformManager* m_transformManager;
-    pge::game_AnimationManager* m_animManager;
-
-public:
-    EntityBehaviour(const pge::game_Entity& entity, pge::game_TransformManager* transformManager, pge::game_AnimationManager* animManager)
-        : m_entity(entity)
-        , m_transformManager(transformManager)
-        , m_animManager(animManager)
-    {}
-
-    void
-    Update(float delta) override
-    {
-        pge::math_Vec3 movement;
-        if (pge::input_KeyboardDown(pge::input_KeyboardKey::W)) {
-            movement.y += 1;
-        }
-        if (pge::input_KeyboardDown(pge::input_KeyboardKey::A)) {
-            movement.x -= 1;
-        }
-        if (pge::input_KeyboardDown(pge::input_KeyboardKey::S)) {
-            movement.y -= 1;
-        }
-        if (pge::input_KeyboardDown(pge::input_KeyboardKey::D)) {
-            movement.x += 1;
-        }
-
-        const pge::game_TransformId tid = m_transformManager->GetTransformId(m_entity);
-
-        static bool wasMoving = false;
-        if (pge::math_LengthSquared(movement) > 0) {
-            movement = pge::math_Normalize(movement);
-            if (!wasMoving) {
-                m_animManager->Trigger("move_start");
-                wasMoving = true;
-            }
-            m_transformManager->SetLocalForward(tid, pge::math_Normalize(movement), pge::math_Vec3(0, 0, 1));
-        } else if (wasMoving) {
-            m_animManager->Trigger("move_stop");
-            wasMoving = false;
-        }
-
-        const float MOVEMENT_SPEED = 0.1f;
-        movement *= MOVEMENT_SPEED;
-        m_transformManager->Translate(tid, movement);
-    }
-};
-
 int
 main()
 {
@@ -114,114 +62,42 @@ main()
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
 #endif
 
-    // Scope main body so everything is deallocated by the end of main.
-    {
-        const math_Vec2 resolution(1920, 1080);
+    const math_Vec2 resolution(1920, 1080);
 
-        // Create graphics context
-        core_DisplayWin32        display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
-        gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
-        gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
-        s_graphicsAdapter = &graphicsAdapter;
-        s_graphicsDevice  = &graphicsDevice;
-        ShowWindow(display.GetWindowHandle(), SW_SHOWMAXIMIZED);
+    core_DisplayWin32        display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
+    gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
+    gfx_GraphicsDevice       graphicsDevice(&graphicsAdapter);
+    res_ResourceManager      resources(&graphicsAdapter);
 
-        // Setup scene
-        res_ResourceManager resources(&graphicsAdapter);
+    s_graphicsAdapter = &graphicsAdapter;
+    s_graphicsDevice  = &graphicsDevice;
+    ShowWindow(display.GetWindowHandle(), SW_SHOWMAXIMIZED);
 
-        // Set up editor
-        gfx_RenderTarget rtGame(&graphicsAdapter, resolution.x, resolution.y, true, true);
-        gfx_RenderTarget rtGameMs(&graphicsAdapter, resolution.x, resolution.y, false, false);
-        edit_Initialize(&display, &graphicsAdapter);
-        edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-        // editor.LoadWorld("test.world");
-        game_World& world = editor.GetWorld();
-        gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
+    gfx_DebugDraw_Initialize(&graphicsAdapter, &graphicsDevice);
+    edit_Initialize(&display, &graphicsAdapter);
 
-        game_Entity e1 = world.GetEntityManager()->CreateEntity();
-        world.GetTransformManager()->CreateTransform(e1);
-        world.GetEntityMetaDataManager()->CreateMetaData(e1, game_EntityMetaData(e1, "Vampire"));
-        world.GetStaticMeshManager()->CreateStaticMesh(e1,
-                                                       resources.GetMesh("data\\Vampire\\Vampire.mesh"),
-                                                       resources.GetMaterial("data\\Vampire\\Vampire.mat"));
-        world.GetBehaviourManager()->CreateBehaviour(e1,
-                                                     std::make_unique<EntityBehaviour>(e1, world.GetTransformManager(), world.GetAnimationManager()));
-        world.GetAnimationManager()->CreateAnimator(e1, resources.GetAnimatorConfig("data\\Vampire\\Vampire_animconf.json"));
+    edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
+    game_World& world = editor.GetWorld();
+    while (!display.IsCloseRequested()) {
+        input_KeyboardClearDelta();
+        input_MouseClearDelta();
+        display.HandleEvents();
 
-        game_Entity e2 = world.GetEntityManager()->CreateEntity();
-        world.GetTransformManager()->CreateTransform(e2);
-        world.GetEntityMetaDataManager()->CreateMetaData(e2, game_EntityMetaData(e2, "DirLight"));
-        world.GetLightManager()->CreateDirectionalLight(e2, game_DirectionalLight());
+        world.GarbageCollect();
 
-        game_Entity e3 = world.GetEntityManager()->CreateEntity();
-        world.GetEntityMetaDataManager()->CreateMetaData(e3, game_EntityMetaData(e3, "Camera"));
-        world.GetCameraManager()->CreateCamera(e3);
-        world.GetCameraManager()->SetLookAt(e3, math_Vec3(-5, -5, -5), math_Vec3(0, 0, 0));
-
-
-        const res_Effect*         screenTexEffect     = resources.GetEffect("data\\effects\\screentex.effect");
-        const gfx_VertexAttribute screenTexAttribs[]  = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2),
-                                                        gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2)};
-        const math_Vec2           screenTexVertices[] = {math_Vec2(-1, 1),
-                                               math_Vec2(0, 0),
-                                               math_Vec2(-1, -1),
-                                               math_Vec2(0, 1),
-                                               math_Vec2(1, -1),
-                                               math_Vec2(1, 1),
-                                               math_Vec2(1, 1),
-                                               math_Vec2(1, 0)};
-        const unsigned            screenTexIndices[]  = {0, 1, 2, 2, 3, 0};
-        const res_Mesh            screenTexMesh(&graphicsAdapter,
-                                     screenTexAttribs,
-                                     sizeof(screenTexAttribs) / sizeof(gfx_VertexAttribute),
-                                     screenTexVertices,
-                                     sizeof(screenTexVertices),
-                                     screenTexIndices,
-                                     sizeof(screenTexIndices) / sizeof(unsigned));
-
-
-        while (!display.IsCloseRequested()) {
-            // Update input, window and scene
-            input_KeyboardClearDelta();
-            input_MouseClearDelta();
-            display.HandleEvents();
-
-            world.GarbageCollect();
-
-            // Draw scene to texture
-            gfx_Texture2D_Unbind(&graphicsAdapter, 0);
-            rtGame.Bind();
-            rtGame.Clear();
-            world.Draw();
-            gfx_DebugDraw_Flush();
-
-            // Redraw screen to intermediate texture (additional multisampling)
-            gfx_Texture2D_Unbind(&graphicsAdapter, 0);
-            rtGameMs.Bind();
-            rtGameMs.Clear();
-            screenTexMesh.Bind();
-            screenTexEffect->VertexShader()->Bind();
-            screenTexEffect->PixelShader()->Bind();
-            rtGame.BindTexture(0);
-            graphicsDevice.DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, 6);
-
-            // Draw editor (with scene texture to window) to main render target
-            gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
-            gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
-
-            bool isHovered = editor.UpdateAndDraw(&rtGameMs);
-            if (s_hoveringGameWindow && !isHovered) {
-                input_KeyboardClearState();
-                input_MouseClearState();
-            }
-            s_hoveringGameWindow = isHovered;
-
-
-            graphicsDevice.Present();
+        gfx_RenderTarget_BindMainRTV(&graphicsAdapter);
+        gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
+        bool isHovered = editor.UpdateAndDraw();
+        if (s_hoveringGameWindow && !isHovered) {
+            input_KeyboardClearState();
+            input_MouseClearState();
         }
-        gfx_DebugDraw_Shutdown();
-        edit_Shutdown();
+        s_hoveringGameWindow = isHovered;
+
+        graphicsDevice.Present();
     }
+    gfx_DebugDraw_Shutdown();
+    edit_Shutdown();
 
     return 0;
 }

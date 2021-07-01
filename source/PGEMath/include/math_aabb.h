@@ -2,6 +2,8 @@
 #define PGE_MATH_MATH_AABB_H
 
 #include "math_mat4x4.h"
+#undef min
+#undef max
 
 namespace pge
 {

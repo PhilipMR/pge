@@ -133,16 +133,11 @@ namespace pge
             m_properties[i] = properties[i];
     }
 
-    const gfx_VertexShader*
-    res_Effect::VertexShader() const
+    void
+    res_Effect::Bind() const
     {
-        return m_vertexShader.get();
-    }
-
-    const gfx_PixelShader*
-    res_Effect::PixelShader() const
-    {
-        return m_pixelShader.get();
+        m_vertexShader->Bind();
+        m_pixelShader->Bind();
     }
 
     size_t
@@ -154,7 +149,7 @@ namespace pge
                 break;
             offset += m_properties->Size();
         }
-        core_Assert(offset < PropertiesCBSize());
+        core_Assert(offset < GetPropertiesCBSize());
         return offset;
     }
 
@@ -170,7 +165,7 @@ namespace pge
     }
 
     size_t
-    res_Effect::PropertiesCBSize() const
+    res_Effect::GetPropertiesCBSize() const
     {
         size_t totalSize = 0;
         for (size_t i = 0; i < m_numProperties; ++i)
@@ -192,7 +187,6 @@ namespace pge
     }
 
 
-
     // ---------------------------------
     // res_EffectCache
     // ---------------------------------
@@ -205,10 +199,8 @@ namespace pge
     {
         auto it = m_effectMap.find(path);
         if (it == m_effectMap.end()) {
-            m_effectMap.emplace(std::piecewise_construct,
-                                  std::make_tuple(path),
-                                  std::make_tuple(m_graphicsAdapter, path));
+            m_effectMap.emplace(std::piecewise_construct, std::make_tuple(path), std::make_tuple(m_graphicsAdapter, path));
         }
         return &m_effectMap.at(path);
     }
-}
+} // namespace pge

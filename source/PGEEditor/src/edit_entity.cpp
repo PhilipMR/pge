@@ -81,13 +81,6 @@ namespace pge
     {
         if (m_createdEntity == game_EntityId_Invalid) {
             m_createdEntity = m_world->GetEntityManager()->CreateEntity();
-
-            game_EntityMetaData meta;
-            meta.entity = m_createdEntity;
-            std::stringstream ss;
-            ss << "Entity [" << m_createdEntity.id << "]";
-            strcpy_s(meta.name, ss.str().c_str());
-            m_world->GetEntityMetaDataManager()->CreateMetaData(m_createdEntity, meta);
         } else {
             m_world->InsertSerializedEntity(m_sentity, m_createdEntity);
         }

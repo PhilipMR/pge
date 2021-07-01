@@ -91,14 +91,9 @@ namespace pge
             m_world->InsertSerializedEntity(m_sentity, m_createdEntity);
         } else {
             m_createdEntity = m_world->GetEntityManager()->CreateEntity();
-
-            game_EntityMetaData meta;
-            meta.entity = m_createdEntity;
             std::stringstream ss;
             ss << "Camera [" << m_createdEntity.id << "]";
-            strcpy_s(meta.name, ss.str().c_str());
-            m_world->GetEntityMetaDataManager()->CreateMetaData(m_createdEntity, meta);
-
+            m_world->GetEntityManager()->SetName(m_createdEntity, ss.str().c_str());
             m_world->GetCameraManager()->CreateCamera(m_createdEntity);
         }
     }

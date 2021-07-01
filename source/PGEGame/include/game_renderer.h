@@ -4,6 +4,7 @@
 #include <math_mat4x4.h>
 #include <gfx_graphics_device.h>
 #include <gfx_buffer.h>
+#include <gfx_render_target.h>
 #include <anim_skeleton.h>
 #include <res_mesh.h>
 #include <res_material.h>
@@ -47,6 +48,8 @@ namespace pge
         } m_cbLightsData;
         gfx_ConstantBuffer m_cbLights;
 
+        const res_Mesh m_screenMesh;
+
     public:
         game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice);
 
@@ -58,6 +61,8 @@ namespace pge
 
         void DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix);
         void DrawSkeletalMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const anim_Skeleton& skeleton);
+
+        void DrawRenderToView(const gfx_RenderTarget* rt, const res_Effect* effect);
     };
 } // namespace pge
 

@@ -33,10 +33,10 @@ namespace pge
         void
         SetProperty(size_t offset, const T& value)
         {
-            core_Assert(m_effect->PropertiesCBSize() > 0);
-            core_Assert(offset + sizeof(value) <= m_effect->PropertiesCBSize());
+            core_Assert(m_effect->GetPropertiesCBSize() > 0);
+            core_Assert(offset + sizeof(value) <= m_effect->GetPropertiesCBSize());
             memcpy(m_cbData.get() + offset, &value, sizeof(T));
-            m_cbProperties->Update(m_cbData.get(), m_effect->PropertiesCBSize());
+            m_cbProperties->Update(m_cbData.get(), m_effect->GetPropertiesCBSize());
         }
 
         template <typename T>

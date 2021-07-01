@@ -3,11 +3,32 @@
 
 namespace pge
 {
+    static const gfx_VertexAttribute SCREEN_MESH_ATTRIBS[]
+        = {gfx_VertexAttribute("POSITION", gfx_VertexAttributeType::FLOAT2), gfx_VertexAttribute("TEXTURECOORD", gfx_VertexAttributeType::FLOAT2)};
+    static const unsigned SCREEN_MESH_NUM_ATTRIBS = sizeof(SCREEN_MESH_ATTRIBS) / sizeof(SCREEN_MESH_ATTRIBS[0]);
+
+    static const math_Vec2 SCREEN_MESH_VERTICES[] = {math_Vec2(-1, 1),
+                                                     math_Vec2(0, 0),
+                                                     math_Vec2(-1, -1),
+                                                     math_Vec2(0, 1),
+                                                     math_Vec2(1, -1),
+                                                     math_Vec2(1, 1),
+                                                     math_Vec2(1, 1),
+                                                     math_Vec2(1, 0)};
+    static const unsigned  SCREEN_MESH_INDICES[]  = {0, 1, 2, 2, 3, 0};
+
     game_Renderer::game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
         : m_graphicsDevice(graphicsDevice)
         , m_cbTransform(graphicsAdapter, nullptr, sizeof(CBTransform), gfx_BufferUsage::DYNAMIC)
         , m_cbBones(graphicsAdapter, nullptr, sizeof(CBBones), gfx_BufferUsage::DYNAMIC)
         , m_cbLights(graphicsAdapter, nullptr, sizeof(CBLights), gfx_BufferUsage::DYNAMIC)
+        , m_screenMesh(graphicsAdapter,
+                       SCREEN_MESH_ATTRIBS,
+                       SCREEN_MESH_NUM_ATTRIBS,
+                       SCREEN_MESH_VERTICES,
+                       sizeof(SCREEN_MESH_VERTICES),
+                       SCREEN_MESH_INDICES,
+                       sizeof(SCREEN_MESH_INDICES) / sizeof(unsigned))
     {}
 
     void
@@ -134,5 +155,13 @@ namespace pge
         material->Bind();
 
         m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
+    }
+
+    void game_Renderer::DrawRenderToView(const gfx_RenderTarget* rt, const res_Effect* effect)
+    {
+        m_screenMesh.Bind();
+        effect->Bind();
+        rt->BindTexture(0);
+        m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, 6);
     }
 } // namespace pge

@@ -2,6 +2,7 @@
 
 #include "../include/edit_mesh.h"
 #include "../include/edit_script.h"
+
 #include <anim_skeleton.h>
 #include <input_mouse.h>
 #include <input_keyboard.h>
@@ -37,6 +38,7 @@ namespace pge
         , m_lightEditor(m_world->GetLightManager())
         , m_cameraEditor(m_world->GetCameraManager(), m_graphicsAdapter, m_world.get())
         , m_previewRT(graphicsAdapter, PREVIEW_RESOLUTION.x, PREVIEW_RESOLUTION.y, true, false)
+        , m_gameView(graphicsAdapter, resources, 1920, 1080)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_world->GetTransformManager())));
@@ -75,7 +77,7 @@ namespace pge
     }
 
     bool
-    edit_Editor::UpdateAndDraw(const gfx_RenderTarget* target)
+    edit_Editor::UpdateAndDraw()
     {
         edit_BeginFrame();
 
@@ -99,7 +101,7 @@ namespace pge
             DrawInspector();
             DrawResources();
         }
-        bool ishovering = DrawGameView(target);
+        bool ishovering = DrawGameView();
 
         edit_EndFrame();
         return ishovering;
@@ -209,12 +211,9 @@ namespace pge
                 }
             }
 
-
             // Light and Camera billboards
-            const auto* mm = scene->GetEntityMetaDataManager();
-            for (auto it = mm->CBegin(); it != mm->CEnd(); ++it) {
-                const auto& entity = it->first;
-
+            game_EntityManager& emanager = *m_world->GetEntityManager();
+            for (const auto& entity : emanager) {
                 const bool isDirLight   = scene->GetLightManager()->HasDirectionalLight(entity);
                 const bool isPointLight = scene->GetLightManager()->HasPointLight(entity);
                 core_Assert(!(isDirLight && isPointLight));
@@ -225,9 +224,9 @@ namespace pge
                     gfx_DebugDraw_Billboard(worldPos, math_Vec2(2, 2), isCamera ? m_icons.camera : m_icons.pointLight);
 
                     if (isDirLight) {
-                        auto                         lid   = scene->GetLightManager()->GetDirectionalLightId(entity);
-                        const game_DirectionalLight& light = scene->GetLightManager()->GetDirectionalLight(lid);
-                        constexpr float DIR_DRAW_LENGTH = 5.0f;
+                        auto                         lid             = scene->GetLightManager()->GetDirectionalLightId(entity);
+                        const game_DirectionalLight& light           = scene->GetLightManager()->GetDirectionalLight(lid);
+                        constexpr float              DIR_DRAW_LENGTH = 5.0f;
                         const math_Vec3 lightDir = math_Normalize((scene->GetTransformManager()->GetWorld(tid) * math_Vec4(light.direction, 0)).xyz);
                         gfx_DebugDraw_Line(worldPos, worldPos + lightDir * DIR_DRAW_LENGTH, light.color);
                     }
@@ -392,10 +391,9 @@ namespace pge
     }
 
     bool
-    edit_Editor::DrawGameView(const gfx_RenderTarget* target)
+    edit_Editor::DrawGameView()
     {
         auto* scene = m_world.get();
-
 
         ImGui::Begin("Game", nullptr, PANEL_WINDOW_FLAGS);
 
@@ -431,7 +429,7 @@ namespace pge
         ImVec2 gameWinSize(winSize.x - 20, (winSize.y - (cursPos.y + 5)) - 20 * r);
         m_gameWindowSize = math_Vec2(gameWinSize.x, gameWinSize.y);
 
-        ImGui::Image(target->GetNativeTexture(), gameWinSize);
+        m_gameView.DrawOnGUI(m_world.get(), m_gameWindowSize);
         bool isHovered = ImGui::IsWindowHovered();
 
         // Right mouse click to open entity context menu
@@ -485,12 +483,11 @@ namespace pge
 
         bool                     isAnyNodeHovered    = false;
         bool                     isEntityContextMenu = false;
-        auto*                    mm                  = world->GetEntityMetaDataManager();
         std::vector<game_Entity> entitiesToDestroy;
-        for (auto it = mm->Begin(); it != mm->End(); ++it) {
-            const auto&          entity       = it->second;
+        game_EntityManager&      emanager = *m_world->GetEntityManager();
+        for (const auto& entity : emanager) {
             static game_EntityId editEntityId = game_EntityId_Invalid;
-            bool                 isSelected   = entity.entity == m_selectedEntity;
+            bool                 isSelected   = entity == m_selectedEntity;
 
             // ImGui::Image(isSelected ? m_icons.sceneNodeSelected : m_icons.sceneNode, ImVec2(15, 15));
 
@@ -498,31 +495,32 @@ namespace pge
             ImGui::Text("%s", ICON_FA_CARET_RIGHT);
             ImGui::SameLine();
 
-            if (isSelected && editEntityId == entity.entity.id) {
+            std::string name = emanager.GetName(entity);
+            if (isSelected && editEntityId == entity.id) {
                 std::stringstream textIdSs;
-                textIdSs << "##editname" << entity.entity.id;
+                textIdSs << "##editname" << entity.id;
                 std::string textIdStr = textIdSs.str();
-                if (ImGui::InputText(textIdStr.c_str(), (char*)entity.name, sizeof(entity.name), ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    m_selectedEntity = entity.entity;
+                if (ImGui::InputText(textIdStr.c_str(), (char*)name.c_str(), name.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                    m_selectedEntity = entity;
                     editEntityId     = game_EntityId_Invalid;
                 }
             } else {
-                ImGui::Selectable(entity.name, isSelected);
+                ImGui::Selectable(name.c_str(), isSelected);
                 if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-                    editEntityId = entity.entity.id;
+                    editEntityId = entity.id;
                 } else if (ImGui::IsItemClicked()) {
-                    if (m_selectedEntity.id != entity.entity.id) {
-                        m_selectedEntity = entity.entity;
+                    if (m_selectedEntity.id != entity.id) {
+                        m_selectedEntity = entity;
                         editEntityId     = game_EntityId_Invalid;
                     }
                 }
 
                 std::stringstream ss;
-                ss << "WorldGraphEntityContextMenu" << entity.entity.id;
+                ss << "WorldGraphEntityContextMenu" << entity.id;
                 if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
                     isEntityContextMenu = true;
                     if (ImGui::Selectable("Delete entity")) {
-                        entitiesToDestroy.push_back(entity.entity);
+                        entitiesToDestroy.push_back(entity);
                     }
                     ImGui::EndPopup();
                 }
@@ -707,7 +705,7 @@ namespace pge
                         ss << " [" << std::to_string(newmesh.id) << "]";
                         meshname = ss.str();
                     }
-                    m_world->GetEntityMetaDataManager()->SetMetaData(newmesh, game_EntityMetaData(newmesh, meshname.c_str()));
+                    m_world->GetEntityManager()->SetName(newmesh, meshname.c_str());
                 }
             }
         }
