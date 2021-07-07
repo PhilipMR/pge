@@ -56,15 +56,15 @@ namespace pge
         void SetLocalLookAt(const game_TransformId& id, const math_Vec3& position, const math_Vec3& target, const math_Vec3& up);
 
 
-        math_Mat4x4 GetLocal(const game_TransformId& id) const;
+        math_Mat4x4 GetLocalMatrix(const game_TransformId& id) const;
         math_Vec3   GetLocalPosition(const game_TransformId& id) const;
         math_Quat   GetLocalRotation(const game_TransformId& id) const;
         math_Vec3   GetLocalScale(const game_TransformId& id) const;
 
+        math_Mat4x4 GetWorldMatrix(const game_TransformId& id) const;
         math_Vec3   GetWorldPosition(const game_TransformId& id) const;
         math_Quat   GetWorldRotation(const game_TransformId& id) const;
         math_Vec3   GetWorldScale(const game_TransformId& id) const;
-        math_Mat4x4 GetWorld(const game_TransformId& id) const;
 
         void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
         void InsertSerializedEntity(std::istream& is, const game_Entity& entity);

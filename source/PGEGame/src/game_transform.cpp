@@ -226,7 +226,7 @@ namespace pge
     }
 
     math_Mat4x4
-    game_TransformManager::GetLocal(const game_TransformId& id) const
+    game_TransformManager::GetLocalMatrix(const game_TransformId& id) const
     {
         core_Assert(id < m_entityMap.size());
         return m_local[id];
@@ -253,16 +253,24 @@ namespace pge
         return m_localData[id].scale;
     }
 
+    math_Mat4x4
+    game_TransformManager::GetWorldMatrix(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        return m_world[id];
+    }
+
     math_Vec3
     game_TransformManager::GetWorldPosition(const game_TransformId& id) const
     {
         core_Assert(id < m_entityMap.size());
+        math_Vec3 worldPos = m_localData[id].position;
         game_TransformId pid = m_parent[id];
-        math_Vec3        parPos;
-        if (pid != game_TransformId_Invalid) {
-            parPos = GetWorldPosition(pid);
+        while(pid != game_TransformId_Invalid) {
+            worldPos += GetWorldPosition(pid);
+            pid = m_parent[pid];
         }
-        return parPos + m_localData[id].position;
+        return worldPos;
     }
 
     math_Quat
@@ -292,12 +300,6 @@ namespace pge
         return scale;
     }
 
-    math_Mat4x4
-    game_TransformManager::GetWorld(const game_TransformId& id) const
-    {
-        core_Assert(id < m_entityMap.size());
-        return m_world[id];
-    }
 
     constexpr unsigned SERIALIZE_VERSION = 1;
 

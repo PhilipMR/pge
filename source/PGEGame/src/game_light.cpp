@@ -158,7 +158,7 @@ namespace pge
     }
 
     game_Entity
-    game_LightManager::FindEntityAtCursor(const math_Vec2&   cursorNorm,
+    game_LightManager::FindLightAtCursor(const math_Vec2&   cursorNorm,
                                           const math_Vec2&   rectSize,
                                           const math_Mat4x4& view,
                                           const math_Mat4x4& proj,

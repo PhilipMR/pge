@@ -86,6 +86,9 @@ namespace pge
         game_EntityIterator begin() const;
         game_EntityIterator end() const;
 
+        void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
+        void InsertSerializedEntity(std::istream& is, const game_Entity& entity);
+
         friend std::ostream& operator<<(std::ostream& os, const game_EntityManager& em);
         friend std::istream& operator>>(std::istream& is, game_EntityManager& em);
     };

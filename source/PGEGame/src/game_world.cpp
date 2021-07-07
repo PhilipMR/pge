@@ -64,10 +64,10 @@ namespace pge
         math_Vec2 cursorNorm(cursor.x / viewSize.x, cursor.y / viewSize.y);
 
         float       lightSelectDistance;
-        game_Entity lightSelectEntity = m_lightManager.FindEntityAtCursor(cursorNorm, billboardSize, viewMat, projMat, &lightSelectDistance);
+        game_Entity lightSelectEntity = m_lightManager.FindLightAtCursor(cursorNorm, billboardSize, viewMat, projMat, &lightSelectDistance);
 
         float       cameraSelectDistance;
-        game_Entity cameraSelectEntity = m_cameraManager.FindEntityAtCursor(cursorNorm, billboardSize, viewMat, projMat, &cameraSelectDistance);
+        game_Entity cameraSelectEntity = m_cameraManager.FindCameraAtCursor(cursorNorm, billboardSize, viewMat, projMat, &cameraSelectDistance);
 
         struct Intersection {
             game_Entity entity;
@@ -208,7 +208,7 @@ namespace pge
     constexpr size_t   SERIALIZED_ENTITY_BUFFER_SIZE = 512;
 
     constexpr size_t SERIALIZE_TYPE_COMPLETE  = 0;
-    constexpr size_t SERIALIZE_TYPE_NAME      = 1;
+    constexpr size_t SERIALIZE_TYPE_ENTITY    = 1;
     constexpr size_t SERIALIZE_TYPE_TRANSFORM = 2;
     constexpr size_t SERIALIZE_TYPE_MESH      = 3;
     constexpr size_t SERIALIZE_TYPE_LIGHT     = 4;
@@ -235,8 +235,8 @@ namespace pge
         GarbageCollect();
 
         if (m_entityManager.IsEntityAlive(entity)) {
-            sentitystream.write((const char*)&SERIALIZE_TYPE_NAME, sizeof(SERIALIZE_TYPE_NAME));
-            //            m_entityManager.SerializeEntity(sentitystream, entity);
+            sentitystream.write((const char*)&SERIALIZE_TYPE_ENTITY, sizeof(SERIALIZE_TYPE_ENTITY));
+            m_entityManager.SerializeEntity(sentitystream, entity);
         }
         if (m_transformManager.HasTransform(entity)) {
             sentitystream.write((const char*)&SERIALIZE_TYPE_TRANSFORM, sizeof(SERIALIZE_TYPE_TRANSFORM));
@@ -276,10 +276,6 @@ namespace pge
         membuf       sbuf(sentity.get(), length);
         std::istream sentitystream(&sbuf);
 
-        if (!m_entityManager.IsEntityAlive(entity)) {
-            m_entityManager.CreateEntity(entity);
-        }
-
         bool readingStream = true;
         while (readingStream) {
             size_t compType;
@@ -288,9 +284,9 @@ namespace pge
                 case SERIALIZE_TYPE_COMPLETE: {
                     readingStream = false;
                 } break;
-                    //                case SERIALIZE_TYPE_NAME: {
-                    //                    m_entityManager.InsertSerializedEntity(sentitystream, entity);
-                    //                } break;
+                case SERIALIZE_TYPE_ENTITY: {
+                    m_entityManager.InsertSerializedEntity(sentitystream, entity);
+                } break;
                 case SERIALIZE_TYPE_TRANSFORM: {
                     m_transformManager.InsertSerializedEntity(sentitystream, entity);
                 } break;

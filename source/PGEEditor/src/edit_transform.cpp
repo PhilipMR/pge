@@ -223,7 +223,7 @@ namespace pge
     DrawAxis(const game_TransformManager* tm, const game_Entity& entity, const edit_Axis& axis)
     {
         auto        tid        = tm->GetTransformId(entity);
-        auto        world      = tm->GetWorld(tid);
+        auto        world      = tm->GetWorldMatrix(tid);
         auto        pos        = math_Vec3(world[0][3], world[1][3], world[2][3]);
         const float lineLength = 10000.0f;
 
@@ -246,7 +246,7 @@ namespace pge
         math_Vec2 deltaDir = math_Normalize(delta);
 
         auto tid   = tm->GetTransformId(entity);
-        auto world = tm->GetWorld(tid);
+        auto world = tm->GetWorldMatrix(tid);
         auto pos   = math_Vec3(world[0][3], world[1][3], world[2][3]);
 
         math_Vec3 axisVecs[3];
@@ -451,7 +451,7 @@ namespace pge
                 = (m_opMode == OPMODE_TRANSLATE) ? (ImGuizmo::TRANSLATE) : (m_opMode == OPMODE_ROTATE ? (ImGuizmo::ROTATE) : (ImGuizmo::SCALE));
             const ImGuizmo::MODE guizmoMode = m_relMode == RELMODE_LOCAL ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
-            math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocal(tid));
+            math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocalMatrix(tid));
             const math_Mat4x4 viewT  = math_Transpose(view);
             const math_Mat4x4 projT  = math_Transpose(proj);
             if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {

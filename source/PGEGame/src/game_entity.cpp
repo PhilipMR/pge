@@ -196,6 +196,30 @@ namespace pge
         return game_EntityIterator(this, m_generation.size());
     }
 
+    void
+    game_EntityManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
+    {
+        core_Assert(IsEntityAlive(entity));
+        const std::string& name    = m_names.at(entity);
+        unsigned           nameLen = name.size();
+        os.write((const char*)&nameLen, sizeof(nameLen));
+        os.write(name.c_str(), nameLen);
+    }
+
+    void
+    game_EntityManager::InsertSerializedEntity(std::istream& is, const game_Entity& entity)
+    {
+        unsigned nameLen;
+        is.read((char*)&nameLen, sizeof(nameLen));
+        std::unique_ptr<char[]> name(new char[nameLen+1]);
+        is.read(name.get(), nameLen);
+        name[nameLen] = 0;
+        if (!IsEntityAlive(entity)) {
+            CreateEntity(entity);
+        }
+        SetName(entity, name.get());
+    }
+
     std::ostream&
     operator<<(std::ostream& os, const game_EntityManager& em)
     {

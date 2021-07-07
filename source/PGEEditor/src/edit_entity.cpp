@@ -121,6 +121,9 @@ namespace pge
     {
         if (m_duplicate == game_EntityId_Invalid) {
             m_duplicate = m_world->InsertSerializedEntity(m_sentity);
+            std::stringstream ss;
+            ss << m_world->GetEntityManager()->GetName(m_duplicate) << "_copy";
+            m_world->GetEntityManager()->SetName(m_duplicate, ss.str().c_str());
         } else {
             m_world->InsertSerializedEntity(m_sentity, m_duplicate);
         }

@@ -62,11 +62,11 @@ namespace pge
         const game_PointLight* GetPointLights(size_t* count) const;
         void                   SetPointLight(const game_PointLightId& id, const game_PointLight& light);
 
-        game_Entity FindEntityAtCursor(const math_Vec2&   cursorNorm,
-                                       const math_Vec2&   rectSize,
-                                       const math_Mat4x4& view,
-                                       const math_Mat4x4& proj,
-                                       float*             distanceOut) const;
+        game_Entity FindLightAtCursor(const math_Vec2&   cursorNorm,
+                                      const math_Vec2&   rectSize,
+                                      const math_Mat4x4& view,
+                                      const math_Mat4x4& proj,
+                                      float*             distanceOut) const;
 
         void SerializeEntity(std::ostream& os, const game_Entity& entity) const;
         void InsertSerializedEntity(std::istream& is, const game_Entity& entity);

@@ -28,7 +28,7 @@ namespace pge
         perspective.nearClip = 0.01f;
         perspective.farClip  = 1000.0f;
 
-        SetPerspectiveFov(entity, perspective);
+        SetPerspective(entity, perspective);
         if (m_activeCamera == game_EntityId_Invalid) {
             m_activeCamera = entity;
         }
@@ -38,7 +38,7 @@ namespace pge
     game_CameraManager::CreateCamera(const game_Entity& entity, const game_PerspectiveInfo& perspective)
     {
         CreateCamera(entity);
-        SetPerspectiveFov(entity, perspective);
+        SetPerspective(entity, perspective);
     }
 
     void
@@ -67,20 +67,20 @@ namespace pge
     }
 
     void
-    game_CameraManager::SetPerspectiveFov(const game_Entity& camera, const game_PerspectiveInfo& perspective)
+    game_CameraManager::SetPerspective(const game_Entity& camera, const game_PerspectiveInfo& perspective)
     {
         core_Assert(HasCamera(camera));
         m_cameras.at(camera).projectionMatrix = math_PerspectiveFovRH(perspective.fov, perspective.aspect, perspective.nearClip, perspective.farClip);
         m_cameras.at(camera).perspective      = perspective;
     }
 
-    const math_Mat4x4
+    math_Mat4x4
     game_CameraManager::GetViewMatrix(const game_Entity& camera) const
     {
         core_Assert(HasCamera(camera));
         auto        tid = m_tmanager->GetTransformId(camera);
         math_Mat4x4 viewMatrix;
-        core_Verify(math_Invert(m_tmanager->GetWorld(tid), &viewMatrix));
+        core_Verify(math_Invert(m_tmanager->GetWorldMatrix(tid), &viewMatrix));
         return viewMatrix;
     }
 
@@ -91,8 +91,8 @@ namespace pge
         return m_cameras.at(camera).projectionMatrix;
     }
 
-    game_PerspectiveInfo
-    game_CameraManager::GetPerspectiveFov(const game_Entity& camera) const
+    const game_PerspectiveInfo&
+    game_CameraManager::GetPerspective(const game_Entity& camera) const
     {
         core_Assert(HasCamera(camera));
         return m_cameras.at(camera).perspective;
@@ -130,7 +130,7 @@ namespace pge
     }
 
     game_Entity
-    game_CameraManager::FindEntityAtCursor(const math_Vec2&   cursorNorm,
+    game_CameraManager::FindCameraAtCursor(const math_Vec2&   cursorNorm,
                                            const math_Vec2&   rectSize,
                                            const math_Mat4x4& view,
                                            const math_Mat4x4& proj,
@@ -175,7 +175,7 @@ namespace pge
         const math_Mat4x4& viewMatrix = GetViewMatrix(camera);
         const math_Mat4x4& projMatrix = GetProjectionMatrix(camera);
 
-        math_Mat4x4 xform = m_tmanager->GetWorld(m_tmanager->GetTransformId(camera));
+        math_Mat4x4 xform = m_tmanager->GetWorldMatrix(m_tmanager->GetTransformId(camera));
         // core_Verify(math_Invert(viewMatrix, &xform));
         math_Vec3 right    = math_Vec3(xform[0][0], xform[1][0], xform[2][0]);
         math_Vec3 up       = math_Vec3(xform[0][1], xform[1][1], xform[2][1]);

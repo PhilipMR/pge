@@ -5,7 +5,7 @@
 #include "edit_entity.h"
 #include "edit_camera.h"
 #include "edit_light.h"
-#include "edit_game_view.h"
+#include "edit_editor_views.h"
 
 #include <gfx_render_target.h>
 #include <math_vec2.h>

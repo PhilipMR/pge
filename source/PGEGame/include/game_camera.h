@@ -35,16 +35,16 @@ namespace pge
         bool HasCamera(const game_Entity& entity) const;
         void GarbageCollect(const game_EntityManager& entityManager);
 
-        void                 SetPerspectiveFov(const game_Entity& camera, const game_PerspectiveInfo& perspective);
-        const math_Mat4x4    GetViewMatrix(const game_Entity& camera) const;
-        const math_Mat4x4&   GetProjectionMatrix(const game_Entity& camera) const;
-        game_PerspectiveInfo GetPerspectiveFov(const game_Entity& camera) const;
-        void                 SetLookAt(const game_Entity& camera, const math_Vec3& position, const math_Vec3& target);
+        void                        SetPerspective(const game_Entity& camera, const game_PerspectiveInfo& perspective);
+        math_Mat4x4                 GetViewMatrix(const game_Entity& camera) const;
+        const math_Mat4x4&          GetProjectionMatrix(const game_Entity& camera) const;
+        const game_PerspectiveInfo& GetPerspective(const game_Entity& camera) const;
+        void                        SetLookAt(const game_Entity& camera, const math_Vec3& position, const math_Vec3& target);
 
         void               Activate(const game_Entity& camera);
         const game_Entity& GetActiveCamera() const;
 
-        game_Entity FindEntityAtCursor(const math_Vec2&   cursorNorm,
+        game_Entity FindCameraAtCursor(const math_Vec2&   cursorNorm,
                                        const math_Vec2&   rectSize,
                                        const math_Mat4x4& view,
                                        const math_Mat4x4& proj,

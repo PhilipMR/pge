@@ -130,7 +130,7 @@ namespace pge
             if (mesh.mesh == nullptr || mesh.material == nullptr || !em.IsEntityAlive(mesh.entity))
                 continue;
 
-            math_Mat4x4 modelMatrix = tm.HasTransform(mesh.entity) ? tm.GetWorld(tm.GetTransformId(mesh.entity)) : math_Mat4x4();
+            math_Mat4x4 modelMatrix = tm.HasTransform(mesh.entity) ? tm.GetWorldMatrix(tm.GetTransformId(mesh.entity)) : math_Mat4x4();
             if (am.HasAnimator(mesh.entity)) {
                 renderer->DrawSkeletalMesh(mesh.mesh, mesh.material, modelMatrix, am.GetAnimatedSkeleton(mesh.entity));
             } else {
@@ -148,7 +148,7 @@ namespace pge
             if (!tm.HasTransform(mesh.entity))
                 continue;
             auto aabb      = mesh.mesh->GetAABB();
-            aabb           = math_TransformAABB(aabb, tm.GetWorld(tm.GetTransformId(mesh.entity)));
+            aabb           = math_TransformAABB(aabb, tm.GetWorldMatrix(tm.GetTransformId(mesh.entity)));
             float distance = 0;
             if (math_Raycast_IntersectsAABB(ray, aabb, &distance)) {
                 if (distance < closestDistance) {

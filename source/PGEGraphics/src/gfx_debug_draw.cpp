@@ -450,30 +450,38 @@ namespace pge
         for (unsigned i = 0; i < count; ++i) {
             const math_Vec3 beginTransformed = linesBuffer[i].beginTransformed.xyz;
             const math_Vec3 endTransformed   = linesBuffer[i].endTransformed.xyz;
-            if (beginTransformed == endTransformed)
-                continue;
-
-            const math_Vec3 lineVec = math_Normalize(endTransformed - beginTransformed);
-            const math_Vec3 midLine = beginTransformed + 0.5f * (endTransformed - beginTransformed);
-            math_Vec3       side    = math_Cross(lineVec, midLine);
-            if (math_FloatEqual(lineVec.z, 0) || math_LengthSquared(side) == 0) {
-                side = (math_Mat4x4(
-               // clang-format off
-                    0, -1, 0, 0,
-                    1, 0, 0, 0,
-                    0, 0, 1, 0,
-                    0, 0, 0, 1
-                // clang-format on
-                ) * math_Vec4(lineVec, 1)).xyz;
-           }
-            const math_Vec3 sideVec = math_Normalize(side);
-            const float     lineHW  = linesBuffer[i].width * 0.5f;
 
             math_Vec4 positions[4];
-            positions[0] = math_Vec4(beginTransformed + sideVec * lineHW, 1.f);
-            positions[1] = math_Vec4(beginTransformed - sideVec * lineHW, 1.f);
-            positions[2] = math_Vec4(endTransformed - sideVec * lineHW, 1.f);
-            positions[3] = math_Vec4(endTransformed + sideVec * lineHW, 1.f);
+            if (beginTransformed == endTransformed)
+            {
+                for (size_t i = 0; i < 4; ++i) {
+                    positions[i] = math_Vec4(beginTransformed, 1);
+                }
+            }
+            else
+            {
+                const math_Vec3 lineVec = math_Normalize(endTransformed - beginTransformed);
+                const math_Vec3 midLine = beginTransformed + 0.5f * (endTransformed - beginTransformed);
+                math_Vec3       side    = math_Cross(lineVec, midLine);
+                if (math_FloatEqual(lineVec.z, 0) || math_LengthSquared(side) == 0) {
+                    side = (math_Mat4x4(
+                        // clang-format off
+                        0, -1, 0, 0,
+                        1, 0, 0, 0,
+                        0, 0, 1, 0,
+                        0, 0, 0, 1
+                        // clang-format on
+                    ) * math_Vec4(lineVec, 1)).xyz;
+                }
+                const math_Vec3 sideVec = math_Normalize(side);
+                const float     lineHW  = linesBuffer[i].width * 0.5f;
+
+                positions[0] = math_Vec4(beginTransformed + sideVec * lineHW, 1.f);
+                positions[1] = math_Vec4(beginTransformed - sideVec * lineHW, 1.f);
+                positions[2] = math_Vec4(endTransformed - sideVec * lineHW, 1.f);
+                positions[3] = math_Vec4(endTransformed + sideVec * lineHW, 1.f);
+            }
+
 
             size_t indices[] = { 0, 1, 2, 2, 3, 0 };
             for (size_t j = 0; j < 6; ++j) {
@@ -523,7 +531,6 @@ namespace pge
 
         // Draw with depth.
         if (s_pointDepthCount + s_lineDepthCount > 0) {
-            //            GPU_SetDepthMode(DEPTH_MODE::LESS_OR_EQUAL);
             s_resources->vertexBuffer.Update(s_debugVerticesDepth, sizeof(s_debugVerticesDepth), 0);
 
             // Draw points.

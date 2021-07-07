@@ -77,6 +77,7 @@ main()
     edit_Initialize(&display, &graphicsAdapter);
 
     edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
+    editor.LoadWorld("test.world");
     while (!display.IsCloseRequested()) {
         input_KeyboardClearDelta();
         input_MouseClearDelta();

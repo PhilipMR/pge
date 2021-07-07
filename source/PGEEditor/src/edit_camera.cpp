@@ -23,7 +23,7 @@ namespace pge
             return;
 
         core_Assert(m_cameraManager->HasCamera(entity));
-        game_PerspectiveInfo perspective = m_cameraManager->GetPerspectiveFov(entity);
+        game_PerspectiveInfo perspective = m_cameraManager->GetPerspective(entity);
         perspective.fov                  = math_RadToDeg(perspective.fov);
         bool changed                     = false;
 
@@ -44,7 +44,7 @@ namespace pge
         changed |= ImGui::DragFloat("Far-clip", &perspective.farClip, DRAG_FAR_CLIP.speed, DRAG_FAR_CLIP.min, DRAG_FAR_CLIP.max);
         if (changed) {
             perspective.fov = math_DegToRad(perspective.fov);
-            m_cameraManager->SetPerspectiveFov(entity, perspective);
+            m_cameraManager->SetPerspective(entity, perspective);
         }
 
         // Push render target
