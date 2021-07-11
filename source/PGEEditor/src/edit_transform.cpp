@@ -125,6 +125,7 @@ namespace pge
                 return;
             }
         }
+
         auto tid = m_tmanager->GetTransformId(entity);
         auto pos = m_tmanager->GetLocalPosition(tid);
         if (ImGui::DragFloat3("Position", &pos[0], 0.1f)) {
@@ -246,8 +247,8 @@ namespace pge
         math_Vec2 deltaDir = math_Normalize(delta);
 
         auto tid   = tm->GetTransformId(entity);
-        auto world = tm->GetWorldMatrix(tid);
-        auto pos   = math_Vec3(world[0][3], world[1][3], world[2][3]);
+        auto local = tm->GetLocalMatrix(tid);
+        auto pos   = math_Vec3(local[0][3], local[1][3], local[2][3]);
 
         math_Vec3 axisVecs[3];
         size_t    numAxisVecs = 0;
@@ -443,7 +444,6 @@ namespace pge
             m_axis = edit_Axis::NONE;
         }
 
-
         // Update and draw gizmo
         if (m_opMode != OPMODE_NONE) {
             game_TransformId          tid = m_tmanager->GetTransformId(entity);
@@ -451,13 +451,23 @@ namespace pge
                 = (m_opMode == OPMODE_TRANSLATE) ? (ImGuizmo::TRANSLATE) : (m_opMode == OPMODE_ROTATE ? (ImGuizmo::ROTATE) : (ImGuizmo::SCALE));
             const ImGuizmo::MODE guizmoMode = m_relMode == RELMODE_LOCAL ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
 
-            math_Mat4x4       localT = math_Transpose(m_tmanager->GetLocalMatrix(tid));
+            math_Mat4x4       localT = math_Transpose(m_tmanager->GetWorldMatrix(tid));
             const math_Mat4x4 viewT  = math_Transpose(view);
             const math_Mat4x4 projT  = math_Transpose(proj);
             if (ImGuizmo::Manipulate(&viewT[0][0], &projT[0][0], guizmoOp, guizmoMode, &localT[0][0], nullptr, nullptr)) {
                 m_isManipulating = true;
+
+                auto        parent = m_tmanager->GetParent(tid);
+                math_Mat4x4 parentInv;
+                if (parent != game_TransformId_Invalid) {
+                    core_Verify(math_Invert(m_tmanager->GetWorldMatrix(parent), &parentInv));
+                    parentInv = math_Transpose(parentInv);
+                }
+                localT = localT * parentInv;
+
                 math_Vec3 newRotEul, newPos, newScale;
                 ImGuizmo::DecomposeMatrixToComponents(&localT[0][0], &newPos[0], &newRotEul[0], &newScale[0]);
+
                 newRotEul *= math_PI / 180.0f;
 
                 m_tmanager->SetLocalPosition(tid, newPos);

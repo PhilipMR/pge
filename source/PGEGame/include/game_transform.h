@@ -48,6 +48,7 @@ namespace pge
         void Rotate(const game_TransformId& id, const math_Vec3& axis, float degrees);
         void Scale(const game_TransformId& id, const math_Vec3& scale);
 
+        void SetParent(const game_TransformId& child, const game_TransformId& parent);
         void SetLocal(const game_TransformId& id, const math_Vec3& position, const math_Quat& rotation, const math_Vec3& scale);
         void SetLocalPosition(const game_TransformId& id, const math_Vec3& position);
         void SetLocalRotation(const game_TransformId& id, const math_Quat& rotation);
@@ -56,10 +57,16 @@ namespace pge
         void SetLocalLookAt(const game_TransformId& id, const math_Vec3& position, const math_Vec3& target, const math_Vec3& up);
 
 
-        math_Mat4x4 GetLocalMatrix(const game_TransformId& id) const;
-        math_Vec3   GetLocalPosition(const game_TransformId& id) const;
-        math_Quat   GetLocalRotation(const game_TransformId& id) const;
-        math_Vec3   GetLocalScale(const game_TransformId& id) const;
+        const game_Entity&      GetEntity(const game_TransformId& id) const;
+        const game_TransformId& GetParent(const game_TransformId& id) const;
+        bool                    IsAncestor(const game_TransformId& id, const game_TransformId& ancestor) const;
+        const game_TransformId& GetFirstChild(const game_TransformId& id) const;
+        const game_TransformId& GetNextSibling(const game_TransformId& id) const;
+        const game_TransformId& GetPreviousSibling(const game_TransformId& id) const;
+        math_Mat4x4             GetLocalMatrix(const game_TransformId& id) const;
+        math_Vec3               GetLocalPosition(const game_TransformId& id) const;
+        math_Quat               GetLocalRotation(const game_TransformId& id) const;
+        math_Vec3               GetLocalScale(const game_TransformId& id) const;
 
         math_Mat4x4 GetWorldMatrix(const game_TransformId& id) const;
         math_Vec3   GetWorldPosition(const game_TransformId& id) const;

@@ -66,9 +66,47 @@ namespace pge
         edit_LightEditor      m_lightEditor;
         edit_CameraEditor     m_cameraEditor;
 
-        edit_GameView m_gameView;
+        edit_GameView            m_gameView;
+        edit_EntityHierarchyView m_hierarchyView;
 
-        game_Entity m_editCamera;
+        class EditCamera {
+            game_TransformManager m_transformManager;
+            game_CameraManager    m_cameraManager;
+            const game_Entity     CAM_ENTITY = 0;
+
+        public:
+            EditCamera()
+                : m_transformManager(1)
+                , m_cameraManager(&m_transformManager)
+            {
+                m_cameraManager.CreateCamera(CAM_ENTITY);
+                m_cameraManager.SetLookAt(CAM_ENTITY, math_Vec3(0, -10, 0), math_Vec3(0, 0, 0));
+            }
+
+            math_Mat4x4
+            GetView() const
+            {
+                return m_cameraManager.GetViewMatrix(CAM_ENTITY);
+            }
+
+            const math_Mat4x4&
+            GetProjection() const
+            {
+                return m_cameraManager.GetProjectionMatrix(CAM_ENTITY);
+            }
+
+            void
+            UpdateFPS()
+            {
+                m_cameraManager.UpdateFPS(CAM_ENTITY);
+            }
+
+            const float
+            GetAspect()
+            {
+                return m_cameraManager.GetPerspective(CAM_ENTITY).aspect;
+            }
+        } m_editCamera;
 
         constexpr static const math_Vec2 PREVIEW_RESOLUTION = math_Vec2(600.f, 600.f);
         gfx_RenderTarget                 m_previewRT;

@@ -30,22 +30,31 @@ namespace pge
     {
         m_behaviourManager.Update(1.0f / 60.0f);
         m_animationManager.Update(1.0f / 60.0f);
+        m_scriptManager.UpdateScripts();
+    }
+
+
+    void
+    game_World::Draw(const math_Mat4x4& view, const math_Mat4x4& proj)
+    {
+        m_scriptManager.UpdateScripts();
+
+        m_renderer.SetCamera(view, proj);
+        m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
+        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager, m_animationManager, m_entityManager);
+
+        gfx_DebugDraw_SetView(view);
+        gfx_DebugDraw_SetProjection(proj);
+        gfx_DebugDraw_Flush();
     }
 
     void
     game_World::Draw()
     {
-        m_scriptManager.UpdateScripts();
-
         const game_Entity& camera     = m_cameraManager.GetActiveCamera();
         const math_Mat4x4& cameraView = m_cameraManager.GetViewMatrix(camera);
         const math_Mat4x4& cameraProj = m_cameraManager.GetProjectionMatrix(camera);
-        m_renderer.SetCamera(cameraView, cameraProj);
-        m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
-        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager, m_animationManager, m_entityManager);
-
-        gfx_DebugDraw_SetView(cameraView);
-        gfx_DebugDraw_SetProjection(cameraProj);
+        Draw(cameraView, cameraProj);
     }
 
 

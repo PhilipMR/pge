@@ -1,35 +1,31 @@
 #include "../include/edit_entity.h"
+#include <imgui/imgui.h>
 #include <sstream>
 
 namespace pge
 {
     // ===============================
-    // edit_CommandSelectEntity
+    // edit_EntityNameEditor
     // ===============================
-    //    edit_CommandSelectEntity::edit_CommandSelectEntity(const game_Entity& entity, game_Entity* selected)
-    //        : m_entity(entity)
-    //        , m_previous(game_EntityId_Invalid)
-    //        , m_selected(selected)
-    //    {}
-    //
-    //    void
-    //    edit_CommandSelectEntity::Do()
-    //    {
-    //        m_previous  = *m_selected;
-    //        *m_selected = m_entity;
-    //    }
-    //
-    //    void
-    //    edit_CommandSelectEntity::Undo()
-    //    {
-    //        *m_selected = m_previous;
-    //    }
-    //
-    //    std::unique_ptr<edit_Command>
-    //    edit_CommandSelectEntity::Create(const game_Entity& entity, game_Entity* selected)
-    //    {
-    //        return std::unique_ptr<edit_Command>(new edit_CommandSelectEntity(entity, selected));
-    //    }
+    edit_EntityNameEditor::edit_EntityNameEditor(game_EntityManager* emanager)
+        : m_emanager(emanager)
+    {}
+
+    void
+    edit_EntityNameEditor::UpdateAndDraw(const game_Entity& entity)
+    {
+        if (!ImGui::CollapsingHeader("Name"))
+            return;
+
+        char        textBuffer[64];
+        std::string name = m_emanager->GetName(entity);
+        strcpy_s(textBuffer, name.c_str());
+
+        std::stringstream ss;
+        ss << "##editname" << entity.id;
+        if (ImGui::InputText(ss.str().c_str(), textBuffer, sizeof(textBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+            m_emanager->SetName(entity, textBuffer);
+    }
 
 
     // ===============================

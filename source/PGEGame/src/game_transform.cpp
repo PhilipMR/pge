@@ -88,6 +88,7 @@ namespace pge
         const game_TransformId& lastId  = m_entityMap.size() - 1;
         const game_Entity       lastEnt = m_entity[lastId];
 
+        SetParent(delId, game_TransformId_Invalid);
         if (delId != lastId) {
             m_entity[delId]      = m_entity[lastId];
             m_localData[delId]   = m_localData[lastId];
@@ -154,6 +155,51 @@ namespace pge
         for (size_t i = 0; i < 3; ++i)
             m_localData[id].scale[i] *= scale[i];
         SetLocal(id, math_CreateTransformMatrix(m_localData[id].position, m_localData[id].rotation, m_localData[id].scale));
+    }
+
+    void
+    game_TransformManager::SetParent(const game_TransformId& child, const game_TransformId& parent)
+    {
+        core_Assert(child != parent);
+        core_Assert(child < m_entityMap.size());
+        if (m_parent[child] == parent)
+            return;
+
+        // Remove from current parent
+        if (m_parent[child] != game_TransformId_Invalid) {
+            game_TransformId curParent = m_parent[child];
+            if (child == m_firstChild[curParent]) {
+                m_firstChild[curParent] = m_next[child];
+                if (m_firstChild[curParent] != game_TransformId_Invalid) {
+                    m_prev[m_firstChild[curParent]] = game_TransformId_Invalid;
+                }
+            } else {
+                game_TransformId t = m_firstChild[curParent];
+                while (t != child)
+                    t = m_next[t];
+                if (m_prev[t] != game_TransformId_Invalid)
+                    m_next[m_prev[t]] = m_next[t];
+                if (m_next[t] != game_TransformId_Invalid)
+                    m_prev[m_next[t]] = m_prev[t];
+            }
+        }
+
+        // Assign to new parent
+        if (parent != game_TransformId_Invalid) {
+            if (m_firstChild[parent] == game_EntityId_Invalid) {
+                m_firstChild[parent] = child;
+                m_prev[child]        = game_TransformId_Invalid;
+                m_next[child]        = game_TransformId_Invalid;
+            } else {
+                const game_TransformId prevFirst = m_firstChild[parent];
+                m_firstChild[parent]             = child;
+                m_next[child]                    = prevFirst;
+                m_prev[child]                    = game_TransformId_Invalid;
+                m_prev[prevFirst]                = child;
+            }
+        }
+
+        m_parent[child] = parent;
     }
 
     void
@@ -225,6 +271,55 @@ namespace pge
         SetLocalForward(id, math_Normalize(target - position), up);
     }
 
+    const game_Entity&
+    game_TransformManager::GetEntity(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        return m_entity[id];
+    }
+
+    const game_TransformId&
+    game_TransformManager::GetParent(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        return m_parent[id];
+    }
+
+    bool
+    game_TransformManager::IsAncestor(const game_TransformId& id, const game_TransformId& ancestor) const
+    {
+        core_Assert(id < m_entityMap.size());
+        core_Assert(ancestor < m_entityMap.size());
+        game_TransformId parent = m_parent[id];
+        while (parent != game_TransformId_Invalid) {
+            if (parent == ancestor)
+                return true;
+            parent = m_parent[parent];
+        }
+        return false;
+    }
+
+    const game_TransformId&
+    game_TransformManager::GetFirstChild(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        return m_firstChild[id];
+    }
+
+    const game_TransformId&
+    game_TransformManager::GetNextSibling(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        return m_next[id];
+    }
+
+    const game_TransformId&
+    game_TransformManager::GetPreviousSibling(const game_TransformId& id) const
+    {
+        core_Assert(id < m_entityMap.size());
+        return m_prev[id];
+    }
+
     math_Mat4x4
     game_TransformManager::GetLocalMatrix(const game_TransformId& id) const
     {
@@ -264,9 +359,9 @@ namespace pge
     game_TransformManager::GetWorldPosition(const game_TransformId& id) const
     {
         core_Assert(id < m_entityMap.size());
-        math_Vec3 worldPos = m_localData[id].position;
-        game_TransformId pid = m_parent[id];
-        while(pid != game_TransformId_Invalid) {
+        math_Vec3        worldPos = m_localData[id].position;
+        game_TransformId pid      = m_parent[id];
+        while (pid != game_TransformId_Invalid) {
             worldPos += GetWorldPosition(pid);
             pid = m_parent[pid];
         }

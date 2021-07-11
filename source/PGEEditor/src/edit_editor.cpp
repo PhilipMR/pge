@@ -37,6 +37,7 @@ namespace pge
         , m_gameView(graphicsAdapter, resources, 1920, 1080)
     {
         ImGui::LoadIniSettingsFromDisk(PATH_TO_LAYOUT_INI);
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_EntityNameEditor(m_world->GetEntityManager())));
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_TransformEditor(m_world->GetTransformManager())));
         m_transformEditor = static_cast<edit_TransformEditor*>(m_componentEditors.back().get());
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(m_world->GetStaticMeshManager(), resources)));
@@ -51,11 +52,6 @@ namespace pge
         m_icons.pauseButton       = GetImTexture("data/icons/btn_pause.png");
         m_icons.pointLight        = resources->GetTexture("data/icons/light_point.png")->GetTexture();
         m_icons.camera            = resources->GetTexture("data/icons/camera.png")->GetTexture();
-
-        m_editCamera = m_world->GetEntityManager()->CreateEntity();
-        m_world->GetCameraManager()->CreateCamera(m_editCamera);
-        m_world->GetCameraManager()->SetLookAt(m_editCamera, math_Vec3(0, -10, 0), math_Vec3(0, 0, 0));
-        m_world->GetCameraManager()->Activate(m_editCamera);
     }
 
     void
@@ -82,6 +78,8 @@ namespace pge
 
         HandleEvents();
 
+        //        ImGui::ShowDemoWindow();
+
         if (m_editMode == EDITOR_MODE_EDIT) {
             DrawMenuBar();
         }
@@ -91,7 +89,7 @@ namespace pge
             //            m_world->Update();
             m_world->GetBehaviourManager()->Update(1.0f / 60.0f);
         } else {
-            m_world->GetCameraManager()->UpdateFPS(m_editCamera);
+            m_editCamera.UpdateFPS();
         }
         DrawLog();
         if (m_editMode == EDITOR_MODE_EDIT) {
@@ -110,11 +108,8 @@ namespace pge
     game_Entity
     edit_Editor::EntityAtCursor() const
     {
-        const math_Mat4x4& viewMatrix = m_world->GetCameraManager()->GetViewMatrix(m_editCamera);
-        const math_Mat4x4& projMatrix = m_world->GetCameraManager()->GetProjectionMatrix(m_editCamera);
-
         math_Vec2 cursor = input_MousePosition() - m_gameWindowPos;
-        return m_world->FindEntityAtCursor(cursor, m_gameWindowSize, viewMatrix, projMatrix);
+        return m_world->FindEntityAtCursor(cursor, m_gameWindowSize, m_editCamera.GetView(), m_editCamera.GetProjection());
     }
 
     void
@@ -134,9 +129,7 @@ namespace pge
         ImGuizmo::Enable(m_drawGizmos);
         if (m_drawGizmos) {
             ImGuizmo::SetRect(m_gameWindowPos.x, m_gameWindowPos.y, m_gameWindowSize.x, m_gameWindowSize.y);
-            const math_Mat4x4& viewMatrix = m_world->GetCameraManager()->GetViewMatrix(m_editCamera);
-            const math_Mat4x4& projMatrix = m_world->GetCameraManager()->GetProjectionMatrix(m_editCamera);
-            m_transformGizmo.TransformEntity(m_selectedEntity, viewMatrix, projMatrix);
+            m_transformGizmo.TransformEntity(m_selectedEntity, m_editCamera.GetView(), m_editCamera.GetProjection());
 
             // Selected entity AABB
             if (m_world->GetStaticMeshManager()->HasStaticMesh(m_selectedEntity) && m_world->GetTransformManager()->HasTransform(m_selectedEntity)) {
@@ -247,11 +240,11 @@ namespace pge
         m_gameWindowPos = math_Vec2(winPos.x + cursPos.x, winPos.y + cursPos.y);
 
         ImVec2 winSize = ImGui::GetWindowSize();
-        float  aspect  = m_world->GetCameraManager()->GetPerspective(m_editCamera).aspect;
+        float  aspect  = m_editCamera.GetAspect();
         ImVec2 gameWinSize(winSize.x - 20, (winSize.y - (cursPos.y + 5)) - 20 * aspect);
         m_gameWindowSize = math_Vec2(gameWinSize.x, gameWinSize.y);
 
-        m_gameView.DrawOnGUI(m_world.get(), m_gameWindowSize);
+        m_gameView.DrawOnGUI(m_world.get(), m_gameWindowSize, m_editCamera.GetView(), m_editCamera.GetProjection());
         bool isHovered = ImGui::IsWindowHovered();
 
         // Right mouse click to open entity context menu
@@ -292,90 +285,66 @@ namespace pge
         return isHovered;
     }
 
+    static void
+    DrawLocalEntityTree(game_EntityManager*    emanager,
+                        game_TransformManager* tmanager,
+                        const game_Entity&     entity,
+                        game_Entity*           selectedEntity,
+                        game_Entity*           dragEntity)
+    {
+        bool isAnyNodeHovered    = false;
+        bool isEntityContextMenu = false;
+
+        const bool           isSelected   = entity == *selectedEntity;
+        static game_EntityId editEntityId = game_EntityId_Invalid;
+
+        ImGui::Text("%s", ICON_FA_CARET_RIGHT);
+        ImGui::SameLine();
+
+        std::string name = emanager->GetName(entity);
+        if (isSelected && editEntityId == entity.id) {
+            std::stringstream textIdSs;
+            textIdSs << "##editname" << entity.id;
+            std::string textIdStr = textIdSs.str();
+            if (ImGui::InputText(textIdStr.c_str(), (char*)name.c_str(), name.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                *selectedEntity = entity;
+                editEntityId    = game_EntityId_Invalid;
+            }
+        } else {
+            ImGui::Selectable(name.c_str(), isSelected);
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                editEntityId = entity.id;
+            } else if (*dragEntity != game_EntityId_Invalid && ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+                auto entTransform  = tmanager->GetTransformId(entity);
+                auto dragTransform = tmanager->GetTransformId(*dragEntity);
+                tmanager->SetParent(dragTransform, entTransform);
+                *dragEntity = game_EntityId_Invalid;
+            } else if (ImGui::IsItemClicked()) {
+                if (*selectedEntity != entity) {
+                    *selectedEntity = entity;
+                    editEntityId    = game_EntityId_Invalid;
+                }
+            }
+
+            std::stringstream ss;
+            ss << "WorldGraphEntityContextMenu" << entity.id;
+            if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
+                isEntityContextMenu = true;
+                if (ImGui::Selectable("Delete entity")) {
+                    emanager->DestroyEntity(entity);
+                }
+                ImGui::EndPopup();
+            }
+        }
+
+        isAnyNodeHovered |= ImGui::IsItemHovered();
+    }
+
     void
     edit_Editor::DrawEntityTree()
     {
         ImGui::Begin("World graph", nullptr, PANEL_WINDOW_FLAGS);
-
-        ImGui::SameLine();
-        ImGui::Text("%s World", ICON_FA_CARET_SQUARE_DOWN);
-        ImGui::Indent();
-
-        bool                     isAnyNodeHovered    = false;
-        bool                     isEntityContextMenu = false;
-        std::vector<game_Entity> entitiesToDestroy;
-        game_EntityManager&      emanager = *m_world->GetEntityManager();
-        for (const auto& entity : emanager) {
-            if (entity == m_editCamera)
-                continue;
-
-            static game_EntityId editEntityId = game_EntityId_Invalid;
-            bool                 isSelected   = entity == m_selectedEntity;
-
-            ImGui::Text("%s", ICON_FA_CARET_RIGHT);
-            ImGui::SameLine();
-
-            std::string name = emanager.GetName(entity);
-            if (isSelected && editEntityId == entity.id) {
-                std::stringstream textIdSs;
-                textIdSs << "##editname" << entity.id;
-                std::string textIdStr = textIdSs.str();
-                if (ImGui::InputText(textIdStr.c_str(), (char*)name.c_str(), name.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    m_selectedEntity = entity;
-                    editEntityId     = game_EntityId_Invalid;
-                }
-            } else {
-                ImGui::Selectable(name.c_str(), isSelected);
-                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-                    editEntityId = entity.id;
-                } else if (ImGui::IsItemClicked()) {
-                    if (m_selectedEntity.id != entity.id) {
-                        m_selectedEntity = entity;
-                        editEntityId     = game_EntityId_Invalid;
-                    }
-                }
-
-                std::stringstream ss;
-                ss << "WorldGraphEntityContextMenu" << entity.id;
-                if (ImGui::BeginPopupContextItem(ss.str().c_str())) {
-                    isEntityContextMenu = true;
-                    if (ImGui::Selectable("Delete entity")) {
-                        entitiesToDestroy.push_back(entity);
-                    }
-                    ImGui::EndPopup();
-                }
-            }
-
-            isAnyNodeHovered |= ImGui::IsItemHovered();
-        }
-
-        for (const auto& entity : entitiesToDestroy) {
-            m_commandStack.Do(edit_CommandDeleteEntity::Create(entity, m_world.get()));
-            if (m_selectedEntity == entity) {
-                m_selectedEntity = game_EntityId_Invalid;
-            }
-        }
-
-        if (!isAnyNodeHovered && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            m_selectedEntity = game_EntityId_Invalid;
-        }
-
-        if (!isEntityContextMenu && ImGui::BeginPopupContextWindow("WorldContextMenu")) {
-            if (ImGui::Selectable("Create entity")) {
-                m_commandStack.Do(edit_CommandCreateEntity::Create(m_world.get()));
-            }
-            if (ImGui::Selectable("Create camera")) {
-                m_commandStack.Do(edit_CommandCreateCamera::Create(m_world.get()));
-            }
-            if (ImGui::Selectable("Create light (directional)")) {
-                m_commandStack.Do(edit_CommandCreateDirectionalLight::Create(m_world.get()));
-            }
-            if (ImGui::Selectable("Create light (point)")) {
-                m_commandStack.Do(edit_CommandCreatePointLight::Create(m_world.get()));
-            }
-            ImGui::EndPopup();
-        }
-
+        m_hierarchyView.DrawOnGUI(m_world.get(), &m_selectedEntity, &m_commandStack);
         ImGui::End();
     }
 

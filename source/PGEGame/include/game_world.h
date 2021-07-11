@@ -31,6 +31,8 @@ namespace pge
         game_World(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
         void GarbageCollect();
         void Update();
+
+        void Draw(const math_Mat4x4& view, const math_Mat4x4& proj);
         void Draw();
 
         game_Entity

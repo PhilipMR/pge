@@ -2,11 +2,20 @@
 #define PGE_EDITOR_EDIT_ENTITY_H
 
 #include "edit_command.h"
+#include "edit_component.h"
 #include <game_world.h>
 #include <memory>
 
 namespace pge
 {
+    class edit_EntityNameEditor : public edit_ComponentEditor {
+        game_EntityManager* m_emanager;
+
+    public:
+        edit_EntityNameEditor(game_EntityManager* emanager);
+        virtual void UpdateAndDraw(const game_Entity& entity) override;
+    };
+
     class edit_CommandDeleteEntity : public edit_Command {
         game_Entity           m_entity;
         game_World*           m_world;

@@ -77,7 +77,29 @@ main()
     edit_Initialize(&display, &graphicsAdapter);
 
     edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-    editor.LoadWorld("test.world");
+
+    game_Entity entA = editor.GetWorld().GetEntityManager()->CreateEntity("A");
+    editor.GetWorld().GetTransformManager()->CreateTransform(entA);
+
+    game_Entity      entB   = editor.GetWorld().GetEntityManager()->CreateEntity("B");
+    game_TransformId transB = editor.GetWorld().GetTransformManager()->CreateTransform(entB);
+
+    game_Entity      entC   = editor.GetWorld().GetEntityManager()->CreateEntity("C");
+    game_TransformId transC = editor.GetWorld().GetTransformManager()->CreateTransform(entC);
+    editor.GetWorld().GetTransformManager()->SetParent(transC, transB);
+
+    game_Entity      entD   = editor.GetWorld().GetEntityManager()->CreateEntity("D");
+    game_TransformId transD = editor.GetWorld().GetTransformManager()->CreateTransform(entD);
+
+    game_Entity entE = editor.GetWorld().GetEntityManager()->CreateEntity("E");
+    game_TransformId transE = editor.GetWorld().GetTransformManager()->CreateTransform(entE);
+    editor.GetWorld().GetTransformManager()->SetParent(transE, transD);
+
+    game_Entity entF = editor.GetWorld().GetEntityManager()->CreateEntity("F");
+    editor.GetWorld().GetTransformManager()->CreateTransform(entF);
+
+
+    // editor.LoadWorld("test.world");
     while (!display.IsCloseRequested()) {
         input_KeyboardClearDelta();
         input_MouseClearDelta();
