@@ -85,10 +85,12 @@ namespace pge
         const game_TransformId& delId  = id;
         const game_Entity       delEnt = m_entity[delId];
 
+        // Remove from current parent (if any)
+        SetParent(delId, game_TransformId_Invalid);
+
+        // Swap last with current data in buffers and remap
         const game_TransformId& lastId  = m_entityMap.size() - 1;
         const game_Entity       lastEnt = m_entity[lastId];
-
-        SetParent(delId, game_TransformId_Invalid);
         if (delId != lastId) {
             m_entity[delId]      = m_entity[lastId];
             m_localData[delId]   = m_localData[lastId];
@@ -104,11 +106,11 @@ namespace pge
     }
 
     void
-    game_TransformManager::GarbageCollect(const game_EntityManager& entityManager)
+    game_TransformManager::GarbageCollect(const game_EntityManager& emanager)
     {
         for (size_t aliveStreak = 0; m_entityMap.size() > 0 && aliveStreak < 4;) {
             unsigned randIdx = rand() % m_entityMap.size();
-            if (!entityManager.IsEntityAlive(m_entity[randIdx])) {
+            if (!emanager.IsEntityAlive(m_entity[randIdx])) {
                 DestroyTransform(randIdx);
                 aliveStreak = 0;
             } else {

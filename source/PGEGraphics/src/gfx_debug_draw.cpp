@@ -24,8 +24,8 @@ namespace pge
 
 
     struct DebugLine {
-        math_Vec4 beginTransformed;
-        math_Vec4 endTransformed;
+        math_Vec3 begin;
+        math_Vec3 end;
         math_Vec4 color;
         float     width;
     };
@@ -182,29 +182,30 @@ namespace pge
                                                   "  return Input.color;"
                                                   "}";
 
-    static const char* s_debugPixelTexShaderSource = "Texture2D DiffuseMap        : register(t0);"
-                                                     "SamplerState DiffuseSampler {};"
-//                                                     "BlendState Blend {"
-//                                                     "  SrcBlend              = D3D11_BLEND_ZERO;"
-//                                                     "  DestBlend             = D3D11_BLEND_ONE;"
-//                                                     "  BlendOp               = D3D11_BLEND_OP_ADD;"
-//                                                     "  SrcBlendAlpha         = D3D11_BLEND_ONE;"
-//                                                     "  DestBlendAlpha        = D3D11_BLEND_ZERO;"
-//                                                     "  BlendOpAlpha          = D3D11_BLEND_OP_ADD;"
-//                                                     "  RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;"
-//                                                     "};"
-                                                     ""
-                                                     "struct PixelIn"
-                                                     "{"
-                                                     "  float4 positionNDC : SV_POSITION;"
-                                                     "  float2 texcoord    : TEXTURECOORD;"
-                                                     "};"
-                                                     ""
-                                                     "float4 "
-                                                     "PSMain(PixelIn input) : SV_TARGET"
-                                                     "{"
-                                                     "  return DiffuseMap.Sample(DiffuseSampler, input.texcoord);"
-                                                     "}";
+    static const char* s_debugPixelTexShaderSource
+        = "Texture2D DiffuseMap        : register(t0);"
+          "SamplerState DiffuseSampler {};"
+          //                                                     "BlendState Blend {"
+          //                                                     "  SrcBlend              = D3D11_BLEND_ZERO;"
+          //                                                     "  DestBlend             = D3D11_BLEND_ONE;"
+          //                                                     "  BlendOp               = D3D11_BLEND_OP_ADD;"
+          //                                                     "  SrcBlendAlpha         = D3D11_BLEND_ONE;"
+          //                                                     "  DestBlendAlpha        = D3D11_BLEND_ZERO;"
+          //                                                     "  BlendOpAlpha          = D3D11_BLEND_OP_ADD;"
+          //                                                     "  RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;"
+          //                                                     "};"
+          ""
+          "struct PixelIn"
+          "{"
+          "  float4 positionNDC : SV_POSITION;"
+          "  float2 texcoord    : TEXTURECOORD;"
+          "};"
+          ""
+          "float4 "
+          "PSMain(PixelIn input) : SV_TARGET"
+          "{"
+          "  return DiffuseMap.Sample(DiffuseSampler, input.texcoord);"
+          "}";
 
     struct DebugCBTransforms {
         math_Mat4x4 viewMatrix;
@@ -298,12 +299,12 @@ namespace pge
         if (depthTest) {
             s_pointsDepth[s_pointDepthCount++] = point;
             if (s_pointDepthCount >= s_pointDepthCapacity) {
-                gfx_DebugDraw_Flush();
+                gfx_DebugDraw_Render();
             }
         } else {
             s_points[s_pointCount++] = point;
             if (s_pointCount >= s_pointCapacity) {
-                gfx_DebugDraw_Flush();
+                gfx_DebugDraw_Render();
             }
         }
     }
@@ -312,19 +313,19 @@ namespace pge
     gfx_DebugDraw_Line(const math_Vec3& begin, const math_Vec3& end, const math_Vec3& color, float width, bool depthTest)
     {
         DebugLine line;
-        line.beginTransformed = s_debugTransforms.viewMatrix * math_Vec4(begin, 1.f);
-        line.endTransformed   = s_debugTransforms.viewMatrix * math_Vec4(end, 1.f);
-        line.color            = math_Vec4(color, 1.f);
-        line.width            = width;
+        line.begin = begin;
+        line.end   = end;
+        line.color = math_Vec4(color, 1.f);
+        line.width = width;
         if (depthTest) {
             s_linesDepth[s_lineDepthCount++] = line;
             if (s_lineDepthCount >= s_lineDepthCapacity) {
-                gfx_DebugDraw_Flush();
+                gfx_DebugDraw_Render();
             }
         } else {
             s_lines[s_lineCount++] = line;
             if (s_lineCount >= s_lineCapacity) {
-                gfx_DebugDraw_Flush();
+                gfx_DebugDraw_Render();
             }
         }
     }
@@ -391,7 +392,7 @@ namespace pge
         billboard.color                  = color;
         s_billboards[s_billboardCount++] = billboard;
         if (s_billboardCount >= s_billboardCapacity) {
-            gfx_DebugDraw_Flush();
+            gfx_DebugDraw_Render();
         }
     }
 
@@ -424,11 +425,11 @@ namespace pge
             positions[2] = positionTransformed + pointsBuffer[i].size * (viewRight - viewUp);
             positions[3] = positionTransformed + pointsBuffer[i].size * (viewRight + viewUp);
 
-            size_t indices[] = { 0, 1, 2, 2, 3, 0 };
+            size_t indices[] = {0, 1, 2, 2, 3, 0};
             for (size_t j = 0; j < 6; ++j) {
-                const size_t& index = indices[j];
+                const size_t& index               = indices[j];
                 destination[vertexIndex].position = math_Vec4(positions[index], 1.0f);
-                destination[vertexIndex].color = math_Vec4(pointsBuffer[i].color, 1.0f);
+                destination[vertexIndex].color    = math_Vec4(pointsBuffer[i].color, 1.0f);
                 ++vertexIndex;
             }
         }
@@ -448,30 +449,29 @@ namespace pge
     {
         unsigned vertexIndex = 0;
         for (unsigned i = 0; i < count; ++i) {
-            const math_Vec3 beginTransformed = linesBuffer[i].beginTransformed.xyz;
-            const math_Vec3 endTransformed   = linesBuffer[i].endTransformed.xyz;
+            const math_Vec3 beginTransformed = (s_debugTransforms.viewMatrix * math_Vec4(linesBuffer[i].begin, 1)).xyz;
+            const math_Vec3 endTransformed   = (s_debugTransforms.viewMatrix * math_Vec4(linesBuffer[i].end, 1)).xyz;
 
             math_Vec4 positions[4];
-            if (beginTransformed == endTransformed)
-            {
+            if (beginTransformed == endTransformed) {
                 for (size_t i = 0; i < 4; ++i) {
                     positions[i] = math_Vec4(beginTransformed, 1);
                 }
-            }
-            else
-            {
+            } else {
                 const math_Vec3 lineVec = math_Normalize(endTransformed - beginTransformed);
                 const math_Vec3 midLine = beginTransformed + 0.5f * (endTransformed - beginTransformed);
                 math_Vec3       side    = math_Cross(lineVec, midLine);
                 if (math_FloatEqual(lineVec.z, 0) || math_LengthSquared(side) == 0) {
                     side = (math_Mat4x4(
-                        // clang-format off
+                                // clang-format off
                         0, -1, 0, 0,
                         1, 0, 0, 0,
                         0, 0, 1, 0,
                         0, 0, 0, 1
-                        // clang-format on
-                    ) * math_Vec4(lineVec, 1)).xyz;
+                                // clang-format on
+                                )
+                            * math_Vec4(lineVec, 1))
+                               .xyz;
                 }
                 const math_Vec3 sideVec = math_Normalize(side);
                 const float     lineHW  = linesBuffer[i].width * 0.5f;
@@ -483,11 +483,11 @@ namespace pge
             }
 
 
-            size_t indices[] = { 0, 1, 2, 2, 3, 0 };
+            size_t indices[] = {0, 1, 2, 2, 3, 0};
             for (size_t j = 0; j < 6; ++j) {
-                const size_t& index = indices[j];
+                const size_t& index               = indices[j];
                 destination[vertexIndex].position = positions[index];
-                destination[vertexIndex].color = linesBuffer[i].color;
+                destination[vertexIndex].color    = linesBuffer[i].color;
                 ++vertexIndex;
             }
         }
@@ -496,7 +496,7 @@ namespace pge
 
 
     void
-    gfx_DebugDraw_Flush()
+    gfx_DebugDraw_Render()
     {
         unsigned vertexIndex = 0;
 
@@ -583,7 +583,11 @@ namespace pge
 
         // TODO: Push/Pop or Get previous state so we don't have to remember.
         // GPU_SetDepthMode(DEPTH_MODE::LESS_OR_EQUAL);
+    }
 
+    void
+    gfx_DebugDraw_Clear()
+    {
         s_pointCount = s_pointDepthCount = 0;
         s_lineCount = s_lineDepthCount = 0;
         s_billboardCount               = 0;

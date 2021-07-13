@@ -187,7 +187,11 @@ namespace pge
     game_EntityManager::game_EntityIterator
     game_EntityManager::begin() const
     {
-        return game_EntityIterator(this, 0);
+        unsigned idx = 0;
+        while (std::find(m_freeIndices.begin(), m_freeIndices.end(), idx) != m_freeIndices.end()) {
+            ++idx;
+        }
+        return game_EntityIterator(this, idx);
     }
 
     game_EntityManager::game_EntityIterator

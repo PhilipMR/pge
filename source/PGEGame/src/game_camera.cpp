@@ -141,8 +141,6 @@ namespace pge
 
         for (const auto& kv : m_cameras) {
             const auto& camera = kv.first;
-            if (m_activeCamera == camera)
-                continue;
 
             math_Vec3 worldPos = m_tmanager->GetWorldPosition(m_tmanager->GetTransformId(camera));
             math_Vec4 viewPos  = view * math_Vec4(worldPos, 1);

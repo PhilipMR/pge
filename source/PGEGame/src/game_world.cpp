@@ -45,7 +45,7 @@ namespace pge
 
         gfx_DebugDraw_SetView(view);
         gfx_DebugDraw_SetProjection(proj);
-        gfx_DebugDraw_Flush();
+        gfx_DebugDraw_Render();
     }
 
     void

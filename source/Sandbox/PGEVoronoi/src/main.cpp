@@ -152,7 +152,7 @@ main()
         gfx_RenderTarget_ClearMainRTV(&graphicsAdapter);
 
         DrawVoronoiMap(map);
-        gfx_DebugDraw_Flush();
+        gfx_DebugDraw_Render();
 
         graphicsDevice.Present();
     }

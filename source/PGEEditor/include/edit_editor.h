@@ -83,6 +83,12 @@ namespace pge
                 m_cameraManager.SetLookAt(CAM_ENTITY, math_Vec3(0, -10, 0), math_Vec3(0, 0, 0));
             }
 
+            void
+            Activate()
+            {
+                m_cameraManager.Activate(CAM_ENTITY);
+            }
+
             math_Mat4x4
             GetView() const
             {

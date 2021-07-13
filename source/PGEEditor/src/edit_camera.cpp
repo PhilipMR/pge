@@ -3,6 +3,7 @@
 #include <core_assert.h>
 #include <imgui/imgui.h>
 #include <sstream>
+#include <gfx_debug_draw.h>
 
 namespace pge
 {
@@ -23,10 +24,6 @@ namespace pge
             return;
 
         core_Assert(m_cameraManager->HasCamera(entity));
-        game_PerspectiveInfo perspective = m_cameraManager->GetPerspective(entity);
-        perspective.fov                  = math_RadToDeg(perspective.fov);
-        bool changed                     = false;
-
 
         struct DragFloatConfig {
             float speed;
@@ -38,6 +35,10 @@ namespace pge
         static const DragFloatConfig DRAG_NEAR_CLIP{0.1f, 0.1f, 10.0f};
         static const DragFloatConfig DRAG_FAR_CLIP{0.1f, 10.0f, 1000.0f};
 
+        game_PerspectiveInfo perspective = m_cameraManager->GetPerspective(entity);
+        perspective.fov                  = math_RadToDeg(perspective.fov);
+
+        bool changed = false;
         changed |= ImGui::DragFloat("FoV", &perspective.fov, DRAG_FOV.speed, DRAG_FOV.min, DRAG_FOV.max);
         changed |= ImGui::DragFloat("Aspect", &perspective.aspect, DRAG_ASPECT.speed, DRAG_ASPECT.min, DRAG_ASPECT.max);
         changed |= ImGui::DragFloat("Near-clip", &perspective.nearClip, DRAG_NEAR_CLIP.speed, DRAG_NEAR_CLIP.min, DRAG_NEAR_CLIP.max);

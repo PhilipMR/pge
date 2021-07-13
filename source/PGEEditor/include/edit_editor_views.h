@@ -141,6 +141,19 @@ namespace pge
             world->GetTransformManager()->SetParent(srcTransform, destTransform);
         }
 
+        void
+        DestroyRecursive(game_World* world, const game_Entity& entity, edit_CommandStack* cstack)
+        {
+            auto* tmanager = world->GetTransformManager();
+            auto  tid      = tmanager->GetTransformId(entity);
+            auto  child    = tmanager->GetFirstChild(tid);
+            while (child != game_TransformId_Invalid) {
+                DestroyRecursive(world, tmanager->GetEntity(child), cstack);
+                child = tmanager->GetNextSibling(child);
+            }
+            cstack->Do(edit_CommandDeleteEntity::Create(entity, world));
+        }
+
         bool
         DrawEntityNode(game_World* world, const game_Entity& entity, game_Entity* selectedEntity, edit_CommandStack* cstack, bool isLeaf)
         {
@@ -163,19 +176,29 @@ namespace pge
                 ImGui::EndDragDropTarget();
             }
 
-            std::stringstream cmenuId;
-            cmenuId << "EntityContextMenu" << entity.id;
-            if (ImGui::BeginPopupContextWindow(cmenuId.str().c_str())) {
-                if (ImGui::Selectable("Delete entity")) {
-                    cstack->Do(edit_CommandDeleteEntity::Create(entity, world));
-                }
-                ImGui::EndPopup();
-            }
-
             if (ImGui::IsItemHovered())
                 m_hoveredEntity = entity;
             if (ImGui::IsItemClicked())
                 *selectedEntity = entity;
+
+
+            if (m_hoveredEntity == entity) {
+                bool              destroy = false;
+                std::stringstream cmenuId;
+                cmenuId << "EntityContextMenu" << entity.id;
+                if (ImGui::BeginPopupContextWindow(cmenuId.str().c_str())) {
+                    if (ImGui::Selectable("Delete entity")) {
+                        DestroyRecursive(world, entity, cstack);
+                        destroy = true;
+                    }
+                    ImGui::EndPopup();
+                }
+                if (!isLeaf && isOpen && destroy) {
+                    ImGui::TreePop();
+                    return false;
+                }
+            }
+
 
             return isOpen;
         };
@@ -210,7 +233,6 @@ namespace pge
             const game_TransformManager* tmanager = world->GetTransformManager();
 
             // None hovered unless set by the node views
-            m_hoveredEntity = game_EntityId_Invalid;
             for (const auto& entity : emanager) {
                 if (tmanager->HasTransform(entity)) {
                     auto tid = tmanager->GetTransformId(entity);
@@ -225,6 +247,9 @@ namespace pge
                 }
             }
 
+            if ((!ImGui::IsAnyItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) || ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+                m_hoveredEntity = game_EntityId_Invalid;
+            }
             bool anyEntityHovered = m_hoveredEntity != game_EntityId_Invalid;
             if (!anyEntityHovered) {
                 if (ImGui::IsWindowHovered()) {

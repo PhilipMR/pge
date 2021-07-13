@@ -35,7 +35,8 @@ namespace pge
                                  const math_Vec2&     size,
                                  const gfx_Texture2D* texture,
                                  const math_Vec3&     color = math_Vec3(1.f, 1.f, 1.f));
-    void gfx_DebugDraw_Flush();
+    void gfx_DebugDraw_Render();
+    void gfx_DebugDraw_Clear();
 } // namespace pge
 
 #endif
