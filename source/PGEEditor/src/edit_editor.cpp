@@ -10,6 +10,7 @@
 #include <gfx_debug_draw.h>
 #include <game_world.h>
 #include <imgui/ImGuizmo.h>
+#include <imgui/IconFontAwesome5.h>
 #include <sstream>
 #include <time.h>
 
@@ -18,7 +19,6 @@ namespace pge
     extern void                   edit_BeginFrame();
     extern void                   edit_EndFrame();
     static const ImGuiWindowFlags PANEL_WINDOW_FLAGS = ImGuiWindowFlags_NoTitleBar;
-
 
     edit_Editor::edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_editMode(EDITOR_MODE_EDIT)
@@ -82,7 +82,7 @@ namespace pge
         //        ImGui::ShowDemoWindow();
 
         if (m_editMode == EDITOR_MODE_EDIT) {
-            DrawMenuBar();
+            edit_DrawMainMenuBar(m_world.get(), &m_commandStack);
         }
 
         m_world->GetAnimationManager()->Update(1.0f / 60.0f);
@@ -94,9 +94,12 @@ namespace pge
         }
         DrawLog();
         if (m_editMode == EDITOR_MODE_EDIT) {
-            m_editCamera.Activate();
             DrawGizmos();
-            DrawEntityTree();
+
+            ImGui::Begin("World graph", nullptr, PANEL_WINDOW_FLAGS);
+            m_hierarchyView.DrawOnGUI(m_world.get(), &m_selectedEntity, &m_commandStack);
+            ImGui::End();
+
             DrawResources();
         }
         bool ishovering = DrawGameView();
@@ -218,13 +221,6 @@ namespace pge
             m_selectedEntity = ((edit_CommandDuplicateEntity*)command.get())->GetCreatedEntity();
             m_commandStack.Add(std::move(command));
         }
-
-    }
-
-    void
-    edit_Editor::DrawMenuBar()
-    {
-        edit_DrawMainMenuBar(m_world.get(), &m_commandStack);
     }
 
     bool
@@ -246,8 +242,7 @@ namespace pge
         m_gameWindowSize = math_Vec2(gameWinSize.x, gameWinSize.y);
 
         m_gameView.DrawOnGUI(m_world.get(), m_gameWindowSize, m_editCamera.GetView(), m_editCamera.GetProjection());
-        if (ImGui::IsItemHovered())
-        {
+        if (ImGui::IsItemHovered()) {
             // Left mouse click to (de-)select entity
             if (input_MouseButtonPressed(input_MouseButton::LEFT)) {
                 if (!ImGuizmo::IsOver() || !m_transformGizmo.IsVisible()) {
@@ -296,14 +291,6 @@ namespace pge
     }
 
     void
-    edit_Editor::DrawEntityTree()
-    {
-        ImGui::Begin("World graph", nullptr, PANEL_WINDOW_FLAGS);
-        m_hierarchyView.DrawOnGUI(m_world.get(), &m_selectedEntity, &m_commandStack);
-        ImGui::End();
-    }
-
-    void
     edit_Editor::DrawInspector()
     {
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
@@ -327,50 +314,7 @@ namespace pge
     edit_Editor::DrawLog()
     {
         ImGui::Begin("Log", nullptr, PANEL_WINDOW_FLAGS);
-
-#undef ERROR
-        const std::uint8_t logDebugFlag   = 1 << core_LogRecord::RecordType::DEBUG;
-        const std::uint8_t logWarningFlag = 1 << core_LogRecord::RecordType::WARNING;
-        const std::uint8_t logErrorFlag   = 1 << core_LogRecord::RecordType::ERROR;
-
-        static std::uint8_t logMask = logDebugFlag | logWarningFlag | logErrorFlag;
-
-        if (ImGui::Button("Clear")) {
-            core_ClearLogRecords();
-        }
-        ImGui::SameLine();
-
-        bool showLogDebug = logMask & logDebugFlag;
-        if (ImGui::Checkbox("Debug", &showLogDebug)) {
-            logMask ^= logDebugFlag;
-        }
-        ImGui::SameLine();
-
-        bool showLogWarning = logMask & logWarningFlag;
-        if (ImGui::Checkbox("Warning", &showLogWarning)) {
-            logMask ^= logWarningFlag;
-        }
-        ImGui::SameLine();
-
-        bool showLogError = logMask & logErrorFlag;
-        if (ImGui::Checkbox("Error", &showLogError)) {
-            logMask ^= logErrorFlag;
-        }
-
-        ImGui::BeginChild("LogText", ImVec2(0, 0), true);
-        auto records = core_GetLogRecords();
-        for (const auto& record : records) {
-            if (logMask & (1 << record.type)) {
-                ImGui::Text("%s", record.message.c_str());
-            }
-        }
-        static size_t lastNumRecs = 0;
-        if (lastNumRecs != records.size()) {
-            ImGui::SetScrollHereY(1.0f);
-            lastNumRecs = records.size();
-        }
-        ImGui::EndChild();
-
+        edit_DrawLogView();
         ImGui::End();
     }
 

@@ -6,6 +6,7 @@ add_library(pge_editor
     src/edit_camera.cpp
     src/edit_command.cpp
     src/edit_editor.cpp
+    src/edit_editor_views.cpp
     src/edit_editor_win32.cpp
     src/edit_entity.cpp
     src/edit_light.cpp

@@ -88,18 +88,37 @@ namespace pge
         // Remove from current parent (if any)
         SetParent(delId, game_TransformId_Invalid);
 
+        // Detach from children
+        auto child = m_firstChild[delId];
+        while (child != game_TransformId_Invalid) {
+            m_parent[child] = game_TransformId_Invalid;
+            m_prev[child]   = game_TransformId_Invalid;
+            m_next[child]   = game_TransformId_Invalid;
+            child           = m_next[child];
+        }
+        m_firstChild[delId] = game_TransformId_Invalid;
+
         // Swap last with current data in buffers and remap
         const game_TransformId& lastId  = m_entityMap.size() - 1;
         const game_Entity       lastEnt = m_entity[lastId];
         if (delId != lastId) {
-            m_entity[delId]      = m_entity[lastId];
-            m_localData[delId]   = m_localData[lastId];
-            m_local[delId]       = m_local[lastId];
-            m_world[delId]       = m_world[lastId];
-            m_parent[delId]      = m_parent[lastId];
-            m_firstChild[delId]  = m_firstChild[lastId];
-            m_next[delId]        = m_next[lastId];
-            m_prev[delId]        = m_prev[lastId];
+            m_entity[delId]    = m_entity[lastId];
+            m_localData[delId] = m_localData[lastId];
+            m_local[delId]     = m_local[lastId];
+            m_world[delId]     = m_world[lastId];
+
+            // Update the lastId-childrens parent
+            game_TransformId c = m_firstChild[lastId];
+            while (c != game_TransformId_Invalid) {
+                SetParent(c, delId);
+                c = m_next[c];
+            }
+
+            // Update lastId's parent
+            game_TransformId p = m_parent[lastId];
+            SetParent(lastId, game_TransformId_Invalid); // Remove lastId from parent
+            SetParent(delId, p);
+
             m_entityMap[lastEnt] = delId;
         }
         m_entityMap.erase(delEnt);
@@ -172,8 +191,8 @@ namespace pge
             game_TransformId curParent = m_parent[child];
             if (child == m_firstChild[curParent]) {
                 m_firstChild[curParent] = m_next[child];
-                if (m_firstChild[curParent] != game_TransformId_Invalid) {
-                    m_prev[m_firstChild[curParent]] = game_TransformId_Invalid;
+                if (m_next[child] != game_TransformId_Invalid) {
+                    m_prev[m_next[child]] = game_TransformId_Invalid;
                 }
             } else {
                 game_TransformId t = m_firstChild[curParent];
