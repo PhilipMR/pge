@@ -29,6 +29,7 @@ namespace pge
         perspective.farClip  = 1000.0f;
 
         SetPerspective(entity, perspective);
+        SetLookAt(entity, math_Vec3::Zero(), math_Vec3(0, 1, 0));
         if (m_activeCamera == game_EntityId_Invalid) {
             m_activeCamera = entity;
         }

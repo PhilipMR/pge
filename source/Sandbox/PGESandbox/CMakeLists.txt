@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.15)
 
 project(pge_sandbox)
 
-add_executable(pge_sandbox
+add_executable(pge_sandbox WIN32
     src/main.cpp
 )
 
 add_definitions(-DNOMINMAX)
+
+target_compile_options(pge_sandbox PRIVATE /W4)
 
 target_include_directories(pge_sandbox PRIVATE 
     ../../External/imgui

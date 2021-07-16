@@ -62,10 +62,10 @@ namespace pge
 
 
     /**
-     * A class representing the game view in the editor.
+     * A class representing the editor view (main editing panel) in the editor.
      * It can draw within an existing ImGui context.
      */
-    class edit_GameView {
+    class edit_EditView {
         class EditCamera {
             game_TransformManager m_transformManager;
             game_CameraManager    m_cameraManager;
@@ -110,7 +110,7 @@ namespace pge
         game_Entity EntityAtCursor() const;
 
     public:
-        edit_GameView(gfx_GraphicsAdapter* graphicsAdapter,
+        edit_EditView(gfx_GraphicsAdapter* graphicsAdapter,
                       res_ResourceManager* resources,
                       game_World*          world,
                       edit_CommandStack*   cstack,

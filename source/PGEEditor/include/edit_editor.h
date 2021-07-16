@@ -1,20 +1,7 @@
 #ifndef PGE_EDITOR_EDIT_EDITOR_H
 #define PGE_EDITOR_EDIT_EDITOR_H
 
-#include "edit_transform.h"
-#include "edit_entity.h"
-#include "edit_camera.h"
-#include "edit_light.h"
 #include "edit_editor_views.h"
-
-#include <gfx_render_target.h>
-#include <math_vec2.h>
-#include <game_light.h>
-#include <game_world.h>
-
-#include <imgui/imgui.h>
-#include <memory>
-#include <vector>
 
 namespace pge
 {
@@ -43,7 +30,7 @@ namespace pge
 
         // Editor views
         edit_LogView             m_logView;
-        edit_GameView            m_gameView;
+        edit_EditView            m_editView;
         edit_EntityHierarchyView m_hierarchyView;
         edit_ResourceView        m_resourceView;
         edit_InspectorView       m_inspectorView;

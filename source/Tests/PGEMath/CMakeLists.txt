@@ -12,6 +12,6 @@ target_link_libraries(test_pge_math
     pge_core
 )
 target_include_directories(test_pge_math PRIVATE
+    ../../PGECore/include
     ../../PGEMath/include
-    ../../PGEDiagnostics/include
 )

@@ -201,7 +201,7 @@ namespace pge
     // ========================================
     // edit_GameView
     // ========================================
-    edit_GameView::edit_GameView(gfx_GraphicsAdapter* graphicsAdapter,
+    edit_EditView::edit_EditView(gfx_GraphicsAdapter* graphicsAdapter,
                                  res_ResourceManager* resources,
                                  game_World*          world,
                                  edit_CommandStack*   cstack,
@@ -217,7 +217,7 @@ namespace pge
     {}
 
     game_Entity
-    edit_GameView::EntityAtCursor() const
+    edit_EditView::EntityAtCursor() const
     {
         const math_Mat4x4& view = m_editCamera.GetView();
         const math_Mat4x4& proj = m_editCamera.GetProjection();
@@ -251,7 +251,7 @@ namespace pge
     }
 
     void
-    edit_GameView::DrawOnGUI(game_Entity* selectedEntity)
+    edit_EditView::DrawOnGUI(game_Entity* selectedEntity)
     {
         m_editCamera.UpdateFPS();
 
@@ -335,7 +335,7 @@ namespace pge
     }
 
     const bool
-    edit_GameView::IsHovered() const
+    edit_EditView::IsHovered() const
     {
         return m_isHovered;
     }

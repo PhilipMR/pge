@@ -1,15 +1,10 @@
 #include "../include/edit_editor.h"
 
-#include "../include/edit_mesh.h"
-#include "../include/edit_script.h"
-
-#include <anim_skeleton.h>
-#include <input_mouse.h>
-#include <input_keyboard.h>
-#include <gfx_render_target.h>
+#include "../include/edit_entity.h"
 #include <gfx_debug_draw.h>
+#include <input_keyboard.h>
 #include <game_world.h>
-#include <sstream>
+#include <imgui/imgui.h>
 #include <time.h>
 
 namespace pge
@@ -23,7 +18,7 @@ namespace pge
         , m_graphicsDevice(graphicsDevice)
         , m_resources(resources)
         , m_world(std::make_unique<game_World>(m_graphicsAdapter, m_graphicsDevice, m_resources))
-        , m_gameView(graphicsAdapter, resources, m_world.get(), &m_commandStack, 1600, 900)
+        , m_editView(graphicsAdapter, resources, m_world.get(), &m_commandStack, 1600, 900)
         , m_resourceView(graphicsAdapter, graphicsDevice, m_world.get(), m_resources)
         , m_inspectorView(m_world.get(), m_graphicsAdapter, m_resources)
     {
@@ -61,7 +56,7 @@ namespace pge
         ImGui::End();
 
         ImGui::Begin("Game", nullptr, PANEL_WINDOW_FLAGS);
-        m_gameView.DrawOnGUI(&m_selectedEntity);
+        m_editView.DrawOnGUI(&m_selectedEntity);
         ImGui::End();
 
         ImGui::Begin("Inspector", nullptr, PANEL_WINDOW_FLAGS);
@@ -70,7 +65,7 @@ namespace pge
 
         edit_EndFrame();
 
-        return m_gameView.IsHovered();
+        return m_editView.IsHovered();
     }
 
     void
