@@ -166,7 +166,9 @@ namespace pge
                                                    "{"
                                                    "  pixel_shader_input Output;"
                                                    "  Output.PositionNDC = mul(projMatrix, Vertex.position);"
-                                                   "  Output.color       = Vertex.color;"
+                                                   "  float fallOff = 100.0f;"
+                                                   "  float distance = -(Vertex.position.z / Vertex.position.w) / fallOff;"
+                                                   "  Output.color   = Vertex.color * (1 - distance);"
                                                    "  return Output;"
                                                    "}";
 

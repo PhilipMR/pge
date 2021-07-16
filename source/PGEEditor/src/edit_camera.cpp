@@ -10,11 +10,10 @@ namespace pge
     // =========================================
     // edit_CameraEditor
     // =========================================
-    edit_CameraEditor::edit_CameraEditor(game_CameraManager* cm, gfx_GraphicsAdapter* graphicsAdapter, game_World* world)
-        : m_cameraManager(cm)
+    edit_CameraEditor::edit_CameraEditor(game_World* world, gfx_GraphicsAdapter* graphicsAdapter)
+        : m_world(world)
         , m_graphicsAdapter(graphicsAdapter)
         , m_camPreviewRT(graphicsAdapter, 320, 180, true, false)
-        , m_world(world)
     {}
 
     void
@@ -23,7 +22,8 @@ namespace pge
         if (!ImGui::CollapsingHeader("Camera"))
             return;
 
-        core_Assert(m_cameraManager->HasCamera(entity));
+        game_CameraManager* camManager = m_world->GetCameraManager();
+        core_Assert(camManager->HasCamera(entity));
 
         struct DragFloatConfig {
             float speed;
@@ -35,7 +35,7 @@ namespace pge
         static const DragFloatConfig DRAG_NEAR_CLIP{0.1f, 0.1f, 10.0f};
         static const DragFloatConfig DRAG_FAR_CLIP{0.1f, 10.0f, 1000.0f};
 
-        game_PerspectiveInfo perspective = m_cameraManager->GetPerspective(entity);
+        game_PerspectiveInfo perspective = camManager->GetPerspective(entity);
         perspective.fov                  = math_RadToDeg(perspective.fov);
 
         bool changed = false;
@@ -45,7 +45,7 @@ namespace pge
         changed |= ImGui::DragFloat("Far-clip", &perspective.farClip, DRAG_FAR_CLIP.speed, DRAG_FAR_CLIP.min, DRAG_FAR_CLIP.max);
         if (changed) {
             perspective.fov = math_DegToRad(perspective.fov);
-            m_cameraManager->SetPerspective(entity, perspective);
+            camManager->SetPerspective(entity, perspective);
         }
 
         // Push render target
@@ -54,14 +54,14 @@ namespace pge
         m_camPreviewRT.Clear();
 
         // Push camera
-        const game_Entity prevCamera = m_cameraManager->GetActiveCamera();
-        m_cameraManager->Activate(entity);
+        const game_Entity prevCamera = camManager->GetActiveCamera();
+        camManager->Activate(entity);
 
         // Draw world
         m_world->Draw();
 
         // Pop camera
-        m_cameraManager->Activate(prevCamera);
+        camManager->Activate(prevCamera);
 
         // Pop render target
         if (prevRT == nullptr) {

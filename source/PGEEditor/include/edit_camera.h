@@ -10,13 +10,12 @@
 namespace pge
 {
     class edit_CameraEditor : public edit_ComponentEditor {
-        game_CameraManager*  m_cameraManager;
+        game_World*          m_world;
         gfx_GraphicsAdapter* m_graphicsAdapter;
         gfx_RenderTarget     m_camPreviewRT;
-        game_World*          m_world;
 
     public:
-        edit_CameraEditor(game_CameraManager* cm, gfx_GraphicsAdapter* graphicsAdapter, game_World* world);
+        edit_CameraEditor(game_World* world, gfx_GraphicsAdapter* graphicsAdapter);
         virtual void UpdateAndDraw(const game_Entity& entity) override;
     };
 

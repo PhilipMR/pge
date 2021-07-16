@@ -62,7 +62,7 @@ main()
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
 #endif
 
-    const math_Vec2 resolution(1920, 1080);
+    const math_Vec2 resolution(1600, 900);
 
     core_DisplayWin32        display("PGE Sandbox", resolution.x, resolution.y, WindowProc);
     gfx_GraphicsAdapterD3D11 graphicsAdapter(display.GetWindowHandle(), display.GetWidth(), display.GetHeight());
@@ -77,29 +77,6 @@ main()
     edit_Initialize(&display, &graphicsAdapter);
 
     edit_Editor editor(&graphicsAdapter, &graphicsDevice, &resources);
-
-    game_Entity entA = editor.GetWorld().GetEntityManager()->CreateEntity("A");
-    editor.GetWorld().GetTransformManager()->CreateTransform(entA);
-
-    game_Entity      entB   = editor.GetWorld().GetEntityManager()->CreateEntity("B");
-    game_TransformId transB = editor.GetWorld().GetTransformManager()->CreateTransform(entB);
-
-    game_Entity      entC   = editor.GetWorld().GetEntityManager()->CreateEntity("C");
-    game_TransformId transC = editor.GetWorld().GetTransformManager()->CreateTransform(entC);
-    editor.GetWorld().GetTransformManager()->SetParent(transC, transB);
-
-    game_Entity      entD   = editor.GetWorld().GetEntityManager()->CreateEntity("D");
-    game_TransformId transD = editor.GetWorld().GetTransformManager()->CreateTransform(entD);
-
-    game_Entity entE = editor.GetWorld().GetEntityManager()->CreateEntity("E");
-    game_TransformId transE = editor.GetWorld().GetTransformManager()->CreateTransform(entE);
-    editor.GetWorld().GetTransformManager()->SetParent(transE, transD);
-
-    game_Entity entF = editor.GetWorld().GetEntityManager()->CreateEntity("F");
-    editor.GetWorld().GetTransformManager()->CreateTransform(entF);
-
-
-    // editor.LoadWorld("test.world");
     while (!display.IsCloseRequested()) {
         input_KeyboardClearDelta();
         input_MouseClearDelta();
