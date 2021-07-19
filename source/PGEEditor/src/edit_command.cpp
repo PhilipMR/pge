@@ -7,6 +7,13 @@ namespace pge
     {}
 
     void
+    edit_CommandStack::Clear()
+    {
+        m_stack.clear();
+        m_undos = 0;
+    }
+
+    void
     edit_CommandStack::Add(std::unique_ptr<edit_Command> command)
     {
         for (size_t i = 0; i < m_undos; ++i) {

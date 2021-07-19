@@ -93,8 +93,9 @@ namespace pge
         while (child != game_TransformId_Invalid) {
             m_parent[child] = game_TransformId_Invalid;
             m_prev[child]   = game_TransformId_Invalid;
+            auto next       = m_next[child];
             m_next[child]   = game_TransformId_Invalid;
-            child           = m_next[child];
+            child           = next;
         }
         m_firstChild[delId] = game_TransformId_Invalid;
 
@@ -110,8 +111,9 @@ namespace pge
             // Update the lastId-childrens parent
             game_TransformId c = m_firstChild[lastId];
             while (c != game_TransformId_Invalid) {
+                auto next = m_next[c];
                 SetParent(c, delId);
-                c = m_next[c];
+                c = next;
             }
 
             // Update lastId's parent
@@ -185,6 +187,27 @@ namespace pge
         core_Assert(child < m_entityMap.size());
         if (m_parent[child] == parent)
             return;
+
+        // Adjust local matrix s.t. the world transform remains unchanged.
+        {
+            // World[oldparentofi] * Local[i] = World[newparentofi] * X * Local[i]
+            // => World[oldparentofi] = World[newparentofi] * X
+            // => X = inverse(World[newparentofi])) * World[oldparentofi]
+            math_Mat4x4 oldpar;
+            if (m_parent[child] != game_TransformId_Invalid) {
+                oldpar = m_world[m_parent[child]];
+            }
+
+            math_Mat4x4 newparinv;
+            if (parent != game_TransformId_Invalid) {
+                core_Verify(math_Invert(m_world[parent], &newparinv));
+            }
+
+            math_Mat4x4 X  = newparinv * oldpar;
+            m_local[child] = X * m_local[child];
+            math_DecomposeMatrix(m_local[child], &m_localData[child].position, &m_localData[child].rotation, &m_localData[child].scale);
+        }
+
 
         // Remove from current parent
         if (m_parent[child] != game_TransformId_Invalid) {
@@ -380,13 +403,8 @@ namespace pge
     game_TransformManager::GetWorldPosition(const game_TransformId& id) const
     {
         core_Assert(id < m_entityMap.size());
-        math_Vec3        worldPos = m_localData[id].position;
-        game_TransformId pid      = m_parent[id];
-        while (pid != game_TransformId_Invalid) {
-            worldPos += GetWorldPosition(pid);
-            pid = m_parent[pid];
-        }
-        return worldPos;
+        const math_Mat4x4& world = m_world[id];
+        return math_Vec3(world[0][3], world[1][3], world[2][3]);
     }
 
     math_Quat

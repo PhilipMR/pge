@@ -61,6 +61,21 @@ namespace pge
         Create(const game_Entity& entity, const math_Quat& initialRot, const math_Quat& newRot, game_TransformManager* tm);
     };
 
+    class edit_CommandSetParent : public edit_Command {
+        game_TransformId       m_transform;
+        game_TransformId       m_originalParent;
+        game_TransformId       m_newParent;
+        game_TransformManager* m_tmanager;
+
+    public:
+        edit_CommandSetParent(const game_TransformId& transform, const game_TransformId& parent, game_TransformManager* tm);
+        virtual void Do() override;
+        virtual void Undo() override;
+
+        static std::unique_ptr<edit_Command>
+        Create(const game_TransformId& transform, const game_TransformId& parent, game_TransformManager* tm);
+    };
+
 
     class edit_TransformEditor : public edit_ComponentEditor {
         game_TransformManager* m_tmanager;

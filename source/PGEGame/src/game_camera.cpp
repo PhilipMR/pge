@@ -25,8 +25,8 @@ namespace pge
         game_PerspectiveInfo perspective;
         perspective.fov      = math_DegToRad(60.0f);
         perspective.aspect   = 16.0f / 9.0f;
-        perspective.nearClip = 0.01f;
-        perspective.farClip  = 1000.0f;
+        perspective.nearClip = 1.0f;
+        perspective.farClip  = 100.0f;
 
         SetPerspective(entity, perspective);
         SetLookAt(entity, math_Vec3::Zero(), math_Vec3(0, 1, 0));
@@ -234,7 +234,11 @@ namespace pge
     {
         game_PerspectiveInfo perspective;
         is.read((char*)&perspective, sizeof(perspective));
-        CreateCamera(entity, perspective);
+        if (!HasCamera(entity)) {
+            CreateCamera(entity, perspective); 
+        } else {
+            SetPerspective(entity, perspective);
+        }
     }
 
     std::ostream&

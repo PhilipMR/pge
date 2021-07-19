@@ -48,20 +48,34 @@ namespace pge
             camManager->SetPerspective(entity, perspective);
         }
 
+
+        // Draw render pass selection
+        {
+            ImGui::BeginChild("Render", ImVec2(200, 40), true);
+
+            bool isSelected = m_renderPass == game_RenderPass::DEPTH;
+            if (ImGui::Selectable("Depth", &isSelected, 0, ImVec2(80, 20))) {
+                m_renderPass = game_RenderPass::DEPTH;
+            }
+
+            ImGui::SameLine();
+            isSelected = m_renderPass == game_RenderPass::LIGHTING;
+            if (ImGui::Selectable("Lighting", &isSelected, 0, ImVec2(100, 20))) {
+                m_renderPass = game_RenderPass::LIGHTING;
+            }
+            ImGui::EndChild();
+        }
+
         // Push render target
         const auto* prevRT = gfx_RenderTarget_GetActiveRTV();
         m_camPreviewRT.Bind();
         m_camPreviewRT.Clear();
 
-        // Push camera
-        const game_Entity prevCamera = camManager->GetActiveCamera();
-        camManager->Activate(entity);
+        const math_Mat4x4 view = camManager->GetViewMatrix(entity);
+        const math_Mat4x4 proj = camManager->GetProjectionMatrix(entity);
 
         // Draw world
-        m_world->Draw();
-
-        // Pop camera
-        camManager->Activate(prevCamera);
+        m_world->Draw(view, proj, m_renderPass);
 
         // Pop render target
         if (prevRT == nullptr) {

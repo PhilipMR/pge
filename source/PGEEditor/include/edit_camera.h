@@ -13,6 +13,7 @@ namespace pge
         game_World*          m_world;
         gfx_GraphicsAdapter* m_graphicsAdapter;
         gfx_RenderTarget     m_camPreviewRT;
+        game_RenderPass      m_renderPass = game_RenderPass::LIGHTING;
 
     public:
         edit_CameraEditor(game_World* world, gfx_GraphicsAdapter* graphicsAdapter);

@@ -1,5 +1,4 @@
 #include "../include/edit_editor_views.h"
-#include "../include/edit_entity.h"
 #include "../include/edit_mesh.h"
 #include "../include/edit_script.h"
 
@@ -28,6 +27,7 @@ namespace pge
                 if (ImGui::MenuItem("Save world as...", "CTRL+SHIFT+S")) {}
                 if (ImGui::MenuItem("Load world...", "CTRL+L")) {
                     std::ifstream is("test.world");
+                    cstack->Clear();
                     is >> *world;
                     is.close();
                 }
@@ -111,7 +111,7 @@ namespace pge
     edit_GizmoView::edit_GizmoView(game_World* world, res_ResourceManager* resources, edit_CommandStack* cstack)
         : m_transformGizmo(world->GetTransformManager(), cstack)
         , m_world(world)
-        , m_pointLightIcon(resources->GetTexture("data/icons/light_point.png")->GetTexture())
+        , m_lightIcon(resources->GetTexture("data/icons/light_point.png")->GetTexture())
         , m_cameraIcon(resources->GetTexture("data/icons/camera.png")->GetTexture())
     {}
 
@@ -143,18 +143,18 @@ namespace pge
 
         ImGuizmo::Enable(drawGizmos);
         if (drawGizmos) {
-            const game_EntityManager&     emanager  = *m_world->GetEntityManager();
-            const game_StaticMeshManager* smmanager = m_world->GetStaticMeshManager();
-            const game_TransformManager*  tmanager  = m_world->GetTransformManager();
-            const game_LightManager*      lmanager  = m_world->GetLightManager();
-            const game_CameraManager*     cmanager  = m_world->GetCameraManager();
+            const game_EntityManager&    emanager  = *m_world->GetEntityManager();
+            const game_MeshManager*      smmanager = m_world->GetMeshManager();
+            const game_TransformManager* tmanager  = m_world->GetTransformManager();
+            const game_LightManager*     lmanager  = m_world->GetLightManager();
+            const game_CameraManager*    cmanager  = m_world->GetCameraManager();
 
             ImGuizmo::SetRect(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
             m_transformGizmo.TransformEntity(selectedEntity, view, proj);
 
             // Selected entity AABB
-            if (smmanager->HasStaticMesh(selectedEntity) && tmanager->HasTransform(selectedEntity)) {
-                auto            meshId = smmanager->GetStaticMeshId(selectedEntity);
+            if (smmanager->HasMesh(selectedEntity) && tmanager->HasTransform(selectedEntity)) {
+                auto            meshId = smmanager->GetMeshId(selectedEntity);
                 const res_Mesh* mesh   = smmanager->GetMesh(meshId);
                 if (mesh != nullptr) {
                     auto transformId = tmanager->GetTransformId(selectedEntity);
@@ -167,31 +167,35 @@ namespace pge
 
             // Light and Camera billboards
             for (const auto& entity : emanager) {
+                if (!tmanager->HasTransform(entity))
+                    continue;
+
+                const auto      tid      = tmanager->GetTransformId(entity);
+                const math_Vec3 worldPos = tmanager->GetWorldPosition(tid);
+
                 const bool isDirLight   = lmanager->HasDirectionalLight(entity);
                 const bool isPointLight = lmanager->HasPointLight(entity);
-                core_Assert(!(isDirLight && isPointLight));
-                const bool isCamera = cmanager->HasCamera(entity);
+                const bool isCamera     = cmanager->HasCamera(entity);
+
                 if (isDirLight || isPointLight || isCamera) {
-                    const auto      tid      = tmanager->GetTransformId(entity);
-                    const math_Vec3 worldPos = tmanager->GetWorldPosition(tid);
-                    gfx_DebugDraw_Billboard(worldPos, math_Vec2(2, 2), isCamera ? m_cameraIcon : m_pointLightIcon);
+                    gfx_DebugDraw_Billboard(worldPos, math_Vec2(2, 2), isCamera ? m_cameraIcon : m_lightIcon);
+                }
 
-                    if (isDirLight) {
-                        auto                         lid             = lmanager->GetDirectionalLightId(entity);
-                        const game_DirectionalLight& light           = lmanager->GetDirectionalLight(lid);
-                        constexpr float              DIR_DRAW_LENGTH = 5.0f;
-                        const math_Vec3              lightDir = math_Normalize((tmanager->GetWorldMatrix(tid) * math_Vec4(light.direction, 0)).xyz);
-                        gfx_DebugDraw_Line(worldPos, worldPos + lightDir * DIR_DRAW_LENGTH, light.color);
-                    }
+                if (isDirLight && entity == selectedEntity) {
+                    auto                         lid             = lmanager->GetDirectionalLightId(entity);
+                    const game_DirectionalLight& light           = lmanager->GetDirectionalLight(lid);
+                    constexpr float              DIR_DRAW_LENGTH = 5.0f;
+                    const math_Vec3              lightDir = math_Normalize((tmanager->GetWorldMatrix(tid) * math_Vec4(light.direction, 0)).xyz);
+                    gfx_DebugDraw_Line(worldPos, worldPos + lightDir * DIR_DRAW_LENGTH, light.color);
+                }
 
-                    if (isCamera && entity == selectedEntity) {
-                        game_PerspectiveInfo perspective = cmanager->GetPerspective(entity);
-                        const math_Mat4x4    camMatrix   = tmanager->GetLocalMatrix(tid);
+                if (isCamera && entity == selectedEntity) {
+                    game_PerspectiveInfo perspective = cmanager->GetPerspective(entity);
+                    const math_Mat4x4    camMatrix   = tmanager->GetLocalMatrix(tid);
 
-                        // Draw the frustrum one unit behind the actual camera to prevent it from
-                        // obstructing its view.
-                        game_DebugDraw_Frustum(perspective, worldPos - camMatrix.Forward(), camMatrix);
-                    }
+                    // Draw the frustrum one unit behind the actual camera to prevent it from
+                    // obstructing its view.
+                    game_DebugDraw_Frustum(perspective, worldPos - camMatrix.Forward(), camMatrix);
                 }
             }
         }
@@ -227,25 +231,47 @@ namespace pge
     }
 
     static void
-    DrawGameViewMenu(bool* isPlay, bool* drawGrid, bool* drawGizmos)
+    DrawGameViewMenu(bool* isPlay, bool* drawGrid, bool* drawGizmos, game_RenderPass* drawPass)
     {
+        // Checkboxes
         float barWidth = ImGui::GetContentRegionAvailWidth();
         if (*isPlay == false) {
             ImGui::Checkbox("Grid", drawGrid);
             ImGui::SameLine();
             ImGui::Checkbox("Gizmos", drawGizmos);
-            ImGui::SameLine();
         }
 
-        const ImVec2 size(50, 20);
-        ImGui::SetCursorPosX(barWidth - size.x);
-        if (*isPlay == false) {
-            if (ImGui::Button(ICON_FA_PLAY, size)) {
-                *isPlay = true;
+        // Draw render pass selection
+        {
+            ImGui::SameLine();
+            ImGui::BeginChild("Render", ImVec2(200, 40), true);
+
+            bool isSelected = *drawPass == game_RenderPass::DEPTH;
+            if (ImGui::Selectable("Depth", &isSelected, 0, ImVec2(80, 20))) {
+                *drawPass = game_RenderPass::DEPTH;
             }
-        } else {
-            if (ImGui::Button(ICON_FA_PAUSE, size)) {
-                *isPlay = false;
+
+            ImGui::SameLine();
+            isSelected = *drawPass == game_RenderPass::LIGHTING;
+            if (ImGui::Selectable("Lighting", &isSelected, 0, ImVec2(100, 20))) {
+                *drawPass = game_RenderPass::LIGHTING;
+            }
+            ImGui::EndChild();
+        }
+
+        // Draw play bar
+        {
+            ImGui::SameLine();
+            const ImVec2 size(50, 20);
+            ImGui::SetCursorPosX(barWidth - size.x);
+            if (*isPlay == false) {
+                if (ImGui::Button(ICON_FA_PLAY, size)) {
+                    *isPlay = true;
+                }
+            } else {
+                if (ImGui::Button(ICON_FA_PAUSE, size)) {
+                    *isPlay = false;
+                }
             }
         }
     }
@@ -254,12 +280,13 @@ namespace pge
     edit_EditView::DrawOnGUI(game_Entity* selectedEntity)
     {
         m_editCamera.UpdateFPS();
-
         const math_Mat4x4 view = m_editCamera.GetView();
         const math_Mat4x4 proj = m_editCamera.GetProjection();
 
+        // TODO: Actual Play/Edit mode toggle functionality
+        //    probably through edit_Editor
         bool m_isPlaying = false;
-        DrawGameViewMenu(&m_isPlaying, &m_drawGrid, &m_drawGizmos);
+        DrawGameViewMenu(&m_isPlaying, &m_drawGrid, &m_drawGizmos, &m_drawPass);
         m_gizmoView.UpdateAndDraw(m_drawGrid, m_drawGizmos, *selectedEntity, m_viewPos, m_viewSize, view, proj);
 
         m_isHovered = ImGui::IsWindowHovered();
@@ -281,7 +308,7 @@ namespace pge
         gfx_Texture2D_Unbind(m_graphicsAdapter, 0);
         m_rtGameMs.Bind();
         m_rtGameMs.Clear();
-        m_world->Draw(view, proj);
+        m_world->Draw(view, proj, m_drawPass);
 
         // Redraw to non-multisampling texture (for ImGui)
         gfx_Texture2D_Unbind(m_graphicsAdapter, 0);
@@ -345,7 +372,7 @@ namespace pge
     // edit_EntityHierarchyView
     // ========================================
     static void
-    ApplyDrop(game_World* world, const game_Entity& targetEntity)
+    ApplyDrop(game_World* world, edit_CommandStack* cstack, const game_Entity& targetEntity)
     {
         const game_Entity& droppedEntity = *(game_Entity*)ImGui::GetDragDropPayload()->Data;
         game_TransformId   srcTransform  = world->GetTransformManager()->GetTransformId(droppedEntity);
@@ -355,7 +382,7 @@ namespace pge
             // No cycles allowed.
             return;
         }
-        world->GetTransformManager()->SetParent(srcTransform, destTransform);
+        cstack->Do(edit_CommandSetParent::Create(srcTransform, destTransform, world->GetTransformManager()));
     }
 
     static void
@@ -373,6 +400,7 @@ namespace pge
 
     bool
     edit_EntityHierarchyView::DrawEntityNode(game_World*               world,
+                                             edit_CommandStack*        cstack,
                                              const game_Entity&        entity,
                                              game_Entity*              selectedEntity,
                                              std::vector<game_Entity>* entitiesRemove,
@@ -392,7 +420,7 @@ namespace pge
         if (ImGui::BeginDragDropTarget()) {
             ImGui::AcceptDragDropPayload("_TREENODE");
             if (ImGui::GetDragDropPayload()->IsDelivery()) {
-                ApplyDrop(world, entity);
+                ApplyDrop(world, cstack, entity);
             }
             ImGui::EndDragDropTarget();
         }
@@ -425,6 +453,7 @@ namespace pge
 
     void
     edit_EntityHierarchyView::DrawLocalTree(game_World*               world,
+                                            edit_CommandStack*        cstack,
                                             const game_Entity&        entity,
                                             game_Entity*              selectedEntity,
                                             std::vector<game_Entity>* entitiesRemove)
@@ -434,14 +463,14 @@ namespace pge
         auto                      tid      = tmanager->GetTransformId(entity);
         auto                      child    = tmanager->GetFirstChild(tid);
         if (child == game_TransformId_Invalid) {
-            DrawEntityNode(world, entity, selectedEntity, entitiesRemove, true);
+            DrawEntityNode(world, cstack, entity, selectedEntity, entitiesRemove, true);
         } else {
-            bool isOpen = DrawEntityNode(world, entity, selectedEntity, entitiesRemove, false);
+            bool isOpen = DrawEntityNode(world, cstack, entity, selectedEntity, entitiesRemove, false);
             if (isOpen) {
                 while (child != game_TransformId_Invalid) {
                     game_Entity childEnt = tmanager->GetEntity(child);
                     if (emanager->IsEntityAlive(childEnt)) {
-                        DrawLocalTree(world, childEnt, selectedEntity, entitiesRemove);
+                        DrawLocalTree(world, cstack, childEnt, selectedEntity, entitiesRemove);
                     }
                     child = tmanager->GetNextSibling(child);
                 }
@@ -467,10 +496,10 @@ namespace pge
                     // Will be drawn in one of the local trees instead.
                     continue;
                 } else {
-                    DrawLocalTree(world, entity, selectedEntity, &entitiesRemove);
+                    DrawLocalTree(world, cstack, entity, selectedEntity, &entitiesRemove);
                 }
             } else {
-                DrawEntityNode(world, entity, selectedEntity, &entitiesRemove, true);
+                DrawEntityNode(world, cstack, entity, selectedEntity, &entitiesRemove, true);
             }
         }
 
@@ -490,7 +519,7 @@ namespace pge
                 } else if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
                     // (Drag-)Drop to root (drop on non-node within window)
                     if (ImGui::GetDragDropPayload() != nullptr) {
-                        ApplyDrop(world, game_EntityId_Invalid);
+                        ApplyDrop(world, cstack, game_EntityId_Invalid);
                     }
                 }
             }
@@ -544,7 +573,7 @@ namespace pge
 
         m_previewRT.Bind();
         m_previewRT.Clear();
-        m_previewRenderer.DrawMesh(mesh, material, math_Mat4x4::Identity());
+        m_previewRenderer.DrawMesh(mesh, material, math_Mat4x4::Identity(), game_RenderPass::LIGHTING);
 
         gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
 
@@ -559,7 +588,7 @@ namespace pge
         , m_world(world)
         , m_resources(resources)
         , m_previewRT(graphicsAdapter, PREVIEW_RESOLUTION.x, PREVIEW_RESOLUTION.y, true, false)
-        , m_previewRenderer(graphicsAdapter, graphicsDevice)
+        , m_previewRenderer(graphicsAdapter, graphicsDevice, resources)
     {}
 
     void
@@ -601,8 +630,8 @@ namespace pge
                 if (selectedEntity != game_EntityId_Invalid) {
                     ImGui::SameLine();
                     if (ImGui::Button("Set mesh")) {
-                        auto mid = m_world->GetStaticMeshManager()->GetStaticMeshId(selectedEntity);
-                        m_world->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
+                        auto mid = m_world->GetMeshManager()->GetMeshId(selectedEntity);
+                        m_world->GetMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
                     }
                 }
 
@@ -614,9 +643,9 @@ namespace pge
                     cstack->Add(std::move(createCommand));
 
                     m_world->GetTransformManager()->CreateTransform(newmesh);
-                    auto mid = m_world->GetStaticMeshManager()->CreateStaticMesh(newmesh);
-                    m_world->GetStaticMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
-                    m_world->GetStaticMeshManager()->SetMaterial(mid, m_resources->GetMaterial("data\\Dungeon Pack Export\\DungeonPack.mat"));
+                    auto mid = m_world->GetMeshManager()->CreateMesh(newmesh);
+                    m_world->GetMeshManager()->SetMesh(mid, m_resources->GetMesh(meshPath.c_str()));
+                    m_world->GetMeshManager()->SetMaterial(mid, m_resources->GetMaterial("data\\Dungeon Pack Export\\DungeonPack.mat"));
 
                     std::string meshname;
                     {
@@ -688,12 +717,12 @@ namespace pge
     // ========================================
     edit_InspectorView::edit_InspectorView(game_World* world, gfx_GraphicsAdapter* graphicsAdapter, res_ResourceManager* resources)
         : m_world(world)
+        , m_nameEditor(world->GetEntityManager())
         , m_transformEditor(world->GetTransformManager())
-        , m_lightEditor(world->GetLightManager())
+        , m_lightEditor(world, graphicsAdapter)
         , m_cameraEditor(world, graphicsAdapter)
     {
-        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_EntityNameEditor(world->GetEntityManager())));
-        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(world->GetStaticMeshManager(), resources)));
+        m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_MeshEditor(world->GetMeshManager(), resources)));
         m_componentEditors.push_back(std::unique_ptr<edit_ComponentEditor>(new edit_ScriptEditor(world->GetScriptManager())));
     }
 
@@ -701,8 +730,9 @@ namespace pge
     edit_InspectorView::DrawOnGUI(const game_Entity& selectedEntity)
     {
         if (selectedEntity.id != game_EntityId_Invalid) {
+            m_nameEditor.UpdateAndDraw(selectedEntity);
             m_transformEditor.UpdateAndDraw(selectedEntity);
-            if (m_world->GetLightManager()->HasDirectionalLight(selectedEntity) || m_world->GetLightManager()->HasPointLight(selectedEntity)) {
+            if (m_world->GetLightManager()->HasLight(selectedEntity)) {
                 m_lightEditor.UpdateAndDraw(selectedEntity);
             } else if (m_world->GetCameraManager()->HasCamera(selectedEntity)) {
                 m_cameraEditor.UpdateAndDraw(selectedEntity);

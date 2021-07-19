@@ -6,14 +6,19 @@
 #include <gfx_buffer.h>
 #include <gfx_render_target.h>
 #include <anim_skeleton.h>
-#include <res_mesh.h>
-#include <res_material.h>
+#include <res_resource_manager.h>
 
 #include "game_light.h"
 #include "game_camera.h"
 
 namespace pge
 {
+    enum class game_RenderPass
+    {
+        DEPTH,
+        LIGHTING
+    };
+
     class game_Renderer {
         gfx_GraphicsDevice* m_graphicsDevice;
 
@@ -48,10 +53,11 @@ namespace pge
         } m_cbLightsData;
         gfx_ConstantBuffer m_cbLights;
 
-        const res_Mesh m_screenMesh;
+        const res_Effect* m_depthFX;
+        const res_Mesh    m_screenMesh;
 
     public:
-        game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice);
+        game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources);
 
         void SetCamera(const math_Mat4x4& cameraView, const math_Mat4x4& cameraProj);
 
@@ -59,8 +65,12 @@ namespace pge
         void SetDirectionalLight(size_t slot, const game_DirectionalLight& light);
         void SetPointLight(size_t slot, const game_PointLight& light, const math_Vec3& position);
 
-        void DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix);
-        void DrawSkeletalMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const anim_Skeleton& skeleton);
+        void DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const game_RenderPass& pass);
+        void DrawSkeletalMesh(const res_Mesh*        mesh,
+                              const res_Material*    material,
+                              const math_Mat4x4&     modelMatrix,
+                              const anim_Skeleton&   skeleton,
+                              const game_RenderPass& pass);
 
         void DrawRenderToView(const gfx_RenderTarget* rt, const res_Effect* effect);
     };

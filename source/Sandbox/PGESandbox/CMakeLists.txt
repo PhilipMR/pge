@@ -8,7 +8,7 @@ add_executable(pge_sandbox WIN32
 
 add_definitions(-DNOMINMAX)
 
-target_compile_options(pge_sandbox PRIVATE /W4)
+target_compile_options(pge_sandbox PRIVATE /W3)
 
 target_include_directories(pge_sandbox PRIVATE 
     ../../External/imgui

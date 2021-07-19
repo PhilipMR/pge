@@ -36,7 +36,6 @@ namespace pge
         }
     }
 
-
     void
     game_LightManager::CreateDirectionalLight(const game_Entity& entity, const game_DirectionalLight& light)
     {
@@ -157,12 +156,19 @@ namespace pge
         m_pointLights[id] = light;
     }
 
+    bool
+    game_LightManager::HasLight(const game_Entity& entity) const
+    {
+        core_Assert(!(HasDirectionalLight(entity) && HasPointLight(entity)));
+        return HasDirectionalLight(entity) || HasPointLight(entity);
+    }
+
     game_Entity
     game_LightManager::FindLightAtCursor(const math_Vec2&   cursorNorm,
-                                          const math_Vec2&   rectSize,
-                                          const math_Mat4x4& view,
-                                          const math_Mat4x4& proj,
-                                          float*             distanceOut) const
+                                         const math_Vec2&   rectSize,
+                                         const math_Mat4x4& view,
+                                         const math_Mat4x4& proj,
+                                         float*             distanceOut) const
     {
         game_Entity closestEntity(game_EntityId_Invalid);
         float       closestDepth = std::numeric_limits<float>::max();

@@ -5,6 +5,7 @@
 #include "edit_transform.h"
 #include "edit_camera.h"
 #include "edit_light.h"
+#include "edit_entity.h"
 
 #include <core_log.h>
 #include <game_world.h>
@@ -45,12 +46,13 @@ namespace pge
     class edit_GizmoView {
         edit_TransformGizmo  m_transformGizmo;
         game_World*          m_world;
-        const gfx_Texture2D* m_pointLightIcon;
+        const gfx_Texture2D* m_lightIcon;
         const gfx_Texture2D* m_cameraIcon;
 
     public:
         edit_GizmoView(game_World* world, res_ResourceManager* resources, edit_CommandStack* cstack);
         bool IsActive() const;
+
         void UpdateAndDraw(bool               drawGrid,
                            bool               drawGizmos,
                            const game_Entity& selectedEntity,
@@ -104,8 +106,9 @@ namespace pge
         math_Vec2   m_cursorDown;
         bool        m_showEntityContext = false;
 
-        bool m_drawGrid   = true;
-        bool m_drawGizmos = true;
+        bool            m_drawGrid   = true;
+        bool            m_drawGizmos = true;
+        game_RenderPass m_drawPass   = game_RenderPass::LIGHTING;
 
         game_Entity EntityAtCursor() const;
 
@@ -117,8 +120,8 @@ namespace pge
                       unsigned             width,
                       unsigned             height);
 
-        void DrawOnGUI(game_Entity* selectedEntity);
-        const bool       IsHovered() const;
+        void       DrawOnGUI(game_Entity* selectedEntity);
+        const bool IsHovered() const;
     };
 
 
@@ -132,11 +135,16 @@ namespace pge
         game_Entity m_hoveredEntity;
 
         bool DrawEntityNode(game_World*               world,
+                            edit_CommandStack*        cstack,
                             const game_Entity&        entity,
                             game_Entity*              selectedEntity,
                             std::vector<game_Entity>* entitiesRemove,
                             bool                      isLeaf);
-        void DrawLocalTree(game_World* world, const game_Entity& entity, game_Entity* selectedEntity, std::vector<game_Entity>* entitiesRemove);
+        void DrawLocalTree(game_World*               world,
+                           edit_CommandStack*        cstack,
+                           const game_Entity&        entity,
+                           game_Entity*              selectedEntity,
+                           std::vector<game_Entity>* entitiesRemove);
 
     public:
         void DrawOnGUI(game_World* world, game_Entity* selectedEntity, edit_CommandStack* cstack);
@@ -158,13 +166,13 @@ namespace pge
         std::string m_currentDir = ROOT_DIR;
         std::string m_selectedFile;
 
-        static const std::uint8_t FILTER_FLAG_MESH = 1 << 0;
-        static const std::uint8_t FILTER_FLAG_MAT  = 1 << 1;
-        std::uint8_t              m_filterMask     = FILTER_FLAG_MESH | FILTER_FLAG_MAT;
+        const std::uint8_t FILTER_FLAG_MESH = 1 << 0;
+        const std::uint8_t FILTER_FLAG_MAT  = 1 << 1;
+        std::uint8_t       m_filterMask     = FILTER_FLAG_MESH | FILTER_FLAG_MAT;
 
-        constexpr static const math_Vec2 PREVIEW_RESOLUTION = math_Vec2(600.f, 600.f);
-        gfx_RenderTarget                 m_previewRT;
-        game_Renderer                    m_previewRenderer;
+        const math_Vec2  PREVIEW_RESOLUTION = math_Vec2(600.f, 600.f);
+        gfx_RenderTarget m_previewRT;
+        game_Renderer    m_previewRenderer;
 
         void* RenderMeshPreviewTexture(const res_Mesh* mesh, const res_Material* material);
 
@@ -186,6 +194,7 @@ namespace pge
      */
     class edit_InspectorView {
         game_World*                                        m_world;
+        edit_EntityNameEditor                              m_nameEditor;
         edit_TransformEditor                               m_transformEditor;
         edit_LightEditor                                   m_lightEditor;
         edit_CameraEditor                                  m_cameraEditor;

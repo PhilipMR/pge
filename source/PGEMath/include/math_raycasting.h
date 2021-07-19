@@ -21,6 +21,7 @@ namespace pge
     constexpr bool
     math_Raycast_IntersectsAABB(const math_Ray& ray, const math_AABB& aabb, float* distance)
     {
+        #undef max // TODO: -DNOMINMAX
         if (distance != nullptr)
             *distance = std::numeric_limits<float>::max();
 

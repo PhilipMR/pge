@@ -106,6 +106,35 @@ namespace pge
 
 
     // ---------------------------------
+    // edit_CommandSetParent
+    // ---------------------------------
+    edit_CommandSetParent::edit_CommandSetParent(const game_TransformId& transform, const game_TransformId& newParent, game_TransformManager* tm)
+        : m_transform(transform)
+        , m_newParent(newParent)
+        , m_tmanager(tm)
+    {}
+
+    void
+    edit_CommandSetParent::Do()
+    {
+        m_originalParent = m_tmanager->GetParent(m_transform);
+        m_tmanager->SetParent(m_transform, m_newParent);
+    }
+
+    void
+    edit_CommandSetParent::Undo()
+    {
+        m_tmanager->SetParent(m_transform, m_originalParent);
+    }
+
+    std::unique_ptr<edit_Command>
+    edit_CommandSetParent::Create(const game_TransformId& transform, const game_TransformId& parent, game_TransformManager* tm)
+    {
+        return std::unique_ptr<edit_Command>(new edit_CommandSetParent(transform, parent, tm));
+    }
+
+
+    // ---------------------------------
     // edit_TransformEditor
     // ---------------------------------
     edit_TransformEditor::edit_TransformEditor(game_TransformManager* tm)

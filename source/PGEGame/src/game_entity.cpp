@@ -204,8 +204,8 @@ namespace pge
     game_EntityManager::SerializeEntity(std::ostream& os, const game_Entity& entity) const
     {
         core_Assert(IsEntityAlive(entity));
-        const std::string& name    = m_names.at(entity);
-        unsigned           nameLen = name.size();
+        std::string name    = GetName(entity);
+        unsigned    nameLen = name.size();
         os.write((const char*)&nameLen, sizeof(nameLen));
         os.write(name.c_str(), nameLen);
     }
@@ -215,7 +215,7 @@ namespace pge
     {
         unsigned nameLen;
         is.read((char*)&nameLen, sizeof(nameLen));
-        std::unique_ptr<char[]> name(new char[nameLen+1]);
+        std::unique_ptr<char[]> name(new char[nameLen + 1]);
         is.read(name.get(), nameLen);
         name[nameLen] = 0;
         if (!IsEntityAlive(entity)) {
@@ -235,6 +235,11 @@ namespace pge
                 continue;
             const game_Entity entity(i, em.m_generation[i]);
             os.write((const char*)&entity.id, sizeof(game_EntityId));
+            
+            const std::string& name = em.m_names.at(entity);
+            unsigned           nameLen = name.size();
+            os.write((const char*)&nameLen, sizeof(nameLen));
+            os.write(name.c_str(), nameLen);
         }
         return os;
     }
@@ -253,10 +258,21 @@ namespace pge
         for (size_t i = 0; i < numEntities; ++i) {
             game_EntityId entityId = 0;
             is.read((char*)&entityId, sizeof(entityId));
+
+            unsigned nameLen = 0;
+            is.read((char*)&nameLen, sizeof(nameLen));
+
+            std::unique_ptr<char[]> name(new char[nameLen + 1]);
+            is.read(&name[0], nameLen);
+            name[nameLen] = '\0';
+
             game_Entity entity(entityId);
-            while (entity.GetIndex() >= em.m_generation.size())
+            while (entity.GetIndex() >= em.m_generation.size()) {
                 em.m_generation.push_back(0);
+                em.m_freeIndices.push_back(em.m_generation.size() - 1);
+            }
             em.m_generation[entity.GetIndex()] = entity.GetGeneration();
+            em.SetName(entity, name.get());
         }
         return is;
     }

@@ -20,7 +20,7 @@ namespace pge
     struct game_PointLight {
         game_Entity entity;
         math_Vec3   color;
-        float       radius{};
+        float       radius;
     };
 
     using game_DirectionalLightId                                     = unsigned;
@@ -45,7 +45,6 @@ namespace pge
         explicit game_LightManager(game_TransformManager* tmanager, size_t capacity);
         void GarbageCollect(const game_EntityManager& entityManager);
 
-
         void                         CreateDirectionalLight(const game_Entity& entity, const game_DirectionalLight& light);
         void                         DestroyDirectionalLight(const game_DirectionalLightId& id);
         bool                         HasDirectionalLight(const game_Entity& entity) const;
@@ -61,6 +60,8 @@ namespace pge
         game_PointLight        GetPointLight(const game_PointLightId& id) const;
         const game_PointLight* GetPointLights(size_t* count) const;
         void                   SetPointLight(const game_PointLightId& id, const game_PointLight& light);
+
+        bool HasLight(const game_Entity& entity) const;
 
         game_Entity FindLightAtCursor(const math_Vec2&   cursorNorm,
                                       const math_Vec2&   rectSize,

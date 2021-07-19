@@ -17,11 +17,12 @@ namespace pge
                                                      math_Vec2(1, 0)};
     static const unsigned  SCREEN_MESH_INDICES[]  = {0, 1, 2, 2, 3, 0};
 
-    game_Renderer::game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice)
+    game_Renderer::game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_graphicsDevice(graphicsDevice)
         , m_cbTransform(graphicsAdapter, nullptr, sizeof(CBTransform), gfx_BufferUsage::DYNAMIC)
         , m_cbBones(graphicsAdapter, nullptr, sizeof(CBBones), gfx_BufferUsage::DYNAMIC)
         , m_cbLights(graphicsAdapter, nullptr, sizeof(CBLights), gfx_BufferUsage::DYNAMIC)
+        , m_depthFX(resources->GetEffect("data/effects/depth.effect"))
         , m_screenMesh(graphicsAdapter,
                        SCREEN_MESH_ATTRIBS,
                        SCREEN_MESH_NUM_ATTRIBS,
@@ -113,7 +114,7 @@ namespace pge
     }
 
     void
-    game_Renderer::DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix)
+    game_Renderer::DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const game_RenderPass& pass)
     {
         core_Assert(mesh != nullptr && material != nullptr);
 
@@ -123,15 +124,28 @@ namespace pge
         m_cbTransform.Update(&m_cbTransformData, sizeof(CBTransform));
 
         m_cbTransform.BindVS(0);
-        m_cbLights.BindPS(1);
         mesh->Bind();
-        material->Bind();
+
+        switch (pass) {
+            case game_RenderPass::DEPTH: {
+                m_depthFX->Bind();
+            } break;
+
+            case game_RenderPass::LIGHTING: {
+                m_cbLights.BindPS(1);
+                material->Bind();
+            } break;
+        }
 
         m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
     }
 
     void
-    game_Renderer::DrawSkeletalMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const anim_Skeleton& skeleton)
+    game_Renderer::DrawSkeletalMesh(const res_Mesh*        mesh,
+                                    const res_Material*    material,
+                                    const math_Mat4x4&     modelMatrix,
+                                    const anim_Skeleton&   skeleton,
+                                    const game_RenderPass& pass)
     {
         core_Assert(mesh != nullptr && material != nullptr);
 
@@ -157,7 +171,8 @@ namespace pge
         m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
     }
 
-    void game_Renderer::DrawRenderToView(const gfx_RenderTarget* rt, const res_Effect* effect)
+    void
+    game_Renderer::DrawRenderToView(const gfx_RenderTarget* rt, const res_Effect* effect)
     {
         m_screenMesh.Bind();
         effect->Bind();

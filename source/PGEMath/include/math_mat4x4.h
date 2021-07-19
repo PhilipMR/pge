@@ -285,10 +285,10 @@ namespace pge
         // clang-format off
         return
         math_Mat4x4(
-            2.0f/width, 0,              0,                              -1,
-            0,          2.0f/height,    0,                              -1,
-            0,          0,              1.0f/(nearClip-farClip),        0,
-            0,          0,              nearClip/(nearClip-farClip),    1
+            2.0f/width, 0,              0,                              0,
+            0,          2.0f/height,    0,                              0,
+            0,          0,              1.0f/(nearClip-farClip),      -nearClip/(farClip-nearClip),
+            0,          0,              0,                              1
         );
         // clang-format on
     }

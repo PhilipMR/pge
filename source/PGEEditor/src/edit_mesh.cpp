@@ -1,12 +1,12 @@
 #include "../include/edit_mesh.h"
 #include <game_transform.h>
-#include <game_static_mesh.h>
+#include <game_mesh.h>
 #include <imgui/imgui.h>
 #include <ctime>
 
 namespace pge
 {
-    edit_MeshEditor::edit_MeshEditor(game_StaticMeshManager* sm, res_ResourceManager* resources)
+    edit_MeshEditor::edit_MeshEditor(game_MeshManager* sm, res_ResourceManager* resources)
         : m_meshManager(sm)
         , m_resources(resources)
         , m_lastFileSync()
@@ -35,9 +35,9 @@ namespace pge
         if (!ImGui::CollapsingHeader("Static mesh"))
             return;
 
-        if (!m_meshManager->HasStaticMesh(entity)) {
+        if (!m_meshManager->HasMesh(entity)) {
             if (ImGui::Button("Add static mesh")) {
-                m_meshManager->CreateStaticMesh(entity);
+                m_meshManager->CreateMesh(entity);
             } else {
                 return;
             }
@@ -59,7 +59,7 @@ namespace pge
 
 
         // Get active mesh index
-        game_StaticMeshId mid         = m_meshManager->GetStaticMeshId(entity);
+        game_MeshId mid         = m_meshManager->GetMeshId(entity);
         const res_Mesh*   mesh        = m_meshManager->GetMesh(mid);
         std::string       curMeshPath = mesh == nullptr ? "Not set" : mesh->GetPath();
         int               curMeshIdx  = 0;

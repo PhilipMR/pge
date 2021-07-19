@@ -5,19 +5,19 @@ namespace pge
 {
     game_World::game_World(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_transformManager(100)
-        , m_staticMeshManager(100, resources)
+        , m_meshManager(100, resources)
         , m_animationManager(100)
         , m_lightManager(&m_transformManager, 100)
         , m_scriptManager(100)
         , m_behaviourManager()
         , m_cameraManager(&m_transformManager)
-        , m_renderer(graphicsAdapter, graphicsDevice)
+        , m_renderer(graphicsAdapter, graphicsDevice, resources)
     {}
 
     void
     game_World::GarbageCollect()
     {
-        m_staticMeshManager.GarbageCollect(m_entityManager);
+        m_meshManager.GarbageCollect(m_entityManager);
         m_animationManager.GarbageCollect(m_entityManager);
         m_transformManager.GarbageCollect(m_entityManager);
         m_lightManager.GarbageCollect(m_entityManager);
@@ -35,17 +35,19 @@ namespace pge
 
 
     void
-    game_World::Draw(const math_Mat4x4& view, const math_Mat4x4& proj)
+    game_World::Draw(const math_Mat4x4& view, const math_Mat4x4& proj, const game_RenderPass& pass, bool withDebug)
     {
         m_scriptManager.UpdateScripts();
 
         m_renderer.SetCamera(view, proj);
         m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
-        m_staticMeshManager.DrawStaticMeshes(&m_renderer, m_transformManager, m_animationManager, m_entityManager);
+        m_meshManager.DrawMeshes(&m_renderer, m_transformManager, m_animationManager, m_entityManager, pass);
 
-        gfx_DebugDraw_SetView(view);
-        gfx_DebugDraw_SetProjection(proj);
-        gfx_DebugDraw_Render();
+        if (withDebug) {
+            gfx_DebugDraw_SetView(view);
+            gfx_DebugDraw_SetProjection(proj);
+            gfx_DebugDraw_Render();
+        }
     }
 
     void
@@ -54,7 +56,7 @@ namespace pge
         const game_Entity& camera     = m_cameraManager.GetActiveCamera();
         const math_Mat4x4& cameraView = m_cameraManager.GetViewMatrix(camera);
         const math_Mat4x4& cameraProj = m_cameraManager.GetProjectionMatrix(camera);
-        Draw(cameraView, cameraProj);
+        Draw(cameraView, cameraProj, game_RenderPass::LIGHTING, true);
     }
 
 
@@ -67,7 +69,7 @@ namespace pge
         const math_Mat4x4 viewProj = projMat * viewMat;
         const math_Ray    ray      = math_Raycast_RayFromPixel(cursor, viewSize, viewProj);
         float             meshSelectDistance;
-        game_Entity       meshSelectEntity = m_staticMeshManager.RaycastSelect(m_transformManager, ray, viewProj, &meshSelectDistance);
+        game_Entity       meshSelectEntity = m_meshManager.RaycastSelect(m_transformManager, ray, viewProj, &meshSelectDistance);
 
         // Point Light select
         math_Vec2 cursorNorm(cursor.x / viewSize.x, cursor.y / viewSize.y);
@@ -121,10 +123,10 @@ namespace pge
         return &m_transformManager;
     }
 
-    game_StaticMeshManager*
-    game_World::GetStaticMeshManager()
+    game_MeshManager*
+    game_World::GetMeshManager()
     {
-        return &m_staticMeshManager;
+        return &m_meshManager;
     }
 
     game_AnimationManager*
@@ -176,10 +178,10 @@ namespace pge
         return &m_transformManager;
     }
 
-    const game_StaticMeshManager*
-    game_World::GetStaticMeshManager() const
+    const game_MeshManager*
+    game_World::GetMeshManager() const
     {
-        return &m_staticMeshManager;
+        return &m_meshManager;
     }
 
     const game_AnimationManager*
@@ -251,9 +253,9 @@ namespace pge
             sentitystream.write((const char*)&SERIALIZE_TYPE_TRANSFORM, sizeof(SERIALIZE_TYPE_TRANSFORM));
             m_transformManager.SerializeEntity(sentitystream, entity);
         }
-        if (m_staticMeshManager.HasStaticMesh(entity)) {
+        if (m_meshManager.HasMesh(entity)) {
             sentitystream.write((const char*)&SERIALIZE_TYPE_MESH, sizeof(SERIALIZE_TYPE_MESH));
-            m_staticMeshManager.SerializeEntity(sentitystream, entity);
+            m_meshManager.SerializeEntity(sentitystream, entity);
         }
         if (m_lightManager.HasPointLight(entity) || m_lightManager.HasDirectionalLight(entity)) {
             sentitystream.write((const char*)&SERIALIZE_TYPE_LIGHT, sizeof(SERIALIZE_TYPE_LIGHT));
@@ -300,7 +302,7 @@ namespace pge
                     m_transformManager.InsertSerializedEntity(sentitystream, entity);
                 } break;
                 case SERIALIZE_TYPE_MESH: {
-                    m_staticMeshManager.InsertSerializedEntity(sentitystream, entity);
+                    m_meshManager.InsertSerializedEntity(sentitystream, entity);
                 } break;
                 case SERIALIZE_TYPE_LIGHT: {
                     m_lightManager.InsertSerializedEntity(sentitystream, entity);
@@ -327,27 +329,27 @@ namespace pge
     }
 
     std::ostream&
-    operator<<(std::ostream& os, const game_World& scene)
+    operator<<(std::ostream& os, const game_World& world)
     {
         os << SERIALIZE_VERSION;
-        os << scene.m_entityManager;
-        os << scene.m_transformManager;
-        os << scene.m_staticMeshManager;
-        os << scene.m_lightManager;
-        os << scene.m_cameraManager;
+        os << world.m_entityManager;
+        os << world.m_transformManager;
+        os << world.m_meshManager;
+        os << world.m_lightManager;
+        os << world.m_cameraManager;
         return os;
     }
 
     std::istream&
-    operator>>(std::istream& is, game_World& scene)
+    operator>>(std::istream& is, game_World& world)
     {
         unsigned version = 0;
         is >> version;
-        is >> scene.m_entityManager;
-        is >> scene.m_transformManager;
-        is >> scene.m_staticMeshManager;
-        is >> scene.m_lightManager;
-        is >> scene.m_cameraManager;
+        is >> world.m_entityManager;
+        is >> world.m_transformManager;
+        is >> world.m_meshManager;
+        is >> world.m_lightManager;
+        is >> world.m_cameraManager;
         return is;
     }
 } // namespace pge

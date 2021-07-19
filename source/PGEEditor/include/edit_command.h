@@ -19,6 +19,7 @@ namespace pge
 
     public:
         edit_CommandStack();
+        void Clear();
         void Add(std::unique_ptr<edit_Command> command);
         void Do(std::unique_ptr<edit_Command> command);
         void Undo();

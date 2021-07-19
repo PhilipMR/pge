@@ -1,5 +1,5 @@
 Properties {
-	float4 			MainColor 
+	float4 		MainColor 
 	Texture2D 	DiffuseMap 
 }
 
@@ -13,17 +13,17 @@ VertexShader {
 	
 	struct VertexIn
 	{
-		float3 position 	: POSITION;
-		float3 normal 		: NORMAL;
-		float2 texcoord 	: TEXTURECOORD;
+		float3 position	: POSITION;
+		float3 normal	: NORMAL;
+		float2 texcoord	: TEXTURECOORD;
 	};
 
 	struct PixelIn
 	{
-		float4 positionNDC 	: SV_POSITION;
-		float3 viewPos 		    : VIEWPOS;
-		float3 normal 				: NORMAL;
-		float2 texcoord 			: TEXTURECOORD;
+		float4 positionNDC	: SV_POSITION;
+		float3 viewPos		: VIEWPOS;
+		float3 normal		: NORMAL;
+		float2 texcoord		: TEXTURECOORD;
 	};
 
 	PixelIn VSMain(VertexIn vertex)

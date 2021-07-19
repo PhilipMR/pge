@@ -3,15 +3,18 @@
 
 #include "edit_component.h"
 #include "edit_command.h"
+#include <res_resource_manager.h>
 #include <game_world.h>
 
 namespace pge
 {
     class edit_LightEditor : public edit_ComponentEditor {
-        game_LightManager* m_lightManager;
+        gfx_GraphicsAdapter* m_graphicsAdapter;
+        game_World*          m_world;
+        gfx_RenderTarget     m_depthRT;
 
     public:
-        edit_LightEditor(game_LightManager* lm);
+        edit_LightEditor(game_World* world, gfx_GraphicsAdapter* graphicsAdapter);
         virtual void UpdateAndDraw(const game_Entity& entity) override;
     };
 

@@ -4,8 +4,13 @@
 
 namespace pge
 {
-    edit_LightEditor::edit_LightEditor(game_LightManager* lm)
-        : m_lightManager(lm)
+    static const unsigned DEPTH_RT_WIDTH = 300;
+    static const unsigned DEPTH_RT_HEIGHT = 300;
+
+    edit_LightEditor::edit_LightEditor(game_World* world, gfx_GraphicsAdapter* graphicsAdapter)
+        : m_graphicsAdapter(graphicsAdapter)
+        , m_world(world)
+        , m_depthRT(graphicsAdapter, DEPTH_RT_WIDTH, DEPTH_RT_HEIGHT, true, false)
     {}
 
     void
@@ -14,25 +19,60 @@ namespace pge
         if (!ImGui::CollapsingHeader("Light"))
             return;
 
-        core_Assert(m_lightManager->HasDirectionalLight(entity) || m_lightManager->HasPointLight(entity));
-        if (m_lightManager->HasDirectionalLight(entity)) {
-            game_DirectionalLightId lid     = m_lightManager->GetDirectionalLightId(entity);
-            game_DirectionalLight   light   = m_lightManager->GetDirectionalLight(lid);
+        game_LightManager* lmanager = m_world->GetLightManager();
+        core_Assert(lmanager->HasLight(entity));
+        if (lmanager->HasDirectionalLight(entity)) {
+            game_DirectionalLightId lid     = lmanager->GetDirectionalLightId(entity);
+            game_DirectionalLight   light   = lmanager->GetDirectionalLight(lid);
             bool                    changed = false;
             changed |= ImGui::DragFloat3("Direction", &light.direction[0]);
             changed |= ImGui::ColorPicker3("Color", &light.color[0]);
             changed |= ImGui::DragFloat("Strength", &light.strength);
             if (changed) {
-                m_lightManager->SetDirectionalLight(lid, light);
+                lmanager->SetDirectionalLight(lid, light);
             }
-        } else if (m_lightManager->HasPointLight(entity)) {
-            game_PointLightId lid     = m_lightManager->GetPointLightId(entity);
-            game_PointLight   light   = m_lightManager->GetPointLight(lid);
+
+            // Preview shadow/depth 
+            // view, proj:
+            math_Mat4x4 view, proj;
+
+            auto tid = m_world->GetTransformManager()->GetTransformId(entity);
+            core_Verify(math_Invert(m_world->GetTransformManager()->GetWorldMatrix(tid), &view));
+
+            static float OrthoWidth    = 50.0f;
+            static float OrthoHeight   = 50.0f;
+            static float OrthoNear     = 1.0f;
+            static float OrthoFar      = 50.0f;
+
+            ImGui::DragFloat("Ortho width", &OrthoWidth);
+            ImGui::DragFloat("Ortho height", &OrthoHeight);
+            ImGui::DragFloat("Ortho near", &OrthoNear);
+            ImGui::DragFloat("Ortho far", &OrthoFar);
+
+            proj = math_OrthographicRH(OrthoWidth, OrthoHeight, OrthoNear, OrthoFar);
+            //proj = math_Transpose(proj);
+
+            const gfx_RenderTarget* prev = gfx_RenderTarget_GetActiveRTV();
+            m_depthRT.Bind();
+            m_depthRT.Clear();
+            m_world->Draw(view, proj, game_RenderPass::DEPTH, false);
+            if (prev == nullptr) {
+                gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
+            } else {
+                prev->Bind();
+            }
+
+            ImTextureID depthTex = m_depthRT.GetNativeTexture();
+            ImGui::Image(depthTex, ImVec2(m_depthRT.GetWidth(), m_depthRT.GetHeight()));
+
+        } else if (lmanager->HasPointLight(entity)) {
+            game_PointLightId lid     = lmanager->GetPointLightId(entity);
+            game_PointLight   light   = lmanager->GetPointLight(lid);
             bool              changed = false;
             changed |= ImGui::DragFloat("Radius", &light.radius);
             changed |= ImGui::ColorPicker3("Color", &light.color[0]);
             if (changed) {
-                m_lightManager->SetPointLight(lid, light);
+                lmanager->SetPointLight(lid, light);
             }
         }
     }

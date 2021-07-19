@@ -1,0 +1,45 @@
+Properties {
+}
+
+VertexShader {
+	cbuffer CBTransforms : register(b0)
+	{
+	  row_major float4x4 ModelMatrix;
+	  row_major float4x4 ViewMatrix;
+	  row_major float4x4 ProjMatrix;
+	};
+	
+	struct VertexIn
+	{
+		float3 position : POSITION;
+	};
+
+	struct PixelIn
+	{
+		float4 positionNDC : SV_POSITION;
+		float  depth	   : DEPTH;
+	};
+
+	PixelIn VSMain(VertexIn vertex)
+	{
+		PixelIn outp;
+		outp.positionNDC = mul(ProjMatrix, mul(ViewMatrix, mul(ModelMatrix, float4(vertex.position, 1.0f))));
+		outp.depth = outp.positionNDC.z / outp.positionNDC.w;
+		return outp;
+	}
+}
+
+PixelShader {
+	struct PixelIn
+	{
+		float4 positionNDC : SV_POSITION;
+		float  depth	   : DEPTH;
+	};
+
+
+	float4 PSMain(PixelIn pixel) : SV_TARGET
+	{
+	    float depth = pixel.depth;
+		return float4(depth, depth, depth, 1);
+	}
+}
