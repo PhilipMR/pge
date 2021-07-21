@@ -1,6 +1,7 @@
 #include "../include/gfx_render_target.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
 #include "../include/gfx_texture.h"
+#include "../include/gfx_pixel_format_d3d11.h"
 #include <core_assert.h>
 #include <d3d11.h>
 #include <comdef.h>
@@ -8,6 +9,7 @@
 namespace pge
 {
     struct gfx_RenderTarget::gfx_RenderTargetImpl {
+        gfx_PixelFormat           m_pixelFormat;
         unsigned                  m_width;
         unsigned                  m_height;
         ID3D11DeviceContext*      m_deviceContext;
@@ -17,11 +19,17 @@ namespace pge
         ID3D11DepthStencilView*   m_dsv;
     };
 
-    gfx_RenderTarget::gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter, unsigned width, unsigned height, bool hasDepth, bool multisample)
+    gfx_RenderTarget::gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter,
+                                       unsigned             width,
+                                       unsigned             height,
+                                       bool                 hasDepth,
+                                       bool                 multisample,
+                                       gfx_PixelFormat      format)
         : m_impl(new gfx_RenderTargetImpl)
     {
         auto          graphicsAdapterD3D11 = reinterpret_cast<gfx_GraphicsAdapterD3D11*>(graphicsAdapter);
         ID3D11Device* device               = graphicsAdapterD3D11->GetDevice();
+        m_impl->m_pixelFormat              = format;
         m_impl->m_width                    = width;
         m_impl->m_height                   = height;
         m_impl->m_deviceContext            = graphicsAdapterD3D11->GetDeviceContext();
@@ -31,7 +39,7 @@ namespace pge
         textureDesc.Height             = height;
         textureDesc.MipLevels          = multisample ? 1 : 0;
         textureDesc.ArraySize          = 1;
-        textureDesc.Format             = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        textureDesc.Format             = gfx_GetFormatDXGI(format);
         textureDesc.SampleDesc.Count   = multisample ? 8 : 1;
         textureDesc.SampleDesc.Quality = 0;
         textureDesc.Usage              = D3D11_USAGE_DEFAULT;

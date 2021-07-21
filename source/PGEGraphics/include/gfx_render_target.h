@@ -3,24 +3,29 @@
 
 #include <memory>
 #include <d3d11.h>
+#include "gfx_texture.h"
 
 namespace pge
 {
     class gfx_GraphicsAdapter;
-    class gfx_Texture2D;
     class gfx_RenderTarget {
         class gfx_RenderTargetImpl;
         std::unique_ptr<gfx_RenderTargetImpl> m_impl;
 
     public:
-        gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter, unsigned width, unsigned height, bool hasDepth, bool multisample);
+        gfx_RenderTarget(gfx_GraphicsAdapter* graphicsAdapter,
+                         unsigned             width,
+                         unsigned             height,
+                         bool                 hasDepth,
+                         bool                 multisample,
+                         gfx_PixelFormat      format = gfx_PixelFormat::R32G32B32A32_FLOAT);
         ~gfx_RenderTarget();
-        void                 Clear();
-        void                 Bind() const;
-        void                 BindTexture(unsigned slot) const;
-        void*                GetNativeTexture() const;
-        unsigned             GetWidth() const;
-        unsigned             GetHeight() const;
+        void     Clear();
+        void     Bind() const;
+        void     BindTexture(unsigned slot) const;
+        void*    GetNativeTexture() const;
+        unsigned GetWidth() const;
+        unsigned GetHeight() const;
     };
 
     const gfx_RenderTarget* gfx_RenderTarget_GetActiveRTV();

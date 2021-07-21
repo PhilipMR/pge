@@ -18,10 +18,13 @@ namespace pge
     static const unsigned  SCREEN_MESH_INDICES[]  = {0, 1, 2, 2, 3, 0};
 
     game_Renderer::game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
-        : m_graphicsDevice(graphicsDevice)
+        : m_graphicsAdapter(graphicsAdapter)
+        , m_graphicsDevice(graphicsDevice)
         , m_cbTransform(graphicsAdapter, nullptr, sizeof(CBTransform), gfx_BufferUsage::DYNAMIC)
         , m_cbBones(graphicsAdapter, nullptr, sizeof(CBBones), gfx_BufferUsage::DYNAMIC)
         , m_cbLights(graphicsAdapter, nullptr, sizeof(CBLights), gfx_BufferUsage::DYNAMIC)
+        , m_cbLightTransforms(graphicsAdapter, nullptr, sizeof(CBLightTransforms), gfx_BufferUsage::DYNAMIC)
+        , m_shadowMap(graphicsAdapter, 3200, 1800, true, true, gfx_PixelFormat::R32_FLOAT)
         , m_depthFX(resources->GetEffect("data/effects/depth.effect"))
         , m_screenMesh(graphicsAdapter,
                        SCREEN_MESH_ATTRIBS,
@@ -40,7 +43,11 @@ namespace pge
     }
 
     void
-    game_Renderer::UpdateLights(const game_LightManager& lmanager, const game_TransformManager& tmanager, const game_EntityManager& emanager)
+    game_Renderer::UpdateLights(const game_LightManager&     lmanager,
+                                const game_TransformManager& tmanager,
+                                const game_EntityManager&    emanager,
+                                const game_MeshManager&      mmanager,
+                                const game_AnimationManager& amanager)
     {
         // Update directional lights
         {
@@ -55,7 +62,48 @@ namespace pge
                 math_Quat        rotation = tid == game_TransformId_Invalid ? math_Quat() : tmanager.GetLocalRotation(tid);
                 dlight.direction          = m_cameraView * math_Rotate(math_Vec4(dlights[i].direction, 0), rotation);
                 dlight.color              = math_Vec4(dlights[i].color, dlights[i].strength);
+
+                // TODO: Per-light
+                // Shadow map
+                if (i == 0) {
+                    //static float OrthoWidth  = 50.0f;
+                    //static float OrthoHeight = 50.0f;
+                    //static float OrthoNear   = 1.0f;
+                    //static float OrthoFar    = 50.0f;
+
+                    static float OrthoWidth  = 20.0f;
+                    static float OrthoHeight = 20.0f;
+                    static float OrthoNear   = -4.0f;
+                    static float OrthoFar    = 14.0f;
+
+
+                    core_Verify(math_Invert(tmanager.GetWorldMatrix(tid), &m_cbLightTransformsData.view));
+                    m_cbLightTransformsData.proj = math_OrthographicRH(OrthoWidth, OrthoHeight, OrthoNear, OrthoFar);
+                    m_cbLightTransforms.Update(&m_cbLightTransformsData, sizeof(CBLightTransforms));
+
+                    struct {
+                        math_Mat4x4 view, proj;
+                    } old;
+                    old.view     = m_cameraView;
+                    old.proj     = m_cameraProj;
+                    auto prevRTV = gfx_RenderTarget_GetActiveRTV();
+
+                    SetCamera(m_cbLightTransformsData.view, m_cbLightTransformsData.proj);
+                    m_shadowMap.Bind();
+                    m_shadowMap.Clear();
+                    m_graphicsDevice->SetRasterizerState(gfx_RasterizerState::SOLID_CULL_FRONT);
+                    mmanager.DrawMeshes(this, tmanager, amanager, emanager, game_RenderPass::DEPTH);
+                    m_graphicsDevice->SetRasterizerState(gfx_RasterizerState::SOLID_CULL_BACK);
+
+                    SetCamera(old.view, old.proj);
+                    if (prevRTV == nullptr) {
+                        gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
+                    } else {
+                        prevRTV->Bind();
+                    }
+                }
             }
+
             for (size_t i = dirCount; i < MAX_DIRLIGHTS; ++i) {
                 auto& dlight     = m_cbLightsData.dirLights[i];
                 dlight.direction = math_Vec4::Zero();
@@ -121,6 +169,8 @@ namespace pge
         m_cbTransformData.viewMatrix  = m_cameraView;
         m_cbTransformData.projMatrix  = m_cameraProj;
         m_cbTransformData.modelMatrix = modelMatrix;
+        core_Verify(math_Invert(modelMatrix, &m_cbTransformData.normalMatrix));
+        math_Transpose(m_cbTransformData.normalMatrix);
         m_cbTransform.Update(&m_cbTransformData, sizeof(CBTransform));
 
         m_cbTransform.BindVS(0);
@@ -129,15 +179,23 @@ namespace pge
         switch (pass) {
             case game_RenderPass::DEPTH: {
                 m_depthFX->Bind();
+                m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
             } break;
 
             case game_RenderPass::LIGHTING: {
+                m_cbLightTransforms.BindVS(1);
                 m_cbLights.BindPS(1);
                 material->Bind();
+                unsigned slot = material->GetEffect()->GetTextureSlot("ShadowMap");
+                m_shadowMap.BindTexture(slot);
+                m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
+                gfx_Texture2D_Unbind(m_graphicsAdapter, slot);
+            } break;
+
+            default: {
+                core_CrashAndBurn("Unhandled render pass");
             } break;
         }
-
-        m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
     }
 
     void
@@ -152,6 +210,8 @@ namespace pge
         m_cbTransformData.viewMatrix  = m_cameraView;
         m_cbTransformData.projMatrix  = m_cameraProj;
         m_cbTransformData.modelMatrix = modelMatrix;
+        core_Verify(math_Invert(modelMatrix, &m_cbTransformData.normalMatrix));
+        math_Transpose(m_cbTransformData.normalMatrix);
         m_cbTransform.Update(&m_cbTransformData, sizeof(CBTransform));
 
         const auto& boneOffsetMatrices = mesh->GetBoneOffsetMatrices();

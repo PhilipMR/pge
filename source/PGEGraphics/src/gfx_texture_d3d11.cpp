@@ -1,29 +1,10 @@
 #include "../include/gfx_texture.h"
 #include "../include/gfx_graphics_adapter_d3d11.h"
+#include "../include/gfx_pixel_format_d3d11.h"
 #include <core_assert.h>
 
 namespace pge
 {
-    static DXGI_FORMAT
-    GetFormatDXGI(gfx_PixelFormat format)
-    {
-        switch (format) {
-            case gfx_PixelFormat::R8G8B8A8_UNORM: return DXGI_FORMAT_R8G8B8A8_UNORM;
-            default: core_CrashAndBurn("No mapping for gfx_PixelFormat.");
-        }
-        return DXGI_FORMAT_UNKNOWN;
-    }
-
-    static UINT
-    GetFormatSizeBytes(gfx_PixelFormat format)
-    {
-        switch (format) {
-            case gfx_PixelFormat::R8G8B8A8_UNORM: return 4;
-            default: core_CrashAndBurn("No mapping for gfx_PixelFormat.");
-        }
-        return 0;
-    }
-
     struct gfx_Texture2D::gfx_Texture2DImpl {
         ID3D11DeviceContext*      m_deviceContext;
         ID3D11Texture2D*          m_texture;
@@ -43,7 +24,7 @@ namespace pge
         textureDesc.Height             = height;
         textureDesc.MipLevels          = 0;
         textureDesc.ArraySize          = 1;
-        textureDesc.Format             = GetFormatDXGI(format);
+        textureDesc.Format             = gfx_GetFormatDXGI(format);
         textureDesc.SampleDesc.Count   = 1;
         textureDesc.SampleDesc.Quality = 0;
         textureDesc.Usage              = D3D11_USAGE_DEFAULT;
@@ -51,7 +32,7 @@ namespace pge
         textureDesc.CPUAccessFlags     = 0;
         textureDesc.MiscFlags          = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
-        UINT bytesInRow   = GetFormatSizeBytes(format) * width;
+        UINT bytesInRow   = gfx_GetFormatSizeBytes(format) * width;
         UINT bytesInTotal = height * bytesInRow;
 
         HRESULT result = device->CreateTexture2D(&textureDesc, nullptr, &m_impl->m_texture);

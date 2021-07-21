@@ -19,8 +19,14 @@ namespace pge
         LIGHTING
     };
 
+    class game_TransformManager;
+    class game_EntityManager;
+    class game_MeshManager;
+    class game_AnimationManager;
+
     class game_Renderer {
-        gfx_GraphicsDevice* m_graphicsDevice;
+        gfx_GraphicsAdapter* m_graphicsAdapter;
+        gfx_GraphicsDevice*  m_graphicsDevice;
 
         math_Mat4x4 m_cameraView;
         math_Mat4x4 m_cameraProj;
@@ -29,6 +35,7 @@ namespace pge
             math_Mat4x4 modelMatrix;
             math_Mat4x4 viewMatrix;
             math_Mat4x4 projMatrix;
+            math_Mat4x4 normalMatrix;
         } m_cbTransformData;
         gfx_ConstantBuffer m_cbTransform;
 
@@ -53,6 +60,15 @@ namespace pge
         } m_cbLightsData;
         gfx_ConstantBuffer m_cbLights;
 
+        struct CBLightTransforms {
+            math_Mat4x4 view;
+            math_Mat4x4 proj;
+        } m_cbLightTransformsData;
+        gfx_ConstantBuffer m_cbLightTransforms;
+
+
+        gfx_RenderTarget m_shadowMap;
+
         const res_Effect* m_depthFX;
         const res_Mesh    m_screenMesh;
 
@@ -61,7 +77,11 @@ namespace pge
 
         void SetCamera(const math_Mat4x4& cameraView, const math_Mat4x4& cameraProj);
 
-        void UpdateLights(const game_LightManager& lmanager, const game_TransformManager& tmanager, const game_EntityManager& emanager);
+        void UpdateLights(const game_LightManager&     lmanager,
+                          const game_TransformManager& tmanager,
+                          const game_EntityManager&    emanager,
+                          const game_MeshManager&      mmanager,
+                          const game_AnimationManager& amanager);
         void SetDirectionalLight(size_t slot, const game_DirectionalLight& light);
         void SetPointLight(size_t slot, const game_PointLight& light, const math_Vec3& position);
 

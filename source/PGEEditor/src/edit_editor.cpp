@@ -9,9 +9,8 @@
 
 namespace pge
 {
-    extern void                   edit_BeginFrame();
-    extern void                   edit_EndFrame();
-    static const ImGuiWindowFlags PANEL_WINDOW_FLAGS = ImGuiWindowFlags_NoTitleBar;
+    extern void edit_BeginFrame();
+    extern void edit_EndFrame();
 
     edit_Editor::edit_Editor(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_graphicsAdapter(graphicsAdapter)
@@ -38,6 +37,8 @@ namespace pge
         m_world->GetAnimationManager()->Update(1.0f / 60.0f);
 
         edit_DrawMainMenuBar(m_world.get(), &m_commandStack);
+
+        const ImGuiWindowFlags PANEL_WINDOW_FLAGS = ImGuiWindowFlags_NoTitleBar;
 
         ImGui::Begin("Log", nullptr, PANEL_WINDOW_FLAGS);
         m_logView.DrawOnGUI();

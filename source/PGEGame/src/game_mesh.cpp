@@ -128,7 +128,7 @@ namespace pge
                                  const game_TransformManager& tm,
                                  const game_AnimationManager& am,
                                  const game_EntityManager&    em,
-                                 const game_RenderPass&       pass)
+                                 const game_RenderPass&       pass) const
     {
         for (const auto& mesh : m_meshes) {
             if (mesh.mesh == nullptr || mesh.material == nullptr || !em.IsEntityAlive(mesh.entity))

@@ -40,7 +40,7 @@ namespace pge
         m_scriptManager.UpdateScripts();
 
         m_renderer.SetCamera(view, proj);
-        m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager);
+        m_renderer.UpdateLights(m_lightManager, m_transformManager, m_entityManager, m_meshManager, m_animationManager);
         m_meshManager.DrawMeshes(&m_renderer, m_transformManager, m_animationManager, m_entityManager, pass);
 
         if (withDebug) {
@@ -229,6 +229,7 @@ namespace pge
     game_SerializedEntity
     game_World::SerializeEntity(const game_Entity& entity)
     {
+        core_Assert(m_entityManager.IsEntityAlive(entity));
         struct membuf : std::streambuf {
             membuf(char* p, size_t size)
             {
@@ -243,11 +244,9 @@ namespace pge
         membuf       sbuf(sentity.get(), length);
         std::ostream sentitystream(&sbuf);
 
-        GarbageCollect();
-
-        if (m_entityManager.IsEntityAlive(entity)) {
+        {
             sentitystream.write((const char*)&SERIALIZE_TYPE_ENTITY, sizeof(SERIALIZE_TYPE_ENTITY));
-            m_entityManager.SerializeEntity(sentitystream, entity);
+            m_entityManager.SerializeEntity(sentitystream, entity); 
         }
         if (m_transformManager.HasTransform(entity)) {
             sentitystream.write((const char*)&SERIALIZE_TYPE_TRANSFORM, sizeof(SERIALIZE_TYPE_TRANSFORM));

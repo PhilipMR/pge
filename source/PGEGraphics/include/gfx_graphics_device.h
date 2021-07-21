@@ -15,6 +15,14 @@ namespace pge
         TRIANGLESTRIP
     };
 
+    enum class gfx_RasterizerState
+    {
+        SOLID_CULL_BACK,
+        SOLID_CULL_FRONT,
+        WIREFRAME,
+        NUM_RASTERIZER_STATES
+    };
+
     class gfx_GraphicsDevice {
         class gfx_GraphicsDeviceImpl;
         std::unique_ptr<gfx_GraphicsDeviceImpl> m_impl;
@@ -27,6 +35,8 @@ namespace pge
         void Draw(gfx_PrimitiveType primitive, unsigned first, unsigned count);
         void DrawIndexed(gfx_PrimitiveType primitive, unsigned first, unsigned count);
         void SetViewport(float x, float y, float width, float height);
+        void SetRasterizerState(const gfx_RasterizerState& state);
+        gfx_RasterizerState GetRasterizerState() const;
     };
 } // namespace pge
 

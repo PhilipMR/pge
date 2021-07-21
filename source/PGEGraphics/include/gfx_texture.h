@@ -6,7 +6,9 @@
 namespace pge
 {
     enum class gfx_PixelFormat {
-        R8G8B8A8_UNORM
+        R8G8B8A8_UNORM,
+        R32G32B32A32_FLOAT,
+        R32_FLOAT
     };
 
     class gfx_GraphicsAdapter;

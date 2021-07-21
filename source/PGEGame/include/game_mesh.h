@@ -47,7 +47,11 @@ namespace pge
         const res_Mesh*     GetMesh(const game_MeshId& id) const;
         const res_Material* GetMaterial(const game_MeshId& id) const;
 
-        void DrawMeshes(game_Renderer* renderer, const game_TransformManager& tm, const game_AnimationManager& am, const game_EntityManager& em, const game_RenderPass& pass);
+        void        DrawMeshes(game_Renderer*               renderer,
+                               const game_TransformManager& tm,
+                               const game_AnimationManager& am,
+                               const game_EntityManager&    em,
+                               const game_RenderPass&       pass) const;
         game_Entity RaycastSelect(const game_TransformManager& tm, const math_Ray& ray, const math_Mat4x4& viewProj, float* distanceOut) const;
 
         void SerializeEntity(std::ostream& os, const game_Entity& entity) const;

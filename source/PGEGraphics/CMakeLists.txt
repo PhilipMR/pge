@@ -12,7 +12,7 @@ add_library(pge_graphics
     src/gfx_shader_d3d11.cpp
     src/gfx_texture_d3d11.cpp
     src/gfx_vertex_layout_d3d11.cpp
-)
+ "include/gfx_pixel_format_d3d11.h")
 
 target_include_directories(pge_graphics PRIVATE 
     ../PGECore/include
