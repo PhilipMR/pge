@@ -1,5 +1,4 @@
 Properties {
-	float4 		MainColor 
 	Texture2D 	DiffuseMap 
 	Texture2D   ShadowMap
 }
@@ -30,9 +29,7 @@ VertexShader {
 	{
 		float4 positionNDC	: SV_POSITION;
 		float4 lightPos     : LIGHTPOS;
-		float3 viewPos		: VIEWPOS;
 		float3 normal		: NORMAL;
-		float2 texcoord		: TEXTURECOORD;
 	};
 
 	PixelIn VSMain(VertexIn vertex)
@@ -40,23 +37,14 @@ VertexShader {
 		PixelIn outp;
 		outp.positionNDC = mul(ProjMatrix, mul(ViewMatrix, mul(ModelMatrix, float4(vertex.position, 1.0f))));
 		outp.lightPos = mul(LightProjMatrix, mul(LightViewMatrix, mul(ModelMatrix, float4(vertex.position, 1.0f))));
-		outp.viewPos = mul(ViewMatrix, mul(ModelMatrix, float4(vertex.position, 1.0f)));
 		outp.normal = mul(ViewMatrix, mul(NormalMatrix, float4(vertex.normal, 0.0f)));
-		outp.texcoord = vertex.texcoord;
 		return outp;
 	};
 }
 
 PixelShader {
-	Texture2D			DiffuseMap		: register(t0);
-	Texture2DMS<float>	ShadowMap		: register(t1);
-	SamplerState 		DiffuseSampler	: register(s0);
+	Texture2DMS<float> ShadowMap : register(t1);
 
-	cbuffer CBProperties : register(b0)
-	{
-	   float4 MainColor;
-	};
-	
 	#define MAX_DIRLIGHTS 10
 	#define MAX_POINTLIGHTS 10
 	cbuffer CBLights : register(b1)
@@ -76,9 +64,7 @@ PixelShader {
 	{
 		float4 positionNDC	: SV_POSITION;
 		float4 lightPos     : LIGHTPOS;
-		float3 viewPos		: VIEWPOS;
 		float3 normal		: NORMAL;
-		float2 texcoord		: TEXTURECOORD;
 	};
 
 	float SampleDepth(Texture2DMS<float> texMap, float2 uv)
@@ -103,7 +89,7 @@ PixelShader {
 		// detail=0 (1x1 sampling)
 		// detail=1 (3x3 sampling)
 		// detail=2 (5x5 sampling), etc..
-		int detail = 1;
+		int detail = 0;
 		float shadow = 0;
 		for (int x = -detail; x <= detail; ++x) {
 			for (int y = -detail; y <= detail; ++y) {
@@ -117,7 +103,7 @@ PixelShader {
 	{
 		float3 proj = lightPos.xyz / lightPos.w;
 		proj.xy = proj.xy * 0.5f + 0.5f;
-		proj.y = 1 - proj.y;
+		proj.y =1-proj.y;
 		if (proj.x < 0 || proj.x > 1 ||
 			proj.y < 0 || proj.y > 1 || 
 			proj.z < 0 || proj.z > 1)
@@ -125,33 +111,16 @@ PixelShader {
 		return SampleShadow(proj, bias);
 	}
 
-	// http://rastertek.com/dx11tut42.html
 	float4 PSMain(PixelIn pixel) : SV_TARGET
 	{
-	    float3 lightColors = float3(0,0,0);
-	  
-		// Directional lights
-		for (int i = 0; i < MAX_DIRLIGHTS; ++i) {
-			float inner = dot(normalize(pixel.normal), -DirLights[i].direction.xyz);
-			float shadow = 0;
-			if (i == 0) {
-				float shadowBias = max(0.05f * (1 - inner), 0.005f);
-				shadow = CalculateShadow(pixel.lightPos, shadowBias);
-			}
-			lightColors += (1 - shadow) * DirLights[i].color.rgb * DirLights[i].color.a * max(0, inner);
-		}
-	  
-		// Point lights
-		for (int i = 0; i < MAX_POINTLIGHTS; ++i) {
-		    float3 lightDiff = PointLights[i].position.xyz - pixel.viewPos;
-			float3 lightDir = normalize(lightDiff);
-			float inner = dot(normalize(pixel.normal), lightDir);
-			float falloff =  max(PointLights[i].radius / length(lightDiff), 0);
-		    lightColors += PointLights[i].color * max(0,inner) * falloff;
-		}
-	
-		float4 diffuseTex = DiffuseMap.Sample(DiffuseSampler, pixel.texcoord);
-		float4 finalColor = MainColor * diffuseTex * float4(lightColors, 1);
-		return finalColor;
+		float shadow = 0;
+		//for (int i = 0; i < MAX_DIRLIGHTS; ++i) {
+		//	if (i != 0) break; // TODO: Multiple lights!
+			float inner = saturate(dot(normalize(pixel.normal), -DirLights[0].direction.xyz));
+			shadow += CalculateShadow(pixel.lightPos, max(0.05f * (1 - inner), 0.001f));
+		//}
+					
+
+		return float4(shadow, shadow, shadow, 1);
 	};
 }

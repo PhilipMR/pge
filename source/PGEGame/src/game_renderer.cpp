@@ -17,6 +17,8 @@ namespace pge
                                                      math_Vec2(1, 0)};
     static const unsigned  SCREEN_MESH_INDICES[]  = {0, 1, 2, 2, 3, 0};
 
+
+
     game_Renderer::game_Renderer(gfx_GraphicsAdapter* graphicsAdapter, gfx_GraphicsDevice* graphicsDevice, res_ResourceManager* resources)
         : m_graphicsAdapter(graphicsAdapter)
         , m_graphicsDevice(graphicsDevice)
@@ -24,8 +26,11 @@ namespace pge
         , m_cbBones(graphicsAdapter, nullptr, sizeof(CBBones), gfx_BufferUsage::DYNAMIC)
         , m_cbLights(graphicsAdapter, nullptr, sizeof(CBLights), gfx_BufferUsage::DYNAMIC)
         , m_cbLightTransforms(graphicsAdapter, nullptr, sizeof(CBLightTransforms), gfx_BufferUsage::DYNAMIC)
-        , m_shadowMap(graphicsAdapter, 3200, 1800, true, true, gfx_PixelFormat::R32_FLOAT)
+        , m_shadowMap(graphicsAdapter, 2048, 2048, true, true, gfx_PixelFormat::R32_FLOAT)
+        , m_viewShadows(graphicsAdapter, 1600, 900, true, true, gfx_PixelFormat::R32G32B32A32_FLOAT)
         , m_depthFX(resources->GetEffect("data/effects/depth.effect"))
+        , m_shadowFX(resources->GetEffect("data/effects/shadow.effect"))
+        , m_multisampleFX(resources->GetEffect("data/effects/multisample.effect"))
         , m_screenMesh(graphicsAdapter,
                        SCREEN_MESH_ATTRIBS,
                        SCREEN_MESH_NUM_ATTRIBS,
@@ -66,14 +71,14 @@ namespace pge
                 // TODO: Per-light
                 // Shadow map
                 if (i == 0) {
-                    //static float OrthoWidth  = 50.0f;
-                    //static float OrthoHeight = 50.0f;
-                    //static float OrthoNear   = 1.0f;
-                    //static float OrthoFar    = 50.0f;
+                    // static float OrthoWidth  = 50.0f;
+                    // static float OrthoHeight = 50.0f;
+                    // static float OrthoNear   = 1.0f;
+                    // static float OrthoFar    = 50.0f;
 
-                    static float OrthoWidth  = 20.0f;
-                    static float OrthoHeight = 20.0f;
-                    static float OrthoNear   = -4.0f;
+                    static float OrthoWidth  = 13.0f;
+                    static float OrthoHeight = 17.0f;
+                    static float OrthoNear   = 0.0f;
                     static float OrthoFar    = 14.0f;
 
 
@@ -182,7 +187,33 @@ namespace pge
                 m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
             } break;
 
+            case game_RenderPass::SHADOW: {
+                //auto prevRTV = gfx_RenderTarget_GetActiveRTV();
+
+                //m_viewShadows.Bind();
+                //m_viewShadows.Clear();
+
+                m_shadowFX->Bind();
+                m_cbLightTransforms.BindVS(1);
+                m_cbLights.BindPS(1);
+
+                unsigned slot = material->GetEffect()->GetTextureSlot("ShadowMap");
+                m_shadowMap.BindTexture(slot);
+                m_graphicsDevice->DrawIndexed(gfx_PrimitiveType::TRIANGLELIST, 0, mesh->GetNumTriangles() * 3);
+                gfx_Texture2D_Unbind(m_graphicsAdapter, slot);
+
+                //if (prevRTV == nullptr) {
+                //    gfx_RenderTarget_BindMainRTV(m_graphicsAdapter);
+                //} else {
+                //    prevRTV->Bind();
+                //}
+
+                //DrawRenderToView(&m_viewShadows, m_multisampleFX);
+                //gfx_Texture2D_Unbind(m_graphicsAdapter, 0);
+            } break;
+
             case game_RenderPass::LIGHTING: {
+                m_shadowFX->Bind();
                 m_cbLightTransforms.BindVS(1);
                 m_cbLights.BindPS(1);
                 material->Bind();

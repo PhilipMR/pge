@@ -16,6 +16,7 @@ namespace pge
     enum class game_RenderPass
     {
         DEPTH,
+        SHADOW,
         LIGHTING
     };
 
@@ -68,8 +69,11 @@ namespace pge
 
 
         gfx_RenderTarget m_shadowMap;
+        gfx_RenderTarget m_viewShadows;
 
         const res_Effect* m_depthFX;
+        const res_Effect* m_shadowFX;
+        const res_Effect* m_multisampleFX;
         const res_Mesh    m_screenMesh;
 
     public:
@@ -84,7 +88,7 @@ namespace pge
                           const game_AnimationManager& amanager);
         void SetDirectionalLight(size_t slot, const game_DirectionalLight& light);
         void SetPointLight(size_t slot, const game_PointLight& light, const math_Vec3& position);
-
+        
         void DrawMesh(const res_Mesh* mesh, const res_Material* material, const math_Mat4x4& modelMatrix, const game_RenderPass& pass);
         void DrawSkeletalMesh(const res_Mesh*        mesh,
                               const res_Material*    material,

@@ -25,7 +25,7 @@ namespace pge
         game_PerspectiveInfo perspective;
         perspective.fov      = math_DegToRad(60.0f);
         perspective.aspect   = 16.0f / 9.0f;
-        perspective.nearClip = 1.0f;
+        perspective.nearClip = 0.5f;
         perspective.farClip  = 100.0f;
 
         SetPerspective(entity, perspective);

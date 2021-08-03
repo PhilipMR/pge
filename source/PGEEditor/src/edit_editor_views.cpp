@@ -244,11 +244,17 @@ namespace pge
         // Draw render pass selection
         {
             ImGui::SameLine();
-            ImGui::BeginChild("Render", ImVec2(200, 40), true);
+            ImGui::BeginChild("Render", ImVec2(350, 40), true);
 
             bool isSelected = *drawPass == game_RenderPass::DEPTH;
             if (ImGui::Selectable("Depth", &isSelected, 0, ImVec2(80, 20))) {
                 *drawPass = game_RenderPass::DEPTH;
+            }
+
+            ImGui::SameLine();
+            isSelected = *drawPass == game_RenderPass::SHADOW;
+            if (ImGui::Selectable("Shadow", &isSelected, 0, ImVec2(100, 20))) {
+                *drawPass = game_RenderPass::SHADOW;
             }
 
             ImGui::SameLine();

@@ -17,7 +17,7 @@ namespace pge
         , m_graphicsDevice(graphicsDevice)
         , m_resources(resources)
         , m_world(std::make_unique<game_World>(m_graphicsAdapter, m_graphicsDevice, m_resources))
-        , m_editView(graphicsAdapter, resources, m_world.get(), &m_commandStack, 1600, 900)
+        , m_editView(graphicsAdapter, resources, m_world.get(), &m_commandStack, 3600, 1800)
         , m_resourceView(graphicsAdapter, graphicsDevice, m_world.get(), m_resources)
         , m_inspectorView(m_world.get(), m_graphicsAdapter, m_resources)
     {
