@@ -104,6 +104,24 @@ namespace pge
             m_selectedEntity = ((edit_CommandDuplicateEntity*)command.get())->GetCreatedEntity();
             m_commandStack.Add(std::move(command));
         }
+
+
+        static bool isVampCreated = false;
+        static bool isVampWalking = false;
+        static game_Entity e1 = 0;
+        if (!isVampCreated && input_KeyboardDown(input_KeyboardKey::CTRL) && input_KeyboardReleased(input_KeyboardKey::M)) {
+            e1 = m_world->GetEntityManager()->CreateEntity();
+            m_world->GetTransformManager()->CreateTransform(e1);
+            m_world->GetMeshManager()->CreateMesh(e1,
+                                                  m_resources->GetMesh("data/Vampire/Vampire.mesh"),
+                                                  m_resources->GetMaterial("data/Vampire/Vampire.mat"));
+            m_world->GetAnimationManager()->CreateAnimator(e1, m_resources->GetAnimatorConfig("data/Vampire/Vampire_animconf.json"));
+            isVampCreated = true;
+        }
+        if (isVampCreated && input_KeyboardReleased(input_KeyboardKey::NUM0)) {
+            m_world->GetAnimationManager()->Trigger(e1, isVampWalking ? "move_stop" : "move_start");
+            isVampWalking = !isVampWalking;
+        }
     }
 
 } // namespace pge
